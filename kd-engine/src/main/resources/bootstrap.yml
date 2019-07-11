@@ -1,0 +1,14 @@
+spring:
+  profiles:
+    active: test
+  application:
+    name: kd-engine
+
+---
+spring:
+  profiles: test
+
+---
+spring:
+  profiles: dev
+
