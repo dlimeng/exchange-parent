@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
 
-    <groupId>com.kd.parent.engine</groupId>
+    <groupId>com.knowlegene.kd.parent.engine</groupId>
     <artifactId>kd-engine</artifactId>
     <version>1.0-SNAPSHOT</version>
     <parent>
         <artifactId>kd-parent</artifactId>
-        <groupId>com.kd.parent</groupId>
+        <groupId>com.knowlegene.kd.parent</groupId>
         <version>1.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
