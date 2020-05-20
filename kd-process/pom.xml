@@ -19,7 +19,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
         <beam.version>2.9.0</beam.version>
-        <spring.version>4.2.5.RELEASE</spring.version>
+        <spring.version>5.2.6.RELEASE</spring.version>
         <hadoop.version>2.6.0</hadoop.version>
         <beam.version>2.9.0</beam.version>
         <hive.version>1.1.0</hive.version>
