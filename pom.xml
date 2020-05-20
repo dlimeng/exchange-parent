@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<modules>
 		<module>kd-process</module>
 		<module>kd-config</module>
+		<module>kd-cetl</module>
 	</modules>
 
 	<groupId>com.knowlegene.parent</groupId>
-	<artifactId>kd-parent</artifactId>
+	<artifactId>exchange-parent</artifactId>
 	<version>1.0-SNAPSHOT</version>
-	<name>kd-parent</name>
+	<name>exchange-parent</name>
 
 	<packaging>pom</packaging>
 
@@ -19,18 +20,25 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
 		<mysql.version>5.1.44</mysql.version>
+		<oracle.version>11.2.0.1.0</oracle.version>
 	</properties>
 
 	<dependencyManagement>
-	<dependencies>
-		<!-- mysql驱动 -->
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>${mysql.version}</version>
-		</dependency>
+		<dependencies>
+			<!-- mysql驱动 -->
+			<dependency>
+				<groupId>mysql</groupId>
+				<artifactId>mysql-connector-java</artifactId>
+				<version>${mysql.version}</version>
+			</dependency>
 
-	</dependencies>
+			<dependency>
+				<groupId>com.oracle</groupId>
+				<artifactId>ojdbc6</artifactId>
+				<version>${oracle.version}</version>
+			</dependency>
+
+		</dependencies>
 	</dependencyManagement>
 
 	<dependencies>
@@ -47,39 +55,6 @@
 			<optional>true</optional>
 		</dependency>
 
-
-		<!-- Log4j start -->
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.17</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-1.2-api</artifactId>
-			<version>2.7</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-slf4j-impl</artifactId>
-			<version>2.7</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-api</artifactId>
-			<version>2.7</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-core</artifactId>
-			<version>2.7</version>
-		</dependency>
-
-		<!-- Log4j end -->
 		<dependency>
 			<groupId>com.alibaba</groupId>
 			<artifactId>fastjson</artifactId>
@@ -90,6 +65,39 @@
 			<groupId>commons-beanutils</groupId>
 			<artifactId>commons-beanutils</artifactId>
 			<version>1.9.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.auto.value</groupId>
+			<artifactId>auto-value-annotations</artifactId>
+			<version>1.6</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.auto.value</groupId>
+			<artifactId>auto-value</artifactId>
+			<version>1.6</version>
+			<scope>provided</scope>
+		</dependency>
+
+
+
+		<!-- 单元测试 -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.13</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>20.0</version>
 		</dependency>
 
 

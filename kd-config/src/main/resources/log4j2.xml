@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--日志级别以及优先级排序: OFF > FATAL > ERROR > WARN > INFO > DEBUG > TRACE > ALL -->
+<!--Configuration后面的status，这个用于设置logj2自身内部的信息输出，可以不设置，当设置成trace时，你会看到log4j2内部各种详细输出-->
+<!--monitorInterval：Log4j能够自动检测修改配置 文件和重新配置本身，设置间隔秒数-->
+<Configuration status="WARN" monitorInterval="300">   <!-- debug="true" xmlns:log4j="http://jakarta.apache.org/log4j/"-->
+    <properties>
+        <property name="LOG_HOME">logs/kd</property>
+        <property name="FILE_NAME">kd</property>
+    </properties>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %class{36}:%M(%L) %H] - %msg%xEx%n"/>
+        </Console>
+        <RollingRandomAccessFile name="MyFile"
+                                 fileName="${LOG_HOME}/${FILE_NAME}.log"
+                                 filePattern="${LOG_HOME}/$${date:yyyy-MM}/${FILE_NAME}-%d{yyyy-MM-dd-HH}-%i.log">
+            <PatternLayout
+                    pattern="[%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %class{36}:%M(%L) %H] -%msg%xEx%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>      <!--每1小时/分/... 生成一个文件, 时间依据filePattern的配置-->
+                <SizeBasedTriggeringPolicy size="5 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="30">
+                <Delete basePath="${LOG_HOME}/$${date:yyyy-MM}/" maxDepth="2">
+                    <IfFileName glob="*.log" />
+                    <!--!Note: 这里的age必须和filePattern协调, 后者是精确到HH, 这里就要写成xH, xd就不起作用
+                    另外, 数字最好>2, 否则可能造成删除的时候, 最近的文件还处于被占用状态,导致删除不成功!-->
+                    <!--7天-->
+                    <IfLastModified age="168H" />
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingRandomAccessFile>
+    </Appenders>
+
+    <Loggers>
+        <!--过滤掉spring和mybatis的一些无用的DEBUG信息 com.mchange-->
+
+        <logger name="org.apache.hive" level="OFF" />
+        <logger name="com.mchange" level="OFF" />
+        <Logger name="mylog" level="INFO" additivity="false">
+            <AppenderRef ref="MyFile"/>
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Root level="INFO">
+            <AppenderRef ref="MyFile"/>
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+
+</Configuration>

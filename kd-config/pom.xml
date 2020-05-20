@@ -3,7 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>kd-parent</artifactId>
+        <artifactId>exchange-parent</artifactId>
         <groupId>com.knowlegene.parent</groupId>
         <version>1.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
@@ -18,18 +18,87 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
         <beam.version>2.9.0</beam.version>
-        <hadoop.version>2.6.0</hadoop.version>
-        <hive.version>1.1.0</hive.version>
+        <hadoop.version>2.7.3</hadoop.version>
+        <hive.version>2.1.0</hive.version>
+        <spark.version>2.3.0</spark.version>
     </properties>
 
 
     <dependencies>
+        <!-- Log4j start -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-1.2-api</artifactId>
+            <version>2.8.2</version>
+        </dependency>
 
         <dependency>
-            <groupId>org.apache.beam</groupId>
-            <artifactId>beam-sdks-java-core</artifactId>
-            <version>${beam.version}</version>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.8.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-jcl</artifactId>
+            <version>2.8.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.8.2</version>
+        </dependency>
+
+        <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-slf4j-impl</artifactId>
+        <version>2.8.2</version>
+        </dependency>
+
+
+        <!-- Log4j end -->
+
+
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>${mysql.version}</version>
+        </dependency>
+
+<!--        <dependency>-->
+<!--            <groupId>com.oracle</groupId>-->
+<!--            <artifactId>ojdbc6</artifactId>-->
+<!--            <version>${oracle.version}</version>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>com.gbase</groupId>-->
+<!--            <artifactId>gbase-connector-java</artifactId>-->
+<!--            <version>8.3.81.53</version>-->
+<!--            <classifier>bin</classifier>-->
+<!--        </dependency>-->
+
+
+
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjrt</artifactId>
+            <version>1.8.8</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>1.8.8</version>
+        </dependency>
+
+        <!--代理-->
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib</artifactId>
+            <version>2.2</version>
+        </dependency>
+
 
         <dependency>
             <groupId>org.apache.beam</groupId>
@@ -37,15 +106,34 @@
             <version>${beam.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.beam</groupId>
-            <artifactId>beam-sdks-java-extensions-sql</artifactId>
-            <version>${beam.version}</version>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-core_2.11</artifactId>
+            <version>${spark.version}</version>
+            <scope>compile</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-streaming_2.11</artifactId>
+            <version>${spark.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+
         <dependency>
             <groupId>org.apache.beam</groupId>
-            <artifactId>beam-sdks-java-extensions-google-cloud-platform-core</artifactId>
+            <artifactId>beam-runners-spark</artifactId>
             <version>${beam.version}</version>
         </dependency>
+
+
+        <dependency>
+            <groupId>org.apache.beam</groupId>
+            <artifactId>beam-sdks-java-core</artifactId>
+            <version>${beam.version}</version>
+        </dependency>
+
+
 
         <dependency>
             <groupId>org.apache.beam</groupId>
@@ -53,6 +141,11 @@
             <version>${beam.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.beam</groupId>
+            <artifactId>beam-sdks-java-io-kafka</artifactId>
+            <version>${beam.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.beam</groupId>
@@ -77,21 +170,24 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-common</artifactId>
-            <version>${hadoop.version}</version>
+            <groupId>org.apache.beam</groupId>
+            <artifactId>beam-sdks-java-io-hadoop-file-system</artifactId>
+            <version>${beam.version}</version>
         </dependency>
+
+
+
+        <dependency>
+            <groupId>org.apache.beam</groupId>
+            <artifactId>beam-sdks-java-io-elasticsearch</artifactId>
+            <version>${beam.version}</version>
+        </dependency>
+
 
         <dependency>
             <groupId>org.apache.hive.hcatalog</groupId>
             <artifactId>hive-hcatalog-core</artifactId>
             <version>${hive.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.hive</groupId>
-                    <artifactId>hive-exec</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.hive</groupId>
@@ -103,15 +199,54 @@
             <artifactId>hive-exec</artifactId>
             <version>${hive.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
+            <version>${hadoop.version}</version>
+        </dependency>
+
+
         <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-common</artifactId>
+            <!--<exclusions>-->
+                <!--<exclusion>-->
+                    <!--<groupId>com.fasterxml.jackson.core</groupId>-->
+                    <!--<artifactId>*</artifactId>-->
+                <!--</exclusion>-->
+            <!--</exclusions>-->
             <version>${hive.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-jdbc</artifactId>
             <version>${hive.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.8</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.baidu.unbiz</groupId>
+            <artifactId>easy-mapper</artifactId>
+            <version>1.0.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.mchange</groupId>
+            <artifactId>c3p0</artifactId>
+            <version>0.9.5.2</version>
         </dependency>
     </dependencies>
 
@@ -123,14 +258,44 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
+                <!--mysql-->
                 <kd.mysql.classname>com.mysql.jdbc.Driver</kd.mysql.classname>
-                <kd.mysql.jdbcurl>jdbc:mysql://192.168.20.115:3306/test?useUnicode=true&amp;characterEncoding=UTF-8&amp;zeroDateTimeBehavior=convertToNull</kd.mysql.jdbcurl>
+                <kd.mysql.url>jdbc:mysql://192.168.200.115:3306/test?useUnicode=true&amp;characterEncoding=UTF-8&amp;zeroDateTimeBehavior=convertToNull</kd.mysql.url>
                 <kd.mysql.user>root</kd.mysql.user>
                 <kd.mysql.password>root</kd.mysql.password>
                 <kd.mysql.minPoolSize>5</kd.mysql.minPoolSize>
                 <kd.mysql.acquireIncrement>5</kd.mysql.acquireIncrement>
                 <kd.mysql.maxPoolSize>100</kd.mysql.maxPoolSize>
                 <kd.mysql.maxIdleTime>600</kd.mysql.maxIdleTime>
+
+                <!--hive-->
+                <kd.hive.classname>org.apache.hive.jdbc.HiveDriver</kd.hive.classname>
+                <kd.hive.url>jdbc:hive2://192.168.20.117:10000/default</kd.hive.url>
+                <kd.hive.user>hive</kd.hive.user>
+                <kd.hive.password>hive</kd.hive.password>
+                <kd.hive.database>default</kd.hive.database>
+                <kd.hive.metastore.uris>thrift://m5.server:9083</kd.hive.metastore.uris>
+                <kd.hive.minPoolSize>5</kd.hive.minPoolSize>
+                <kd.hive.acquireIncrement>5</kd.hive.acquireIncrement>
+                <kd.hive.maxPoolSize>100</kd.hive.maxPoolSize>
+                <kd.hive.maxIdleTime>600</kd.hive.maxIdleTime>
+
+
+
+                <!--oracle-->
+                <kd.oracle.classname>oracle.jdbc.driver.OracleDriver</kd.oracle.classname>
+                <kd.oracle.url>jdbc:oracle:thin:@//127.0.0.1:1521/XE</kd.oracle.url>
+                <kd.oracle.user>ods</kd.oracle.user>
+                <kd.oracle.password>ods</kd.oracle.password>
+                <kd.oracle.minPoolSize>5</kd.oracle.minPoolSize>
+                <kd.oracle.acquireIncrement>5</kd.oracle.acquireIncrement>
+                <kd.oracle.maxPoolSize>100</kd.oracle.maxPoolSize>
+                <kd.oracle.maxIdleTime>600</kd.oracle.maxIdleTime>
+
+                <!--hadoop file-->
+                <kd.hdfs.defaultname>hdfs://192.168.200.117:8020</kd.hdfs.defaultname>
+                <kd.hdfs.impl>org.apache.hadoop.hdfs.DistributedFileSystem</kd.hdfs.impl>
+
             </properties>
         </profile>
         <!-- 生产环境 -->
@@ -149,6 +314,9 @@
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
+                <!--<includes>
+                    <include>*.*</include>
+                </includes>-->
                 <filtering>true</filtering>
             </resource>
             <resource>
@@ -165,7 +333,28 @@
                 </includes>
                 <filtering>false</filtering>
             </resource>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**.java</include>
+
+                    <!--<include>com/jx/dao/*/*.xml</include>-->
+                    <!--<include>com/jx/*.xml</include>-->
+                </includes>
+            </resource>
         </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <encoding>UTF-8</encoding>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
 </project>
