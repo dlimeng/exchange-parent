@@ -6,7 +6,7 @@
         <artifactId>exchange-parent</artifactId>
         <groupId>com.knowlegene.parent</groupId>
         <version>1.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.knowlegene.parent.config</groupId>

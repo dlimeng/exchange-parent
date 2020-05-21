@@ -3,9 +3,9 @@
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<modules>
-		<module>kd-process</module>
-		<module>kd-config</module>
-		<module>kd-cetl</module>
+		<module>client/kd-process</module>
+		<module>client/kd-config</module>
+		<module>client/kd-cetl</module>
 	</modules>
 
 	<groupId>com.knowlegene.parent</groupId>
@@ -32,11 +32,11 @@
 				<version>${mysql.version}</version>
 			</dependency>
 
-			<dependency>
-				<groupId>com.oracle</groupId>
-				<artifactId>ojdbc6</artifactId>
-				<version>${oracle.version}</version>
-			</dependency>
+<!--			<dependency>-->
+<!--				<groupId>com.oracle</groupId>-->
+<!--				<artifactId>ojdbc6</artifactId>-->
+<!--				<version>${oracle.version}</version>-->
+<!--			</dependency>-->
 
 		</dependencies>
 	</dependencyManagement>
@@ -78,8 +78,6 @@
 			<version>1.6</version>
 			<scope>provided</scope>
 		</dependency>
-
-
 
 		<!-- 单元测试 -->
 		<dependency>
