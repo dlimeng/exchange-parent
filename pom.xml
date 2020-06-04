@@ -6,6 +6,7 @@
 		<module>client/kd-process</module>
 		<module>client/kd-config</module>
 		<module>client/kd-cetl</module>
+		<module>core/scheduler</module>
 	</modules>
 
 	<groupId>com.knowlegene.parent</groupId>
@@ -21,6 +22,9 @@
 		<java.version>1.8</java.version>
 		<mysql.version>5.1.44</mysql.version>
 		<oracle.version>11.2.0.1.0</oracle.version>
+		<jdk.compile.version>1.8</jdk.compile.version>
+		<plugin.scala.version>2.15.2</plugin.scala.version>
+		<scala.binary.version>2.11</scala.binary.version>
 	</properties>
 
 	<dependencyManagement>
@@ -100,5 +104,104 @@
 
 
 	</dependencies>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-deploy-plugin</artifactId>
+					<version>2.8.2</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-enforcer-plugin</artifactId>
+					<version>1.4.1</version>
+					<executions>
+						<execution>
+							<id>enforce-versions</id>
+							<goals>
+								<goal>enforce</goal>
+							</goals>
+							<configuration>
+								<rules>
+									<requireMavenVersion>
+										<version>${maven.version}</version>
+									</requireMavenVersion>
+									<requireJavaVersion>
+										<version>${java.version}</version>
+									</requireJavaVersion>
+									<bannedDependencies>
+										<excludes>
+											<exclude>org.jboss.netty</exclude>
+										</excludes>
+										<searchTransitive>true</searchTransitive>
+									</bannedDependencies>
+								</rules>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>2.5.1</version>
+					<configuration>
+						<source>${jdk.compile.version}</source>
+						<target>${jdk.compile.version}</target>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-site-plugin</artifactId>
+					<version>3.3</version>
+				</plugin>
+				<plugin>
+					<groupId>net.alchim31.maven</groupId>
+					<artifactId>scala-maven-plugin</artifactId>
+					<version>3.2.2</version>
+					<executions>
+						<execution>
+							<id>eclipse-add-source</id>
+							<goals>
+								<goal>add-source</goal>
+							</goals>
+						</execution>
+						<execution>
+							<id>scala-compile-first</id>
+							<phase>process-resources</phase>
+							<goals>
+								<goal>compile</goal>
+							</goals>
+						</execution>
+						<execution>
+							<id>scala-test-compile-first</id>
+							<phase>process-test-resources</phase>
+							<goals>
+								<goal>testCompile</goal>
+							</goals>
+						</execution>
+						<execution>
+							<id>attach-scaladocs</id>
+							<phase>verify</phase>
+							<goals>
+								<goal>doc-jar</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<scalaVersion>${scala.version}</scalaVersion>
+						<recompileMode>incremental</recompileMode>
+						<useZincServer>true</useZincServer>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>2.6</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
 
 </project>
