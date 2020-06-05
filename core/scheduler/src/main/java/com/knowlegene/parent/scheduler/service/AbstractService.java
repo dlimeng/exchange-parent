@@ -3,6 +3,7 @@ package com.knowlegene.parent.scheduler.service;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -50,6 +51,24 @@ public abstract class AbstractService  implements Service{
     }
 
 
+    @Override
+    public void init() {
+        if (isInState(STATE.INITED)) {
+            return;
+        }
+        synchronized (stateChangeLock) {
+            if (enterState(STATE.INITED) != STATE.INITED) {
+                try {
+                    serviceInit();
+                }catch (Exception e) {
+                    noteFailure(e);
+                    ServiceOperations.stopQuietly(LOG, this);
+                    throw ServiceStateException.convert(e);
+                }
+
+            }
+        }
+    }
 
     @Override
     public void stop(){
@@ -101,7 +120,7 @@ public abstract class AbstractService  implements Service{
 
                 }catch (Exception e){
                     noteFailure(e);
-                    stopQuietly(this);
+                    ServiceOperations.stopQuietly(LOG, this);
                     throw ServiceStateException.convert(e);
                 }
             }
@@ -182,19 +201,24 @@ public abstract class AbstractService  implements Service{
         }
     }
 
+    @Override
+    public final void close() throws IOException {
+        stop();
+    }
 
-    public static Exception stopQuietly(Service service) {
-        try {
-            if(service != null){
-                service.stop();
-            }
-        } catch (Exception e) {
-            LOG.warn("When stopping the service " + service.getName()
-                            + " : " + e,
-                    e);
-            return e;
-        }
-        return null;
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public long getStartTime() {
+        return startTime;
+    }
+
+
+    protected void serviceInit() throws Exception {
+
     }
 
 }

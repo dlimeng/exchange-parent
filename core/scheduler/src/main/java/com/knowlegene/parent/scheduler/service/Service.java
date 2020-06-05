@@ -2,7 +2,6 @@ package com.knowlegene.parent.scheduler.service;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.Map;
 
 /**
  * @Classname Service
@@ -70,5 +69,5 @@ public interface Service  extends Closeable {
 
     boolean waitForServiceToStop(long timeout);
 
-    public Map<String, String> getBlockers();
+    void init();
 }
