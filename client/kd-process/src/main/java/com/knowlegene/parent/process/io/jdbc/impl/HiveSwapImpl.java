@@ -117,8 +117,8 @@ public class HiveSwapImpl extends AbstractSwapBase implements HiveSwap {
             Map<String, String> configProperties = new HashMap<>();
             configProperties.put(uris,ops.get(uris));
             configProperties.put("hive.merge.mapfiles","true");
-            configProperties.put("sethive.merge.mapredfiles","true");
-            configProperties.put("sethive.merge.smallfiles.avgsize","1024000000");
+            configProperties.put("hive.merge.mapredfiles","true");
+            configProperties.put("hive.merge.smallfiles.avgsize","1024000000");
             configProperties.put("mapred.max.split.size","256000000");
 
             configProperties.put("mapred.min.split.size.per.node","192000000");

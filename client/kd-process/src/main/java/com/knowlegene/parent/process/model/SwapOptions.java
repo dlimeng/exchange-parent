@@ -54,11 +54,10 @@ public class SwapOptions {
 
     @StoredAsProperty("hive.driver.class")
     private String hiveClass;
-    @StoredAsProperty("hive.import")
-    private Boolean hiveImport;
-    @StoredAsProperty("hive.export")
-    private Boolean hiveExport;
-    @StoredAsProperty("hive.url")
+
+
+
+
     private String hiveUrl;
     @StoredAsProperty("hive.username")
     private String hiveUsername;
@@ -70,6 +69,9 @@ public class SwapOptions {
     private String hiveDatabase;
     @StoredAsProperty("hive.table.empty")
     private Boolean hiveTableEmpty;
+
+
+
 
     @StoredAsProperty("hive.sql")
     private String hiveSQL;
@@ -83,6 +85,34 @@ public class SwapOptions {
     private String hiveFilter;
     @StoredAsProperty("hive.metastore.partition")
     private String hivePartition;
+
+
+    @StoredAsProperty("hive.import")
+    private Boolean hiveImport;
+
+    @StoredAsProperty("hive.urls")
+    private String[] hiveUrls;
+    @StoredAsProperty("hive.usernames")
+    private String[] hiveUsernames;
+    @StoredAsProperty("hive.passwords")
+    private String[] hivePasswords;
+    @StoredAsProperty("hive.tables")
+    private String[] hiveTableNames;
+    @StoredAsProperty("hive.databases")
+    private String[] hiveDatabases;
+    @StoredAsProperty("hive.table.emptys")
+    private Boolean[] hiveTableEmptys;
+
+
+    @StoredAsProperty("hcatalog.metastores")
+    private String[] hMetastoreHosts;
+    @StoredAsProperty("hcatalog.metastore.ports")
+    private String[] hMetastorePorts;
+    @StoredAsProperty("hcatalog.metastore.filters")
+    private String[] hiveFilters;
+    @StoredAsProperty("hive.metastore.partitions")
+    private String[] hivePartitions;
+
 
     @StoredAsProperty("neo4j.cypher")
     private String cypher;
