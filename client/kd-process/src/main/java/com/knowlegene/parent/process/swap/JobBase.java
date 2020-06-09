@@ -1,5 +1,6 @@
 package com.knowlegene.parent.process.swap;
 
+
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.config.util.JdbcUtil;
 import com.knowlegene.parent.config.util.PipelineSingletonUtil;
@@ -9,9 +10,6 @@ import com.knowlegene.parent.process.swap.common.BaseSwap;
 import lombok.Data;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.schemas.Schema;
-import org.apache.beam.sdk.values.PCollection;
-import org.apache.beam.sdk.values.Row;
-import org.apache.hive.hcatalog.data.HCatRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

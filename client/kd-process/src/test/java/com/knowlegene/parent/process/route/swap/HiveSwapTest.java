@@ -39,18 +39,18 @@ public class HiveSwapTest extends SwapRunners {
      */
     @Test
     public void testImportMySQL(){
-        swapOptions.setUrl("jdbc:mysql://192.168.20.115:3306/test?useSSL=false");
-        swapOptions.setTableName("t");
+        swapOptions.setUrl("jdbc:mysql://192.168.200.115:3306/kd_test?useSSL=false");
+        swapOptions.setTableName("test");
         swapOptions.setDriverClass("com.mysql.jdbc.Driver");
         swapOptions.setUsername("root");
         swapOptions.setPassword("root");
 
         //swapOptions.setHiveImport(true);
         swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
-        swapOptions.setHiveUrl("jdbc:hive2://192.168.20.117:10000/default");
-        swapOptions.setHiveUsername("hive");
-        swapOptions.setHivePassword("hive");
-        swapOptions.setHiveTableName("test4");
+        swapOptions.setHiveUrl("jdbc:hive2://192.168.200.117:10000/linkis_db");
+        swapOptions.setHiveUsername("hdfs");
+        swapOptions.setHivePassword("hdfs");
+        swapOptions.setHiveTableName("test2");
 
         swapOptions.setImportOptions(true);
     }
@@ -84,23 +84,23 @@ public class HiveSwapTest extends SwapRunners {
     @Test
     public void testImportMySQL3(){
        // String[] columns=new String[]{"name","id"};
-        swapOptions.setUrl("jdbc:mysql://192.168.20.115:3306/test?useSSL=false");
-        swapOptions.setTableName("t");
+        swapOptions.setUrl("jdbc:mysql://192.168.200.115:3306/kd_test?useSSL=false");
+        swapOptions.setTableName("test");
         swapOptions.setDriverClass("com.mysql.jdbc.Driver");
         swapOptions.setUsername("root");
         swapOptions.setPassword("root");
-        swapOptions.setDbSQL("select * from t");
+        swapOptions.setDbSQL("select * from test");
        // swapOptions.setDbColumn(columns);
 
         //swapOptions.setHiveImport(true);
         swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
-        swapOptions.setHiveUrl("jdbc:hive2://192.168.20.117:10000/default");
-        swapOptions.setHiveUsername("hive");
-        swapOptions.setHivePassword("hive");
-        swapOptions.setHiveDatabase("default");
-        swapOptions.setHMetastoreHost("192.168.20.117");
+        swapOptions.setHiveUrl("jdbc:hive2://192.168.200.117:10000/linkis_db");
+        swapOptions.setHiveUsername("hdfs");
+        swapOptions.setHivePassword("hdfs");
+        swapOptions.setHiveDatabase("linkis_db");
+        swapOptions.setHMetastoreHost("192.168.200.117");
         swapOptions.setHMetastorePort("9083");
-        swapOptions.setHiveTableName("test2019");
+        swapOptions.setHiveTableName("test2");
        // swapOptions.setHiveColumn(columns);
 
         swapOptions.setImportOptions(true);
