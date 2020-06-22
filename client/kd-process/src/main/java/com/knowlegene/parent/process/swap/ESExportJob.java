@@ -1,8 +1,7 @@
 package com.knowlegene.parent.process.swap;
 
 import com.knowlegene.parent.config.util.BaseUtil;
-import com.knowlegene.parent.process.model.SwapOptions;
-import com.knowlegene.parent.process.transform.PrintTransform;
+import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.transform.TypeConversion;
 import org.apache.beam.sdk.coders.StringUtf8Coder;
 import org.apache.beam.sdk.io.elasticsearch.ElasticsearchIO;
@@ -35,9 +34,9 @@ public class ESExportJob extends ExportJobBase {
         String esIdFn = options.getEsIdFn();
         ElasticsearchIO.Write write = null;
         if(BaseUtil.isNotBlank(esIdFn)){
-            write =geteSSwap().getWrite(esAddrs, esIndex, esType,esIdFn);
+            write =getESSwap().getWrite(esAddrs, esIndex, esType,esIdFn);
         }else{
-            write = geteSSwap().getWrite(esAddrs, esIndex, esType);
+            write = getESSwap().getWrite(esAddrs, esIndex, esType);
         }
 
         if(write == null){
@@ -52,10 +51,10 @@ public class ESExportJob extends ExportJobBase {
     }
 
 
-    @Override
-    public void save(PCollection<Row> rows) {
-        if(rows != null){
-            update(rows);
-        }
+
+    public static void save(PCollection<Row> rows) {
+//        if(rows != null){
+//            update(rows);
+//        }
     }
 }

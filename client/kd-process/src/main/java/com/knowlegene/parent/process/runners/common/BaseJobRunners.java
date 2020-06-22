@@ -2,7 +2,9 @@ package com.knowlegene.parent.process.runners.common;
 
 import com.knowlegene.parent.config.util.PipelineSingletonUtil;
 import com.knowlegene.parent.process.runners.common.BaseRunners;
+import com.knowlegene.parent.process.swap.dispatcher.SwapMaster;
 import com.knowlegene.parent.process.util.JobThreadLocalUtil;
+import com.knowlegene.parent.process.util.SwapMasterUtil;
 import com.knowlegene.parent.process.util.UUIDFactoryUtil;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.slf4j.Logger;
@@ -59,12 +61,6 @@ public abstract class BaseJobRunners implements Serializable {
         return null;
     }
 
-    public void initApplication(){
-        if(baseRunners!=null){
-            baseRunners.initApplication();
-        }
-    }
-
     /**
      * 执行dag
      */
@@ -72,4 +68,10 @@ public abstract class BaseJobRunners implements Serializable {
         baseRunners.run();
     }
 
+
+    protected static SwapMaster getSwapMaster(){
+        return SwapMasterUtil.instance;
+    }
+
+    protected abstract void init();
 }

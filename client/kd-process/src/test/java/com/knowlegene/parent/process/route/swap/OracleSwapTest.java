@@ -1,7 +1,7 @@
 package com.knowlegene.parent.process.route.swap;
 
 import com.knowlegene.parent.process.SwapApplication;
-import com.knowlegene.parent.process.model.SwapOptions;
+import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.runners.SwapRunners;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -19,8 +19,7 @@ public class OracleSwapTest extends SwapRunners {
     private static SwapOptions swapOptions;
     @Override
     public void setJobStream() {
-        getImport();
-        getExport();
+
     }
     @BeforeClass
     public static void beforeClass(){
@@ -31,7 +30,7 @@ public class OracleSwapTest extends SwapRunners {
     public static void  afterClass(){
         application.setSwapOptions(swapOptions);
         application.start();
-        application.run();
+
     }
     @Test
     public void testImportHive(){
@@ -48,6 +47,6 @@ public class OracleSwapTest extends SwapRunners {
         swapOptions.setHivePassword("hive");
         swapOptions.setHiveTableName("test3");
 
-        swapOptions.setImportOptions(true);
+
     }
 }

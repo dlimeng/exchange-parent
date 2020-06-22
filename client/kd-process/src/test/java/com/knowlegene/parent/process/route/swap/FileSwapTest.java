@@ -1,7 +1,7 @@
 package com.knowlegene.parent.process.route.swap;
 
 import com.knowlegene.parent.process.SwapApplication;
-import com.knowlegene.parent.process.model.SwapOptions;
+import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.runners.SwapRunners;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -19,8 +19,7 @@ public class FileSwapTest  extends SwapRunners {
     private static SwapOptions swapOptions;
     @Override
     public void setJobStream() {
-        getImport();
-        getExport();
+
     }
     @BeforeClass
     public static void beforeClass(){
@@ -44,7 +43,7 @@ public class FileSwapTest  extends SwapRunners {
         swapOptions.setUsername("root");
         swapOptions.setPassword("root");
 
-        swapOptions.setImportOptions(true);
+
     }
     @Test
     public void testImportHive(){
@@ -61,7 +60,7 @@ public class FileSwapTest  extends SwapRunners {
 //        swapOptions.setHMetastorePort("9083");
 //        swapOptions.setHiveTableName("test2019");
 
-        swapOptions.setImportOptions(true);
+
     }
 
 

@@ -1,6 +1,6 @@
 package com.knowlegene.parent.scheduler.event;
 
-import autovalue.shaded.com.google$.common.collect.$ForwardingNavigableSet;
+
 
 /**
  * @Classname AbstractEvent
@@ -9,6 +9,7 @@ import autovalue.shaded.com.google$.common.collect.$ForwardingNavigableSet;
  * @Created by limeng
  */
 public abstract class AbstractEvent<TYPE extends Enum<TYPE>> implements Event<TYPE> {
+
 
     private final TYPE type;
 

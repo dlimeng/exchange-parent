@@ -5,7 +5,7 @@ import com.knowlegene.parent.process.runners.options.IndexerPipelineOptions;
 import com.knowlegene.parent.config.pojo.sql.SQLOperators;
 import com.knowlegene.parent.config.pojo.sql.SQLResult;
 import com.knowlegene.parent.process.extract.BaseExtract;
-import com.knowlegene.parent.process.model.SQLOptions;
+import com.knowlegene.parent.process.pojo.SQLOptions;
 import com.knowlegene.parent.process.runners.common.BaseRunners;
 import org.junit.Test;
 import com.knowlegene.parent.process.common.constantenum.OptionsEnum.Indexer;

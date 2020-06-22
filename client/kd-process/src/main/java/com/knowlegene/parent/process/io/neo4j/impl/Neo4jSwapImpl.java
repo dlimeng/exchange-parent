@@ -5,7 +5,7 @@ import com.knowlegene.parent.process.common.constantenum.DataSourceEnum;
 import com.knowlegene.parent.process.common.constantenum.Neo4jEnum;
 import com.knowlegene.parent.process.io.neo4j.Neo4jIO;
 import com.knowlegene.parent.process.io.neo4j.Neo4jSwap;
-import com.knowlegene.parent.process.model.neo4j.Neo4jObject;
+import com.knowlegene.parent.process.pojo.neo4j.Neo4jObject;
 import com.knowlegene.parent.process.util.Neo4jDataSourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

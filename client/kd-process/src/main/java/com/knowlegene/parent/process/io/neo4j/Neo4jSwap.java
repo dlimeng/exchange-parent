@@ -1,6 +1,6 @@
 package com.knowlegene.parent.process.io.neo4j;
 
-import com.knowlegene.parent.process.model.neo4j.Neo4jObject;
+import com.knowlegene.parent.process.pojo.neo4j.Neo4jObject;
 
 /**
  * @Author: limeng

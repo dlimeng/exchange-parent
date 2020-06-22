@@ -3,7 +3,7 @@ package com.knowlegene.parent.process.io.neo4j;
 import com.google.auto.value.AutoValue;
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.process.common.constantenum.Neo4jEnum;
-import com.knowlegene.parent.process.model.neo4j.Neo4jObject;
+import com.knowlegene.parent.process.pojo.neo4j.Neo4jObject;
 import org.apache.beam.sdk.options.ValueProvider;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;

@@ -1,7 +1,7 @@
 package com.knowlegene.parent.process.route.swap;
 
 import com.knowlegene.parent.process.SwapApplication;
-import com.knowlegene.parent.process.model.SwapOptions;
+import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.runners.SwapRunners;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -19,8 +19,7 @@ public class HiveSwapTest extends SwapRunners {
     private static SwapOptions swapOptions;
     @Override
     public void setJobStream() {
-        getImport();
-        getExport();
+
     }
     @BeforeClass
     public static void beforeClass(){
@@ -31,7 +30,6 @@ public class HiveSwapTest extends SwapRunners {
     public static void  afterClass(){
         application.setSwapOptions(swapOptions);
         application.start();
-        application.run();
     }
 
     /**
@@ -52,7 +50,7 @@ public class HiveSwapTest extends SwapRunners {
         swapOptions.setHivePassword("hdfs");
         swapOptions.setHiveTableName("test2");
 
-        swapOptions.setImportOptions(true);
+
     }
 
     /**
@@ -75,7 +73,7 @@ public class HiveSwapTest extends SwapRunners {
         swapOptions.setHivePassword("hive");
         swapOptions.setHiveTableName("test2019");
 
-        swapOptions.setImportOptions(true);
+
     }
 
     /**
@@ -103,7 +101,6 @@ public class HiveSwapTest extends SwapRunners {
         swapOptions.setHiveTableName("test2");
        // swapOptions.setHiveColumn(columns);
 
-        swapOptions.setImportOptions(true);
     }
 
     /**
@@ -131,7 +128,6 @@ public class HiveSwapTest extends SwapRunners {
         swapOptions.setHiveTableName("company_test2");
         swapOptions.setHiveColumn(columns);
 
-        swapOptions.setImportOptions(true);
     }
 
     /**
@@ -155,7 +151,7 @@ public class HiveSwapTest extends SwapRunners {
 
         swapOptions.setFilePath("test.cvs");
 
-        swapOptions.setExportOptions(true);
+
     }
 
     /**
@@ -176,7 +172,45 @@ public class HiveSwapTest extends SwapRunners {
 
         swapOptions.setFilePath("test.cvs");
 
-        swapOptions.setExportOptions(true);
+
     }
+
+    /**
+     * hive 导出 hive
+     */
+    @Test
+    public void testImportHive(){
+        swapOptions.setFromName("hive");
+        swapOptions.setToName("hive");
+
+        swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
+        swapOptions.setHiveUrls(new String[]{"jdbc:hive2://192.168.200.117:10000/linkis_db","jdbc:hive2://192.168.200.117:10000/linkis_db"});
+        swapOptions.setHiveUsernames(new String[]{"hdfs","hdfs"});
+        swapOptions.setHivePasswords(new String[]{"hdfs","hdfs"});
+        swapOptions.setHiveTableNames(new String[]{"test1","test1_tmp"});
+        swapOptions.setHiveTableEmpty(true);
+//        swapOptions.setHivePartition("{\"time\":\"30\"}");
+    }
+
+
+    /**
+     * hive 导出 hive
+     */
+    @Test
+    public void testImportHive2(){
+        swapOptions.setFromName("hive");
+        swapOptions.setToName("hive");
+
+        swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
+        swapOptions.setHiveUrls(new String[]{"jdbc:hive2://192.168.200.117:10000/linkis_db","jdbc:hive2://192.168.200.117:10000/linkis_db"});
+        swapOptions.setHiveUsernames(new String[]{"hdfs","hdfs"});
+        swapOptions.setHivePasswords(new String[]{"hdfs","hdfs"});
+        swapOptions.setHiveTableNames(new String[]{"test4","test3"});
+
+        swapOptions.setHiveDatabases(new String[]{"linkis_db","linkis_db"});
+        swapOptions.setHMetastoreHosts(new String[]{"192.168.200.117","192.168.200.117"});
+        swapOptions.setHMetastorePorts(new String[]{"9083","9083"});
+    }
+
 
 }

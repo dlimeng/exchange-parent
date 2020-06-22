@@ -1,5 +1,7 @@
 package com.knowlegene.parent.config.util;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import org.apache.beam.sdk.io.jdbc.JdbcIO;
 import org.apache.beam.sdk.schemas.Schema;
 import org.apache.beam.sdk.schemas.SchemaCoder;
@@ -20,6 +22,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * jdbcio工具
@@ -27,11 +31,13 @@ import java.util.Map;
  * @Date: 2019/7/19 14:43
  */
 public class JdbcUtil {
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static Logger logger = LoggerFactory.getLogger(JdbcUtil.class);
     private static String isEmptyRex = "\\s*|\t|\n|\r";
     private static String selectRex="^(select)";
     private static String fromRex="(from)";
+    private static String partitionRex="[#]";
 
+    private static Pattern partitionCompile = Pattern.compile(partitionRex);
     private static Map<Integer,String> JDBCTypeMap =new HashMap<>();
     /**
      * 查询
@@ -146,8 +152,8 @@ public class JdbcUtil {
     }
 
 
-
     /**
+     * hive
      * 获取Schema
      * @param resultSet 结果集
      */
@@ -159,14 +165,29 @@ public class JdbcUtil {
             String columnLabel2 = metaData.getColumnLabel(2);
             List<Schema.Field>  fields = new ArrayList<>();
 
+            boolean isPatition=false;
+            Map<String,String> patitionNames=new HashMap<>();
+
             while (resultSet.next()){
                 String name = resultSet.getString(columnLabel1);
                 String type = resultSet.getString(columnLabel2);
 
+                Matcher matcher = partitionCompile.matcher(name);
+                if(matcher.find()) isPatition=true;
+
                 Schema.Field field = JdbcUtil.getSchemaField(name,type,isTimeStr);
+
+                if(field == null) continue;
+                else if(isPatition) patitionNames.put(name,type);
+
                 fields.add(field);
-
-
+            }
+            if(!BaseUtil.isBlankMap(patitionNames)){
+                List<Schema.Field>  tmpfields = new ArrayList<>();
+                fields.forEach(f->{
+                    if(!patitionNames.containsKey(f.getName())) tmpfields.add(f);
+                });
+                fields = tmpfields;
             }
             if(fields != null && fields.size() > 0) {
                 return Schema.builder().addFields(fields).build();
@@ -570,6 +591,72 @@ public class JdbcUtil {
             }
         }
         return null;
+    }
+
+
+    public static Map<String,String> getHivePartition(String hivePartition){
+        HashMap<String,String> partitionMap=null;
+        if(BaseUtil.isNotBlank(hivePartition)){
+            try {
+                partitionMap = JSON.parseObject(hivePartition, new TypeReference<HashMap<String,String>>() {});
+            }catch (Exception e){
+                logger.error("hivePartition wrong format");
+            }
+        }
+        return partitionMap;
+    }
+
+    public static String getInsertSQL(Schema schema,String tableName,String hivePartition){
+        String result="";
+        if(schema!=null && BaseUtil.isNotBlank(tableName)){
+            List<String> fieldNames = schema.getFieldNames();
+            StringBuffer sb =new StringBuffer();
+            StringBuffer sb2=new StringBuffer();
+
+            sb.append("insert into ");
+
+
+            sb.append(tableName);
+
+            boolean isPartition = false;
+            Map<String, String> resultPartition = getHivePartition(hivePartition);
+            if(!BaseUtil.isBlankMap(resultPartition)){
+                boolean first=false;
+                isPartition = true;
+                sb.append(" partition( ");
+                String partitions="";
+                for(Map.Entry<String,String> keys:resultPartition.entrySet()){
+                    if(first){
+                        partitions+=",";
+                    }
+                    partitions+=keys.getKey()+"="+keys.getValue();
+                    first = true;
+                }
+                sb.append(partitions+")");
+            }else{
+                isPartition =false;
+            }
+
+            if(!isPartition){
+                sb.append("(");
+            }
+
+            sb2.append(" values(");
+            boolean first = true;
+            for (String fieldName:fieldNames){
+                if(!first){
+                    if(!isPartition)  sb.append(",");
+                    sb2.append(",");
+                }
+                first=false;
+                if(!isPartition)  sb.append(fieldName);
+                sb2.append("?");
+            }
+            if(!isPartition)  sb.append(")");
+            sb2.append(")");
+            result = sb.toString()+sb2.toString();
+        }
+        return result;
     }
 
     /**

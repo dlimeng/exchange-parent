@@ -66,6 +66,7 @@ public class BaseRunners implements Serializable, OptionsEnum {
     }
 
     public void run(){
+
         pipeline.run().waitUntilFinish();
     }
 
@@ -89,10 +90,6 @@ public class BaseRunners implements Serializable, OptionsEnum {
         return result;
     }
 
-    public void initApplication(){
-        //初始化applicationContext
-
-    }
 
 
     public static void main(String[] args) {

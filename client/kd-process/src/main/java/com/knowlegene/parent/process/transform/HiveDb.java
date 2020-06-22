@@ -3,7 +3,7 @@ package com.knowlegene.parent.process.transform;
 import com.knowlegene.parent.config.common.constantenum.DatabaseTypeEnum;
 import com.knowlegene.parent.config.common.constantenum.HiveTypeEnum;
 import com.knowlegene.parent.config.deploy.HiveConfig;
-import com.knowlegene.parent.process.model.ObjectCoder;
+import com.knowlegene.parent.process.pojo.ObjectCoder;
 import com.knowlegene.parent.process.runners.options.IndexerPipelineOptions;
 import com.knowlegene.parent.config.util.BaseSqlParserFactoryUtil;
 import com.knowlegene.parent.config.util.BaseUtil;

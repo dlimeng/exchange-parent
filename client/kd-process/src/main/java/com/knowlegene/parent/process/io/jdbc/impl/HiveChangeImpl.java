@@ -6,7 +6,7 @@ import com.knowlegene.parent.config.pojo.sql.SQLResult;
 import com.knowlegene.parent.config.util.*;
 import com.knowlegene.parent.process.common.constantenum.DataSourceEnum;
 import com.knowlegene.parent.process.io.jdbc.HiveChange;
-import com.knowlegene.parent.process.model.ObjectCoder;
+import com.knowlegene.parent.process.pojo.ObjectCoder;
 import com.knowlegene.parent.process.transform.HiveDb;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.StringUtf8Coder;

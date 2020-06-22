@@ -1,5 +1,7 @@
 package com.knowlegene.parent.scheduler.service;
 
+import com.knowlegene.parent.scheduler.event.AbstractEvent;
+
 /**
  * @Classname TestSimpleMRAppMaster2
  * @Description TODO
@@ -13,6 +15,7 @@ public class TestSimpleMRAppMasterRun {
 
         appMaster.serviceInit();
         appMaster.serviceStart();
+        appMaster.serviceStop();
         /**
          * Receive JOB_INIT event, scheduling tasks
          * Receive JOB_KILL event, killing all the tasks
@@ -27,9 +30,9 @@ public class TestSimpleMRAppMasterRun {
          * Receive T_KILL event of taskjob_2020_task_3
          * Receive T_KILL event of taskjob_2020_task_4
          */
-
-        appMaster.getDispatcher().getEventHandler().handle(new TestJobEvent(jobID, TestJobEventType.JOB_INIT));
-        appMaster.getDispatcher().getEventHandler().handle(new TestJobEvent(jobID, TestJobEventType.JOB_KILL));
+        //TestTaskEvent
+        appMaster.getDispatcher().getEventHandler().handle((AbstractEvent)new TestTaskEvent(jobID, TestTaskEventType.T_SCHEDULE));
+        //appMaster.getDispatcher().getEventHandler().handle(new TestTaskEvent(jobID, TestTaskEventType.JOB_KILL));
 
 
     }

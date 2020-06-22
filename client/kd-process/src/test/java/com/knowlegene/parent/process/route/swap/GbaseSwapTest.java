@@ -1,7 +1,7 @@
 package com.knowlegene.parent.process.route.swap;
 
 import com.knowlegene.parent.process.SwapApplication;
-import com.knowlegene.parent.process.model.SwapOptions;
+import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.runners.SwapRunners;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -19,8 +19,7 @@ public class GbaseSwapTest  extends SwapRunners {
     private static SwapOptions swapOptions;
     @Override
     public void setJobStream() {
-        getImport();
-        getExport();
+
     }
     @BeforeClass
     public static void beforeClass(){
@@ -55,7 +54,7 @@ public class GbaseSwapTest  extends SwapRunners {
         swapOptions.setEsIndex(index);
         swapOptions.setEsType(type);
 
-        swapOptions.setExportOptions(true);
+
     }
 
     /**
@@ -79,7 +78,7 @@ public class GbaseSwapTest  extends SwapRunners {
         swapOptions.setEsIndex(index);
         swapOptions.setEsType(type);
 
-        swapOptions.setExportOptions(true);
+
     }
     /**
      * export
@@ -111,7 +110,7 @@ public class GbaseSwapTest  extends SwapRunners {
         swapOptions.setEsIndex(index);
         swapOptions.setEsType(type);
 
-        swapOptions.setExportOptions(true);
+
     }
 
     /**
@@ -142,7 +141,7 @@ public class GbaseSwapTest  extends SwapRunners {
         swapOptions.setEsIndex(index);
         swapOptions.setEsType(type);
 
-        swapOptions.setExportOptions(true);
+
     }
 
 }

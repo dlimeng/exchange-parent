@@ -1,12 +1,10 @@
 package com.knowlegene.parent.process.transform;
 
 import com.knowlegene.parent.config.util.BaseUtil;
-import com.knowlegene.parent.config.util.JdbcUtil;
-import com.knowlegene.parent.process.model.ObjectCoder;
+import com.knowlegene.parent.process.pojo.ObjectCoder;
 import org.apache.beam.sdk.io.jdbc.JdbcIO;
 import org.apache.beam.sdk.schemas.Schema;
 import org.apache.beam.sdk.values.Row;
-import org.joda.time.DateTime;
 import org.joda.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

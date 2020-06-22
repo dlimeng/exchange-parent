@@ -1,8 +1,8 @@
 package com.knowlegene.parent.process.swap;
 
 import com.knowlegene.parent.config.util.BaseUtil;
-import com.knowlegene.parent.process.model.NestingFields;
-import com.knowlegene.parent.process.model.SwapOptions;
+import com.knowlegene.parent.process.pojo.NestingFields;
+import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.transform.ESTransform;
 import org.apache.beam.sdk.io.jdbc.JdbcIO;
 import org.apache.beam.sdk.schemas.Schema;
@@ -11,7 +11,6 @@ import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.Row;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,12 +31,13 @@ public class GbaseExportJob extends ExportJobBase {
      * @return
      */
     public PCollection<Row> queryBySQL(){
-        String sql = this.options.getDbSQL();
-        String tableName = options.getTableName();
-        Schema schema = getGbaseSchemas();
-        getLogger().info("gbase=>sql:{},tableName:{}",sql,tableName);
-        JdbcIO.Read<Row> rows = this.getGbaseSwap().query(sql, schema);
-        return super.getPipeline().apply(rows).setCoder(SchemaCoder.of(schema));
+//        String sql = this.options.getDbSQL();
+//        String tableName = options.getTableName();
+//        Schema schema = getGbaseSchemas();
+//        getLogger().info("gbase=>sql:{},tableName:{}",sql,tableName);
+//        JdbcIO.Read<Row> rows = this.getGbaseSwap().query(sql, schema);
+//        return super.getPipeline().apply(rows).setCoder(SchemaCoder.of(schema));
+        return null;
     }
 
 
@@ -46,11 +46,12 @@ public class GbaseExportJob extends ExportJobBase {
      * @return
      */
     public PCollection<Row> queryByTable(){
-        Schema schema = getGbaseSchemas();
-        String tableName = options.getTableName();
-        getLogger().info("gbase=>tableName:{}",tableName);
-        JdbcIO.Read<Row> rowRead = this.getGbaseSwap().queryByTable(tableName, schema);
-        return super.getPipeline().apply(rowRead).setCoder(SchemaCoder.of(schema));
+//        Schema schema = getGbaseSchemas();
+//        String tableName = options.getTableName();
+//        getLogger().info("gbase=>tableName:{}",tableName);
+//        JdbcIO.Read<Row> rowRead = this.getGbaseSwap().queryByTable(tableName, schema);
+//        return super.getPipeline().apply(rowRead).setCoder(SchemaCoder.of(schema));
+        return null;
     }
 
     /**
@@ -97,20 +98,21 @@ public class GbaseExportJob extends ExportJobBase {
 
 
 
-    @Override
-    public PCollection<Row> query() {
-        String sql = this.options.getDbSQL();
-        PCollection<Row> rows=null;
-        if(BaseUtil.isNotBlank(sql)){
-            rows = queryBySQL();
-        }else {
-            rows = queryByTable();
-        }
-        NestingFields nestingFields = this.options.getNestingFields();
-        if(nestingFields !=null && rows!=null){
-            return nestingFieldToEs(nestingFields,rows);
-        }
 
-        return rows;
+    public static PCollection<Row> query() {
+//        String sql = this.options.getDbSQL();
+//        PCollection<Row> rows=null;
+//        if(BaseUtil.isNotBlank(sql)){
+//            rows = queryBySQL();
+//        }else {
+//            rows = queryByTable();
+//        }
+//        NestingFields nestingFields = this.options.getNestingFields();
+//        if(nestingFields !=null && rows!=null){
+//            return nestingFieldToEs(nestingFields,rows);
+//        }
+//
+//        return rows;
+        return null;
     }
 }

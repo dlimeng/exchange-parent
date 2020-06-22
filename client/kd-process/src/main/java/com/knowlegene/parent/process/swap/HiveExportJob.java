@@ -1,10 +1,16 @@
 package com.knowlegene.parent.process.swap;
 
+import com.knowlegene.parent.config.common.constantenum.DBOperationEnum;
 import com.knowlegene.parent.config.common.constantenum.HiveTypeEnum;
+import com.knowlegene.parent.config.common.event.HiveExportType;
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.config.util.JdbcUtil;
-import com.knowlegene.parent.process.model.SwapOptions;
+import com.knowlegene.parent.process.pojo.SwapOptions;
+import com.knowlegene.parent.process.swap.event.HiveExportTaskEvent;
 import com.knowlegene.parent.process.transform.TypeConversion;
+import com.knowlegene.parent.scheduler.event.EventHandler;
+import com.knowlegene.parent.scheduler.utils.CacheManager;
+import org.apache.beam.sdk.io.jdbc.JdbcIO;
 import org.apache.beam.sdk.schemas.Schema;
 import org.apache.beam.sdk.schemas.SchemaCoder;
 import org.apache.beam.sdk.transforms.ParDo;
@@ -20,7 +26,8 @@ import java.util.Map;
  * @Author: limeng
  * @Date: 2019/8/20 16:50
  */
-public class HiveExportJob extends ExportJobBase{
+public class HiveExportJob extends ExportJobBase {
+
 
     public HiveExportJob() {
     }
@@ -30,83 +37,125 @@ public class HiveExportJob extends ExportJobBase{
     }
 
 
-    private PCollection<Row> getHCatRecordAndRow(PCollection<HCatRecord> ps){
-        if(ps != null){
-            String tableName = options.getHiveTableName();
-            Schema allSchema = this.getHiveSwap().descByTableName(tableName,true);
-            if(allSchema !=null){
+    private static PCollection<Row> getHCatRecordAndRow(PCollection<HCatRecord> ps) {
+        if (ps != null) {
+            String tableName = getHiveOptions().getHiveTableName();
+            Schema allSchema = getHiveSwapExport().descByTableName(tableName, true);
+            if (allSchema != null) {
                 return ps.apply(ParDo.of(new TypeConversion.HCatRecordAndRow(allSchema))).setCoder(SchemaCoder.of(allSchema));
-            }else{
+            } else {
                 getLogger().error("allSchema is null");
             }
         }
         return null;
     }
+
+
     /**
-     * 查询表
+     * 查询sql
      * @return
      */
-    public PCollection<Row> queryByTable(){
-        String[] dbColumn = options.getHiveColumn();
-        String tableName = options.getHiveTableName();
+    private static PCollection<Row> queryBySQL(){
+        String hiveSQL = getHiveOptions().getHiveSQL();
+        String tableName = getHiveOptions().getHiveTableName();
 
-        //表所有列
-        Schema allSchema = this.getHiveSwap().descByTableName(tableName,true);
+        String[] dbColumn = JdbcUtil.getColumnBySqlRex(hiveSQL);
+        Schema allSchema = getHiveSwapExport().descByTableName(tableName, true);
+
+        getLogger().info("hive=>sql:{},tableName:{}",hiveSQL,tableName);
+
         Schema schema = JdbcUtil.columnConversion(dbColumn, allSchema);
-        if(schema == null){
+        if (schema == null) {
             getLogger().error("schema is null");
             return null;
         }
-        getLogger().info("tableName:{}",tableName);
-                return super.getPipeline().apply(this.getHiveSwap().queryByTable(tableName))
-        .apply(ParDo.of(new TypeConversion.MapObjectAndRow(schema))).setCoder(SchemaCoder.of(schema));
+
+        JdbcIO.Read<Row> rows = getHiveSwapExport().query(hiveSQL, schema);
+        return getPipeline().apply(rows).setCoder(SchemaCoder.of(schema));
+    }
+    /**
+     * 查询表
+     *
+     * @return
+     */
+    private static PCollection<Row> queryByTable() {
+        String hiveSQL = getHiveOptions().getHiveSQL();
+        if (BaseUtil.isNotBlank(hiveSQL)) {
+           return  queryBySQL();
+        } else {
+            String tableName = getHiveOptions().getHiveTableName();
+            //表所有列
+            Schema schema = getHiveSwapExport().descByTableName(tableName, true);
+            if (schema == null) {
+                getLogger().error("schema is null");
+                return null;
+            }
+            getLogger().info("hive=>tableName:{}", tableName);
+            return getPipeline().apply(getHiveSwapExport().queryByTable(tableName))
+                    .apply(ParDo.of(new TypeConversion.MapObjectAndRow(schema))).setCoder(SchemaCoder.of(schema));
+        }
     }
 
     /**
      * 查询
      */
-    public PCollection<HCatRecord> queryByHCatalog(){
+    private static PCollection<HCatRecord> queryByHCatalog () {
         String uris = HiveTypeEnum.HCATALOGMETASTOREURIS.getName();
-        String db= HiveTypeEnum.HIVEDATABASE.getName();
-        String table=HiveTypeEnum.HIVETABLE.getName();
+        String db = HiveTypeEnum.HIVEDATABASE.getName();
+        String table = HiveTypeEnum.HIVETABLE.getName();
         Map<String, String> configProperties = new HashMap<>();
-        String metastoreHostName = options.getHMetastoreHost();
-        String metastorePort = options.getHMetastorePort();
-        String hiveDatabase = options.getHiveDatabase();
-        String hiveTableName = options.getHiveTableName();
+        String metastoreHostName = getHiveOptions().getHMetastoreHost();
+        String metastorePort = getHiveOptions().getHMetastorePort();
+        String hiveDatabase = getHiveOptions().getHiveDatabase();
+        String hiveTableName = getHiveOptions().getHiveTableName();
 
         //hCatio参数
-        if(BaseUtil.isBlank(metastoreHostName) || BaseUtil.isBlank(metastorePort) || BaseUtil.isBlank(hiveDatabase) || BaseUtil.isBlank(hiveTableName)){
+        if (BaseUtil.isBlank(metastoreHostName) || BaseUtil.isBlank(metastorePort) || BaseUtil.isBlank(hiveDatabase) || BaseUtil.isBlank(hiveTableName)) {
             return null;
         }
 
 
-        String uriValue = String.format("thrift://%s:%s",metastoreHostName,metastorePort);
-        configProperties.put(uris,uriValue);
-        configProperties.put(db,hiveDatabase);
-        configProperties.put(table,hiveTableName);
-        getLogger().info("tableName:{}",hiveTableName);
-        String hiveFilter = options.getHiveFilter();
+        String uriValue = String.format("thrift://%s:%s", metastoreHostName, metastorePort);
+        configProperties.put(uris, uriValue);
+        configProperties.put(db, hiveDatabase);
+        configProperties.put(table, hiveTableName);
+        getLogger().info("tableName:{}", hiveTableName);
+        String hiveFilter = getHiveOptions().getHiveFilter();
 
-        if(BaseUtil.isNotBlank(hiveFilter)){
-            return super.getPipeline()
-                    .apply(this.getHiveSwap().queryByHCatalogIO(configProperties,hiveFilter));
-        }else{
-            return super.getPipeline()
-                    .apply(this.getHiveSwap().queryByHCatalogIO(configProperties));
+        if (BaseUtil.isNotBlank(hiveFilter)) {
+            return getPipeline().apply(getHiveSwapExport().queryByHCatalogIO(configProperties, hiveFilter));
+        } else {
+            return getPipeline().apply(getHiveSwapExport().queryByHCatalogIO(configProperties));
         }
     }
 
 
-    @Override
-    public PCollection<Row> query() {
-        PCollection<Row> result=null;
-        if(isHCatalogIOStatus()){
-            PCollection<HCatRecord> ps = queryByHCatalog();
-            result = getHCatRecordAndRow(ps);
-        }else{
-            result = queryByTable();
-        }
+    public static PCollection<Row> query () {
+        PCollection<Row> result = null;
+        PCollection<HCatRecord> ps = queryByHCatalog();
+        result = getHCatRecordAndRow(ps);
+
+        if (result == null) result = queryByTable();
+
         return result;
     }
+
+
+    public static class HiveExportDispatcher implements EventHandler<HiveExportTaskEvent> {
+        @Override
+        public void handle(HiveExportTaskEvent event) {
+            if (event.getType() == HiveExportType.T_EXPORT) {
+                getLogger().info("HiveExportDispatcher is start");
+
+                PCollection<Row> rows = query();
+                CacheManager.setCache(DBOperationEnum.PCOLLECTION_QUERYS.getName(), rows);
+
+            }
+        }
+    }
+
+
 }
+
+
+

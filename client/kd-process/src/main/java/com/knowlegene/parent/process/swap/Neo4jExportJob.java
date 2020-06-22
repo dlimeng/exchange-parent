@@ -2,9 +2,9 @@ package com.knowlegene.parent.process.swap;
 
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.process.common.constantenum.Neo4jEnum;
-import com.knowlegene.parent.process.model.SwapOptions;
-import com.knowlegene.parent.process.model.neo4j.Neo4jObject;
-import com.knowlegene.parent.process.model.neo4j.Neo4jOptions;
+import com.knowlegene.parent.process.pojo.SwapOptions;
+import com.knowlegene.parent.process.pojo.neo4j.Neo4jObject;
+import com.knowlegene.parent.process.pojo.neo4j.Neo4jOptions;
 import com.knowlegene.parent.process.transform.TypeConversion;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
@@ -69,38 +69,38 @@ public class Neo4jExportJob extends ExportJobBase  {
     }
 
     private void saveNeo4jObject(PCollection<Neo4jObject> neo4jObjects,String dsl,int optionsType){
-        if(neo4jObjects == null){
-            getLogger().error("neo4jObjects is null");
-            return;
-        }
-        if(BaseUtil.isBlank(dsl)){
-            getLogger().error("dsl is null");
-            return;
-        }
-        if(optionsType == Neo4jEnum.SAVE.getValue()){
-            neo4jObjects.apply(this.getNeo4jSwap().write(dsl));
-        }else if(optionsType == Neo4jEnum.RELATE.getValue()){
-            neo4jObjects.apply(this.getNeo4jSwap().relate(dsl,label));
-        }
+//        if(neo4jObjects == null){
+//            getLogger().error("neo4jObjects is null");
+//            return;
+//        }
+//        if(BaseUtil.isBlank(dsl)){
+//            getLogger().error("dsl is null");
+//            return;
+//        }
+//        if(optionsType == Neo4jEnum.SAVE.getValue()){
+//            neo4jObjects.apply(this.getNeo4jSwap().write(dsl));
+//        }else if(optionsType == Neo4jEnum.RELATE.getValue()){
+//            neo4jObjects.apply(this.getNeo4jSwap().relate(dsl,label));
+//        }
 
     }
 
 
 
-    @Override
-    public void save(PCollection<Row> rows) {
-        if(rows != null){
-            String cypher = options.getCypher();
-            String neoFormat = options.getNeoFormat();
-            if (BaseUtil.isNotBlank(cypher)) {
-                cypherSave(rows);
-            }else if(BaseUtil.isNotBlank(neoFormat)){
-                formatSave(rows);
-            }else{
-                getLogger().error("cypher is null");
-            }
-        }else{
-            getLogger().error("rows is null");
-        }
+
+    public static void save(PCollection<Row> rows) {
+//        if(rows != null){
+//            String cypher = options.getCypher();
+//            String neoFormat = options.getNeoFormat();
+//            if (BaseUtil.isNotBlank(cypher)) {
+//                cypherSave(rows);
+//            }else if(BaseUtil.isNotBlank(neoFormat)){
+//                formatSave(rows);
+//            }else{
+//                getLogger().error("cypher is null");
+//            }
+//        }else{
+//            getLogger().error("rows is null");
+//        }
     }
 }

@@ -1,7 +1,7 @@
 package com.knowlegene.parent.process.route.swap;
 
 import com.knowlegene.parent.process.SwapApplication;
-import com.knowlegene.parent.process.model.SwapOptions;
+import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.runners.SwapRunners;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -20,8 +20,6 @@ public class MySQLSwapTest  extends SwapRunners {
     private static SwapOptions swapOptions;
     @Override
     public void setJobStream() {
-        getImport();
-        getExport();
     }
     @BeforeClass
     public static void beforeClass(){
@@ -33,7 +31,6 @@ public class MySQLSwapTest  extends SwapRunners {
         //更改引擎
         application.setSwapOptions(swapOptions);
         application.start();
-        application.run();
     }
 
     /**
@@ -54,7 +51,6 @@ public class MySQLSwapTest  extends SwapRunners {
         swapOptions.setHivePassword("hive");
         swapOptions.setHiveTableName("test2019");
 
-        swapOptions.setImportOptions(true);
     }
 
     /**
@@ -80,7 +76,7 @@ public class MySQLSwapTest  extends SwapRunners {
         swapOptions.setEsType(type);
         swapOptions.setEsIdFn("name");
 
-        swapOptions.setExportOptions(true);
+
     }
 
     /**
@@ -107,7 +103,7 @@ public class MySQLSwapTest  extends SwapRunners {
         swapOptions.setEsType(type);
         swapOptions.setEsIdFn("itcode");
 
-        swapOptions.setExportOptions(true);
+
     }
 
     /**
@@ -143,7 +139,7 @@ public class MySQLSwapTest  extends SwapRunners {
         swapOptions.setEsIndex(index);
         swapOptions.setEsType(type);
 
-        swapOptions.setExportOptions(true);
+
     }
 
 
@@ -173,7 +169,7 @@ public class MySQLSwapTest  extends SwapRunners {
         swapOptions.setEsIndex(index);
         swapOptions.setEsType(type);
 
-        swapOptions.setExportOptions(true);
+
     }
 
 }

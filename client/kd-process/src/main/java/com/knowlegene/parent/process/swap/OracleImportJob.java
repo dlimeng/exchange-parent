@@ -2,12 +2,10 @@ package com.knowlegene.parent.process.swap;
 
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.config.util.JdbcUtil;
-import com.knowlegene.parent.process.model.SwapOptions;
-import com.knowlegene.parent.process.transform.PrintTransform;
+import com.knowlegene.parent.process.pojo.SwapOptions;
 import org.apache.beam.sdk.io.jdbc.JdbcIO;
 import org.apache.beam.sdk.schemas.Schema;
 import org.apache.beam.sdk.schemas.SchemaCoder;
-import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.Row;
 
@@ -30,14 +28,15 @@ public class OracleImportJob extends ImportJobBase{
      * @return
      */
     public PCollection<Row> queryBySQL(){
-        String sql = this.options.getDbSQL();
-        String tableName = options.getTableName();
-        String[] dbColumn = JdbcUtil.getColumnBySqlRex(sql);
-        Schema allSchema = this.getOracleSwap().desc(tableName);
-        Schema schema = JdbcUtil.columnConversion(dbColumn, allSchema);
-        getLogger().info("query start=>tableName:{},sql:{}",tableName,sql);
-        JdbcIO.Read<Row> rows = this.getOracleSwap().query(sql, schema);
-        return super.getPipeline().apply(rows).setCoder(SchemaCoder.of(schema));
+//        String sql = this.options.getDbSQL();
+//        String tableName = options.getTableName();
+//        String[] dbColumn = JdbcUtil.getColumnBySqlRex(sql);
+//        Schema allSchema = this.getOracleSwap().desc(tableName);
+//        Schema schema = JdbcUtil.columnConversion(dbColumn, allSchema);
+//        getLogger().info("query start=>tableName:{},sql:{}",tableName,sql);
+//        JdbcIO.Read<Row> rows = this.getOracleSwap().query(sql, schema);
+//        return super.getPipeline().apply(rows).setCoder(SchemaCoder.of(schema));
+        return null;
     }
 
 
@@ -46,36 +45,38 @@ public class OracleImportJob extends ImportJobBase{
      * @return
      */
     public PCollection<Row> queryByTable(){
-        String[] dbColumn = options.getDbColumn();
-        String tableName = options.getTableName();
-        //表所有列
-        Schema allSchema = this.getOracleSwap().desc(tableName);
-        Schema schema = JdbcUtil.columnConversion(dbColumn, allSchema);
-        JdbcIO.Read<Row> rowRead = this.getOracleSwap().queryByTable(tableName, schema);
-        getLogger().info("query start=>tableName:{}",tableName);
-        return super.getPipeline().apply(rowRead).setCoder(SchemaCoder.of(schema));
+//        String[] dbColumn = options.getDbColumn();
+//        String tableName = options.getTableName();
+//        //表所有列
+//        Schema allSchema = this.getOracleSwap().desc(tableName);
+//        Schema schema = JdbcUtil.columnConversion(dbColumn, allSchema);
+//        JdbcIO.Read<Row> rowRead = this.getOracleSwap().queryByTable(tableName, schema);
+//        getLogger().info("query start=>tableName:{}",tableName);
+//        return super.getPipeline().apply(rowRead).setCoder(SchemaCoder.of(schema));
+        return null;
     }
 
-    @Override
-    public PCollection<Row> query(){
-        String sql = this.options.getDbSQL();
-        if(BaseUtil.isNotBlank(sql)){
-            return this.queryBySQL();
-        }else{
-            return this.queryByTable();
-        }
+
+    public static PCollection<Row> query(){
+//        String sql = this.options.getDbSQL();
+//        if(BaseUtil.isNotBlank(sql)){
+//            return this.queryBySQL();
+//        }else{
+//            return this.queryByTable();
+//        }
+        return null;
     }
 
-    @Override
-    public void save(PCollection<Row> rows){
-        Schema schema = getOracleSchemas();
-        if(schema != null){
-            String tableName = options.getTableName();
-            String insertSQL = getInsertSQL(schema, tableName);
-            getLogger().info("insertSQL:{}",insertSQL);
-            rows.setCoder(SchemaCoder.of(schema)).apply(this.getOracleSwap().saveByIO(insertSQL));
-        }else{
-            getLogger().error("schema is null");
-        }
+
+    public static void save(PCollection<Row> rows){
+//        Schema schema = getOracleSchemas();
+//        if(schema != null){
+//            String tableName = options.getTableName();
+//            String insertSQL = getInsertSQL(schema, tableName);
+//            getLogger().info("insertSQL:{}",insertSQL);
+//            rows.setCoder(SchemaCoder.of(schema)).apply(this.getOracleSwap().saveByIO(insertSQL));
+//        }else{
+//            getLogger().error("schema is null");
+//        }
     }
 }

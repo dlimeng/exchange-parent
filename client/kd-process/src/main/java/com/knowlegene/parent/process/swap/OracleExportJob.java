@@ -2,7 +2,7 @@ package com.knowlegene.parent.process.swap;
 
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.config.util.JdbcUtil;
-import com.knowlegene.parent.process.model.SwapOptions;
+import com.knowlegene.parent.process.pojo.SwapOptions;
 import org.apache.beam.sdk.schemas.Schema;
 import org.apache.beam.sdk.schemas.SchemaCoder;
 import org.apache.beam.sdk.values.PCollection;
@@ -28,13 +28,13 @@ public class OracleExportJob extends ExportJobBase {
      * @return
      */
     private void saveBySQL(PCollection<Row> rows, Schema schema, String tableName){
-        if(rows !=null && schema!=null){
-            String insertSQL = this.getInsertSQL(schema, tableName);
-            getLogger().info("insertSQL:{}",insertSQL);
-            if(BaseUtil.isNotBlank(insertSQL)){
-                rows.apply(this.getOracleSwap().saveByIO(insertSQL));
-            }
-        }
+//        if(rows !=null && schema!=null){
+//            String insertSQL = this.getInsertSQL(schema, tableName);
+//            getLogger().info("insertSQL:{}",insertSQL);
+//            if(BaseUtil.isNotBlank(insertSQL)){
+//                rows.apply(this.getOracleSwap().saveByIO(insertSQL));
+//            }
+//        }
     }
 
     /**
@@ -52,16 +52,16 @@ public class OracleExportJob extends ExportJobBase {
     }
 
 
-    @Override
-    public void save(PCollection<Row> rows) {
-        if(rows != null){
-            String tableName = options.getTableName();
-            Schema schema = getOracleSchemas();
-            if(schema == null){
-                getLogger().info("schema is null");
-            }
-            PCollection<Row> newRows = rows.setCoder(SchemaCoder.of(schema));
-            saveBySQL(newRows,schema,tableName);
-        }
+
+    public static void save(PCollection<Row> rows) {
+//        if(rows != null){
+//            String tableName = options.getTableName();
+//            Schema schema = getOracleSchemas();
+//            if(schema == null){
+//                getLogger().info("schema is null");
+//            }
+//            PCollection<Row> newRows = rows.setCoder(SchemaCoder.of(schema));
+//            saveBySQL(newRows,schema,tableName);
+//        }
     }
 }

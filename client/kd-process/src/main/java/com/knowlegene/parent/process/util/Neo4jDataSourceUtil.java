@@ -2,7 +2,7 @@ package com.knowlegene.parent.process.util;
 
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.process.common.constantenum.DataSourceEnum;
-import com.knowlegene.parent.process.model.SwapOptions;
+import com.knowlegene.parent.process.pojo.SwapOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

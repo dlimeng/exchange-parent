@@ -2,7 +2,7 @@ package com.knowlegene.parent.process.swap;
 
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.config.util.HdfsFileUtil;
-import com.knowlegene.parent.process.model.SwapOptions;
+import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.transform.TypeConversion;
 import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.transforms.ParDo;
@@ -22,11 +22,11 @@ public class FileExportJob extends ExportJobBase {
         super(options);
     }
 
-    @Override
-    public void save(PCollection<Row> rows) {
-        if(isHiveExport() && rows!=null){
-           saveByFile(rows);
-        }
+
+    public static void save(PCollection<Row> rows) {
+//        if(isHiveExport() && rows!=null){
+//           saveByFile(rows);
+//        }
     }
 
     /**
