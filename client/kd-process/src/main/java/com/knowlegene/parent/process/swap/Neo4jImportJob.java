@@ -1,6 +1,6 @@
 package com.knowlegene.parent.process.swap;
 
-import com.knowlegene.parent.process.model.SwapOptions;
+import com.knowlegene.parent.process.pojo.SwapOptions;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.Row;
 
@@ -16,8 +16,8 @@ public class Neo4jImportJob extends ImportJobBase{
         super(opts);
     }
 
-    @Override
-    public PCollection<Row> query() {
-        return super.query();
-    }
+//    @Override
+//    public PCollection<Row> query() {
+//        return super.query();
+//    }
 }

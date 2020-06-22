@@ -240,27 +240,6 @@
             <version>${hadoop.version}</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-mapreduce-client-jobclient -->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.hadoop</groupId>-->
-<!--            <artifactId>hadoop-mapreduce-client-app</artifactId>-->
-<!--            <version>${hadoop.version}</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.hadoop</groupId>-->
-<!--            <artifactId>hadoop-mapreduce-client-core</artifactId>-->
-<!--            <version>${hadoop.version}</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.hadoop</groupId>-->
-<!--            <artifactId>hadoop-hdfs</artifactId>-->
-<!--            <version>${hadoop.version}</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.hadoop</groupId>-->
-<!--            <artifactId>hadoop-client</artifactId>-->
-<!--            <version>${hadoop.version}</version>-->
-<!--        </dependency>-->
 
         <dependency>
             <groupId>org.apache.hive</groupId>
@@ -313,15 +292,6 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <!--mysql-->
-                <kd.mysql.classname>com.mysql.jdbc.Driver</kd.mysql.classname>
-                <kd.mysql.url>jdbc:mysql://192.168.200.115:3306/test?useUnicode=true&amp;characterEncoding=UTF-8&amp;zeroDateTimeBehavior=convertToNull</kd.mysql.url>
-                <kd.mysql.user>root</kd.mysql.user>
-                <kd.mysql.password>root</kd.mysql.password>
-                <kd.mysql.minPoolSize>5</kd.mysql.minPoolSize>
-                <kd.mysql.acquireIncrement>5</kd.mysql.acquireIncrement>
-                <kd.mysql.maxPoolSize>100</kd.mysql.maxPoolSize>
-                <kd.mysql.maxIdleTime>600</kd.mysql.maxIdleTime>
 
                 <!--hive-->
                 <kd.hive.classname>org.apache.hive.jdbc.HiveDriver</kd.hive.classname>
@@ -337,16 +307,6 @@
 
 
 
-                <!--oracle-->
-                <kd.oracle.classname>oracle.jdbc.driver.OracleDriver</kd.oracle.classname>
-                <kd.oracle.url>jdbc:oracle:thin:@//127.0.0.1:1521/XE</kd.oracle.url>
-                <kd.oracle.user>ods</kd.oracle.user>
-                <kd.oracle.password>ods</kd.oracle.password>
-                <kd.oracle.minPoolSize>5</kd.oracle.minPoolSize>
-                <kd.oracle.acquireIncrement>5</kd.oracle.acquireIncrement>
-                <kd.oracle.maxPoolSize>100</kd.oracle.maxPoolSize>
-                <kd.oracle.maxIdleTime>600</kd.oracle.maxIdleTime>
-
                 <!--hadoop file-->
                 <kd.hdfs.defaultname>hdfs://192.168.200.117:8020</kd.hdfs.defaultname>
                 <kd.hdfs.impl>org.apache.hadoop.hdfs.DistributedFileSystem</kd.hdfs.impl>
@@ -357,7 +317,7 @@
         <profile>
             <id>release</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <properties>
 

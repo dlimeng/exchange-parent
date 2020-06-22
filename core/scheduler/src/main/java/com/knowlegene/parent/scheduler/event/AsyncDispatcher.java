@@ -36,7 +36,7 @@ public class AsyncDispatcher extends AbstractService implements Dispatcher {
 
     private EventHandler handlerInstance = null;
 
-    private Thread eventHandlingThread;
+    private volatile Thread eventHandlingThread;
 
     protected final Map<Class<? extends Enum>, EventHandler> eventDispatchers;
 
@@ -67,7 +67,7 @@ public class AsyncDispatcher extends AbstractService implements Dispatcher {
             blockNewEvents = true;
             synchronized (waitForDrained){
                 while (!drained && eventHandlingThread.isAlive()){
-                    waitForDrained.wait(1000);
+                     waitForDrained.wait(1000);
                     LOG.info("Waiting for AsyncDispatcher to drain.");
                 }
             }
@@ -78,10 +78,10 @@ public class AsyncDispatcher extends AbstractService implements Dispatcher {
             eventHandlingThread.interrupt();
             try {
                 eventHandlingThread.join();
-            } catch (InterruptedException ie) {
-                LOG.warn("Interrupted Exception while stopping", ie);
-            }
 
+            } catch (InterruptedException ie) {
+                LOG.warn("Interrupted Exception while stopping msg=>"+ie.getMessage());
+            }
         }
 
         super.serviceStop();
@@ -115,6 +115,7 @@ public class AsyncDispatcher extends AbstractService implements Dispatcher {
                 }
 
             }
+
         };
     }
 

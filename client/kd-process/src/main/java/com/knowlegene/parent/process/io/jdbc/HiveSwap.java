@@ -1,6 +1,6 @@
 package com.knowlegene.parent.process.io.jdbc;
 
-import com.knowlegene.parent.process.model.ObjectCoder;
+import com.knowlegene.parent.process.pojo.ObjectCoder;
 import org.apache.beam.sdk.io.hcatalog.HCatalogIO;
 import org.apache.beam.sdk.io.jdbc.JdbcIO;
 import org.apache.beam.sdk.schemas.Schema;

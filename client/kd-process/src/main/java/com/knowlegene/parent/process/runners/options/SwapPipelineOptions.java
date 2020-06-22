@@ -11,6 +11,14 @@ import java.util.List;
  * @Date: 2019/8/22 16:51
  */
 public interface SwapPipelineOptions extends SparkPipelineOptions {
+    @Description("导出名称")
+    public String getFromName();
+    public void setFromName(String fromName);
+    @Description("导入名称")
+    public String getToName();
+    public void setToName(String toName);
+
+
     @Description("文件路径")
     public String getFilePath();
     public void setFilePath(String filePath);
@@ -39,20 +47,17 @@ public interface SwapPipelineOptions extends SparkPipelineOptions {
 
 
     @Description("db.dbColumn")
-    public List<String> getDbColumn();
-    public void setDbColumn(List<String> dbColumn);
+    public String[] getDbColumn();
+    public void setDbColumn(String[] dbColumn);
 
     @Description("db.hiveClass")
-    public Boolean getHiveClass();
-    public void setHiveClass(Boolean hiveClass);
+    public String getHiveClass();
+    public void setHiveClass(String hiveClass);
 
-    @Description("db.hiveImport")
-    public Boolean getHiveImport();
-    public void setHiveImport(Boolean hiveImport);
 
-    @Description("db.hiveExport")
-    public Boolean getHiveExport();
-    public void setHiveExport(Boolean hiveExport);
+    @Description("db.hive.execution.engine")
+    public String getHiveEngine();
+    public void setHiveEngine(String hiveEngine);
 
     @Description("db.hiveUrl")
     public String getHiveUrl() ;
@@ -67,12 +72,18 @@ public interface SwapPipelineOptions extends SparkPipelineOptions {
     @Description("db.hiveTableName")
     public String getHiveTableName();
     public void setHiveTableName(String hiveTableName);
+
+    @Description("db.hivedatabase")
+    public String getHiveDatabase();
+    public void setHiveDatabase(String hiveDatabase);
+
     @Description("db.hiveSQL")
     public String getHiveSQL() ;
     public void setHiveSQL(String hiveSQL);
     @Description("db.hiveColumn")
-    public List<String> getHiveColumn();
-    public void setHiveColumn(List<String> hiveColumn) ;
+    public String[] getHiveColumn();
+    public void setHiveColumn(String[] hiveColumn);
+
 
     @Description("db.hMetastoreHost")
     public String getHMetastoreHost();
@@ -94,13 +105,37 @@ public interface SwapPipelineOptions extends SparkPipelineOptions {
     public Boolean getHiveTableEmpty();
     public void setHiveTableEmpty(Boolean hiveTableEmpty);
 
-    @Description("操作链路顺序 导入")
-    public Boolean getImportOptions();
-    public void setImportOptions(Boolean importOptions);
 
-    @Description("操作链路顺序 导出")
-    public Boolean getExportOptions();
-    public void setExportOptions(Boolean exportOptions);
+    @Description("db.hMetastoreHosts")
+    public String[] getHMetastoreHosts();
+    public void setHMetastoreHosts(String[] hCatalogMetastoreHostNames);
+
+    @Description("db.hMetastorePorts")
+    public String[] getHMetastorePorts();
+    public void setHMetastorePorts(String[] hCatalogMetastorePorts) ;
+
+
+
+    @Description("db.hiveUrls")
+    public String[] getHiveUrls() ;
+    public void setHiveUrls(String[] hiveUrls);
+
+    @Description("db.hiveUsernames")
+    public String[] getHiveUsernames();
+    public void setHiveUsernames(String[] hiveUsernames);
+    @Description("db.hivePasswords")
+    public String[] getHivePasswords();
+    public void setHivePasswords(String[] hivePasswords);
+
+    @Description("db.hiveTableNames")
+    public String[] getHiveTableNames();
+    public void setHiveTableNames(String[] hiveTableNames);
+
+
+    @Description("db.hivedatabases")
+    public String[] getHiveDatabases();
+    public void setHiveDatabases(String[] hiveDatabases);
+
 
     @Description("es 地址")
     public String[] getEsAddrs();

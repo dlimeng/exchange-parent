@@ -11,7 +11,9 @@ public enum HiveTypeEnum {
     SELECT1 (1,"^(select)(.+)(from)(.+)"),SAVE1(2,"^(insert)(.+)"),DELETE1(3,"(delete from)(.+)"),
     CREATE1(4,"(create)(.+)"),TRUNCATE1(5,"(truncate)(.+)"),LOAD1(6,"(load)(.+)"),SET1(7,"^(set)(.+)")
     ,WITH1(8,"(with)(.+)"),SELECTNAME(9,"select"),INSERTNAME(10,"insert"),DELETENAME(11,"delete"),DDL(12,"ddl")
-    ,DROP1(13,"(drop)(.+)"),HCATALOGMETASTOREURIS(14,"hive.metastore.uris"),HIVEDATABASE(15,"hivedatabase"),HIVETABLE(16,"hivetable");
+    ,DROP1(13,"(drop)(.+)")
+    ,HCATALOGMETASTOREURIS(14,"hive.metastore.uris"),HIVEDATABASE(15,"hivedatabase"),HIVETABLE(16,"hivetable"),
+    TEZ_ENGINE(17,"tez"),SPARK_ENGINE(18,"spark"),ENGINE(19,"hive_engine");
 
     /**
      * hive参数

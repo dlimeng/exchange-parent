@@ -13,7 +13,7 @@ import java.io.Serializable;
 public class PipelineSingletonUtil  implements Serializable {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
-    public PipelineSingletonUtil() {
+    private PipelineSingletonUtil() {
     }
 
     public static volatile Pipeline instance  = null;

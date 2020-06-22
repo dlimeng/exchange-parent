@@ -27,13 +27,11 @@ public abstract class JobRunners extends BaseJobRunners {
      */
     public void start(){
         this.startRunners();
-        this.initApplication();
         this.setJobStream();
     }
 
     public void start(String[] args){
         this.startRunnersByArgs(IndexerPipelineOptions.class,args);
-        this.initApplication();
         this.setJobStream();
     }
 
@@ -49,6 +47,7 @@ public abstract class JobRunners extends BaseJobRunners {
     /**
      * 执行计划
      */
+
     public abstract void  setJobStream();
 
     /**
@@ -64,6 +63,11 @@ public abstract class JobRunners extends BaseJobRunners {
         } catch (Exception e) {
             getLogger().error("defaultMethod is error=>msg:{}",e.getMessage());
         }
+    }
+
+    @Override
+    public void init(){
+
     }
 
 }

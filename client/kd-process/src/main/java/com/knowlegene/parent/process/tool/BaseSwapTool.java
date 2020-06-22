@@ -1,8 +1,21 @@
 package com.knowlegene.parent.process.tool;
 
+import com.knowlegene.parent.config.common.constantenum.DBOperationEnum;
+import com.knowlegene.parent.config.common.constantenum.DatabaseTypeEnum;
+import com.knowlegene.parent.config.common.event.HiveExportType;
+import com.knowlegene.parent.config.common.event.HiveImportType;
+import com.knowlegene.parent.config.common.event.MySQLExportType;
+import com.knowlegene.parent.config.common.event.MySQLImportType;
 import com.knowlegene.parent.config.util.BaseUtil;
-import com.knowlegene.parent.process.model.SwapOptions;
+import com.knowlegene.parent.process.pojo.SwapOptions;
+import com.knowlegene.parent.process.swap.dispatcher.SwapMaster;
+import com.knowlegene.parent.process.swap.JobBase;
+import com.knowlegene.parent.process.swap.event.HiveExportTaskEvent;
+import com.knowlegene.parent.process.swap.event.HiveImportTaskEvent;
+import com.knowlegene.parent.process.swap.event.MySQLExportTaskEvent;
+import com.knowlegene.parent.process.swap.event.MySQLImportTaskEvent;
 import com.knowlegene.parent.process.util.*;
+import com.knowlegene.parent.scheduler.service.Service;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +33,9 @@ public  class BaseSwapTool {
     private SwapOptions options;
     public static String isImport = "import";
     public static String isExport = "export";
+    private static String fromPre = "from_";
+    private static String toSuffix = "to_";
+
 
     public BaseSwapTool(SwapOptions options) {
         this.options = options;
@@ -33,109 +49,104 @@ public  class BaseSwapTool {
 
     }
 
-    private static final Map<String, Class<? extends BaseSwapTool>> TOOLS;
+    private static final Map<String, Object> TOOLS;
     static {
-        TOOLS = new TreeMap<String, Class<? extends BaseSwapTool>>();
-        registerTool("import",ImportTool.class);
-        registerTool("export",ExportTool.class);
+        TOOLS = new TreeMap<String, Object>();
+        registerTool(fromPre+DatabaseTypeEnum.HIVE.getName(),new HiveExportTaskEvent(HiveExportType.T_EXPORT));
+        registerTool(toSuffix+DatabaseTypeEnum.HIVE.getName(),new HiveImportTaskEvent(HiveImportType.T_IMPORT));
+
+        registerTool(fromPre+DatabaseTypeEnum.MYSQL.getName(),new MySQLExportTaskEvent(MySQLExportType.T_EXPORT));
+        registerTool(toSuffix+DatabaseTypeEnum.MYSQL.getName(),new MySQLImportTaskEvent(MySQLImportType.T_IMPORT));
     }
 
     private static void registerTool(String toolName,
-                                     Class<? extends BaseSwapTool> cls) {
-        Class<? extends BaseSwapTool> existing = TOOLS.get(toolName);
+                                     Object cls) {
+        Object  existing = TOOLS.get(toolName);
         if (null != existing) {
             // Already have a tool with this name. Refuse to start.
             throw new RuntimeException("A plugin is attempting to register a tool "
                     + "with name " + toolName + ", but this tool already exists ("
-                    + existing.getName() + ")");
+                    + existing.getClass().getName() + ")");
         }
         TOOLS.put(toolName, cls);
     }
 
-    public void run(String toolName){
-        try {
-            if(BaseUtil.isNotBlank(toolName)){
-                TOOLS.get(toolName).newInstance().run(options);
-            }
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
+    public static Object getTask(String toolName){
+        return TOOLS.get(toolName);
     }
 
-    private boolean isMySQL(){
-        boolean isMysql=false;
-        String driverClassName = options.getDriverClass();
-        if(BaseUtil.isNotBlank(driverClassName)){
-            isMysql = driverClassName.toLowerCase().contains("mysql");
-        }
-        return isMysql;
-    }
-    private boolean isOracle(){
-        boolean isoracle=false;
-        String driverClassName = options.getDriverClass();
-        if(BaseUtil.isNotBlank(driverClassName)){
-            isoracle = driverClassName.toLowerCase().contains("oracle");
-        }
-        return isoracle;
+    public void run() throws Exception {
+        SwapMaster swapMaster = new SwapMaster("Swap MRAppMaster");
+        swapMaster.serviceInit();
+        swapMaster.serviceStart();
+        new JobBase(options).run();
     }
 
-    private boolean isHive(){
-        boolean ishive=false;
-        String driverClassName = options.getHiveClass();
-        if(BaseUtil.isNotBlank(driverClassName)){
-            ishive = driverClassName.toLowerCase().contains("hive");
-        }
-        return ishive;
-    }
-
-    private boolean isNeo4j(){
-        boolean result=true;
-        String neoUrl = options.getNeoUrl();
-        String neoPassword = options.getNeoPassword();
-        String neoUsername = options.getNeoUsername();
-
-        if(BaseUtil.isBlank(neoUrl) || BaseUtil.isBlank(neoPassword) ||  BaseUtil.isBlank(neoUsername)){
-            result=false;
-        }
-        return result;
-    }
-
-    private boolean isGbase(){
-        boolean isGbase=false;
-        String driverClassName = options.getDriverClass();
-        if(BaseUtil.isNotBlank(driverClassName)){
-            isGbase = driverClassName.toLowerCase().contains("gbase");
-        }
-        return isGbase;
-    }
 
     /**
      * 设置源
      */
     private void setDataSource(){
-        if(isMySQL()){
-            MySQLDataSourceUtil.getSessionFactoryInstance(options);
+        String fromName = options.getFromName();
+        String toName = options.getToName();
+
+
+        if(fromName.equalsIgnoreCase(toName) && fromName.equalsIgnoreCase(DatabaseTypeEnum.HIVE.getName())){
+            DataSourceUtil.setHiveImExport(DBOperationEnum.HIVE_EXPORT.getName(),options);
+            DataSourceUtil.setHiveImExport(DBOperationEnum.HIVE_IMPORT.getName(),options);
+
+        } else if(DatabaseTypeEnum.isDB(fromName) && DatabaseTypeEnum.isDB(toName)){
+            DataSourceUtil.setDBImExport(queryOperation(fromName,true,false),options);
+            DataSourceUtil.setDBImExport(queryOperation(toName,false,false),options);
+
+        }else{
+            queryOperation(fromName,true,true);
+            queryOperation(toName,false,true);
         }
-        if(isOracle()){
-            OracleDataSourceUtil.getSessionFactoryInstance(options);
-        }
-        if(isHive()){
-            HiveDataSourceUtil.getSessionFactoryInstance(options);
-        }
-        if(isNeo4j()){
-            Neo4jDataSourceUtil.getSessionFactoryInstance(options);
-        }
-        if(isGbase()){
-            GbaseDataSourceUtil.getSessionFactoryInstance(options);
-        }
+
+
     }
 
+    private String queryOperation(String name,boolean isFrom,boolean isOptions){
+        DatabaseTypeEnum databaseTypeEnum = DatabaseTypeEnum.queryValue(name);
+        String result="";
+        switch (databaseTypeEnum){
+            case HIVE:
+                if(isFrom) result = DBOperationEnum.HIVE_EXPORT.getName();
+                else result = DBOperationEnum.HIVE_IMPORT.getName();
+                if(isOptions) DataSourceUtil.setHive(result,options);
+                break;
+            case MYSQL:
+                if(isFrom) result = DBOperationEnum.MYSQL_EXPORT.getName();
+                else  result = DBOperationEnum.MYSQL_IMPORT.getName();
+                if(isOptions) DataSourceUtil.setDb(result,options);
+                break;
+            case ES:
+                if(isFrom) result = DBOperationEnum.ES_EXPORT.getName();
+                else  result = DBOperationEnum.ES_IMPORT.getName();
 
-
-    public void run(SwapOptions swapOptions){
-
+                break;
+            case ELASTICSEARCH:
+                if(isFrom) result = DBOperationEnum.ES_EXPORT.getName();
+                else  result = DBOperationEnum.ES_IMPORT.getName();
+                break;
+            case GBASE:
+                if(isFrom)  result = DBOperationEnum.GBASE_EXPORT.getName();
+                else  result = DBOperationEnum.GBASE_IMPORT.getName();
+                if(isOptions) DataSourceUtil.setDb(result,options);
+                break;
+            case FILE:
+                if(isFrom)  result = DBOperationEnum.FILE_EXPORT.getName();
+                else  result = DBOperationEnum.FILE_IMPORT.getName();
+                break;
+            case ORACLE:
+                if(isFrom)  result = DBOperationEnum.ORACLE_EXPORT.getName();
+                else  result = DBOperationEnum.ORACLE_IMPORT.getName();
+                if(isOptions) DataSourceUtil.setDb(result,options);
+                break;
+        }
+        return result;
     }
+
 
 }

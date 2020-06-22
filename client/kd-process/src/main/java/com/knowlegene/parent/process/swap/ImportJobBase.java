@@ -1,7 +1,11 @@
 package com.knowlegene.parent.process.swap;
 
 
-import com.knowlegene.parent.process.model.SwapOptions;
+import com.knowlegene.parent.config.common.constantenum.DBOperationEnum;
+import com.knowlegene.parent.process.pojo.DBOptions;
+import com.knowlegene.parent.process.pojo.SwapOptions;
+import com.knowlegene.parent.process.pojo.hive.HiveOptions;
+import org.apache.beam.sdk.schemas.Schema;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.Row;
 
@@ -10,7 +14,10 @@ import org.apache.beam.sdk.values.Row;
  * @Author: limeng
  * @Date: 2019/8/20 15:50
  */
-public class ImportJobBase extends JobBase implements ImportJob{
+public class ImportJobBase extends JobBase {
+    protected static HiveOptions hiveOptions;
+
+
     public ImportJobBase() {
     }
     public ImportJobBase(SwapOptions opts) {
@@ -18,48 +25,22 @@ public class ImportJobBase extends JobBase implements ImportJob{
     }
 
 
-    /**
-     * 注册
-     * 导入
-     */
-    public void runImport(){
-        PCollection<Row> querys=null;
-        //文件导入 -> mysql hive
-        if(isFilePath()){
-            querys = getImportJobBase(FileImportJob.class).query();
-            if(isMySQL()){
-               getLogger().info("file->mysql");
-               getImportJobBase(MySQLImportJob.class).save(querys);
-            }
-            if(isHiveImport()){
-                getLogger().info("file->hive");
-                getImportJobBase(HiveImportJob.class).save(querys);
-            }
-
-        }else{
-            //数据导入 -> hive
-            if(isMySQL()){
-                querys = getImportJobBase(MySQLImportJob.class).query();
-            }else if(isOracle()){
-                querys = getImportJobBase(OracleImportJob.class).query();
-            }else if(isEs()){
-                querys = getImportJobBase(ESImportJob.class).query();
-            }
-
-            if(isHiveImport()){
-                getImportJobBase(HiveImportJob.class).save(querys);
+    public static HiveOptions getHiveOptions(){
+        if(hiveOptions == null){
+            String name = DBOperationEnum.HIVE_IMPORT.getName();
+            Object options = getOptions(name);
+            if(options != null){
+                hiveOptions = (HiveOptions)options;
             }
         }
-
+        return hiveOptions;
     }
 
-    @Override
-    public PCollection<Row> query() {
+
+    public static PCollection<Row> query() {
         return null;
     }
 
-    @Override
-    public void save(PCollection<Row> rows) {
 
-    }
+    public static void save(PCollection<Row> rows) { }
 }

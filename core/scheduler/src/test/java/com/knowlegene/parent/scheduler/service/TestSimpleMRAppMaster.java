@@ -46,7 +46,7 @@ public class TestSimpleMRAppMaster extends CompositeService  {
 
     private class JobEventDispatcher implements EventHandler<TestJobEvent> {
 
-        @Override
+
         public void handle(TestJobEvent event) {
             if(event.getType() == TestJobEventType.JOB_KILL){
                 System.out.println("Receive JOB_KILL event, killing all the tasks");
@@ -63,7 +63,7 @@ public class TestSimpleMRAppMaster extends CompositeService  {
     }
 
     private class TaskEventDispatcher implements EventHandler<TestTaskEvent> {
-        @Override
+
         public void handle(TestTaskEvent event) {
             if (event.getType() == TestTaskEventType.T_KILL) {
                 System.out.println("Receive T_KILL event of task" + event.getTaskID());

@@ -2,9 +2,6 @@ package com.knowlegene.parent.config.dao.impl;
 
 import com.knowlegene.parent.config.dao.BaseDao;
 import com.knowlegene.parent.config.dao.HiveDao;
-import com.knowlegene.parent.config.dao.MysqlDao;
-
-import javax.annotation.Resource;
 import java.io.Serializable;
 
 /**
@@ -17,13 +14,8 @@ public class BaseDaoImpl implements BaseDao, Serializable {
 
     private HiveDao hiveDao=new HiveDaoImpl();
 
-    private MysqlDao mysqlDao = new MysqlDaoImpl();
-
     public HiveDao getHiveDao() {
         return hiveDao;
     }
 
-    public MysqlDao getMysqlDao() {
-        return mysqlDao;
-    }
 }

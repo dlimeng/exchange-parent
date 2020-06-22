@@ -13,14 +13,10 @@ import com.knowlegene.parent.process.runners.SwapRunners;
 public class SwapApplication extends SwapRunners {
     public static void main(String[] args) {
         SwapApplication application=new SwapApplication();
-
         application.start(args);
-        application.run();
     }
-
     @Override
     public void setJobStream() {
-        getImport();
-        getExport();
+
     }
 }

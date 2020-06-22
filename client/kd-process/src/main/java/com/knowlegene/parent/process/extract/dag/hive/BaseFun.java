@@ -2,7 +2,7 @@ package com.knowlegene.parent.process.extract.dag.hive;
 
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.config.util.HSqlThreadLocalUtil;
-import com.knowlegene.parent.process.model.NestingFields;
+import com.knowlegene.parent.process.pojo.NestingFields;
 import com.knowlegene.parent.process.transform.common.BaseTransform;
 import com.knowlegene.parent.process.util.SqlUtil;
 import org.slf4j.Logger;

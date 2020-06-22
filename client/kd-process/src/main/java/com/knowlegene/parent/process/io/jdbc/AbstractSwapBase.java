@@ -2,14 +2,13 @@ package com.knowlegene.parent.process.io.jdbc;
 
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.config.util.JdbcUtil;
-import com.knowlegene.parent.process.model.ObjectCoder;
+import com.knowlegene.parent.process.pojo.ObjectCoder;
 import com.knowlegene.parent.process.transform.JdbcTransform;
 import org.apache.beam.sdk.coders.MapCoder;
 import org.apache.beam.sdk.coders.SerializableCoder;
 import org.apache.beam.sdk.coders.StringUtf8Coder;
 import org.apache.beam.sdk.io.jdbc.JdbcIO;
 import org.apache.beam.sdk.schemas.Schema;
-import org.apache.beam.sdk.schemas.SchemaCoder;
 import org.apache.beam.sdk.values.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,6 +113,7 @@ public abstract class AbstractSwapBase implements Serializable {
                     String name = resultSet.getString(columnLabel1);
                     String type = resultSet.getString(columnLabel2);
                     Schema.Field  field = JdbcUtil.getSchemaField(name,type,isTimeStr);
+                    if(field == null) continue;
                     fields.add(field);
                 }
                 close(resultSet,ps,connection);
@@ -163,6 +163,7 @@ public abstract class AbstractSwapBase implements Serializable {
                 String columnName = resultSet.getString(1);
                 String dataType = resultSet.getString(2);
                 Schema.Field  field = JdbcUtil.getSchemaField(columnName,dataType,isTimeStr);
+                if(field == null) continue;
                 fields.add(field);
             }
             close(resultSet,ps,connection);
@@ -188,6 +189,7 @@ public abstract class AbstractSwapBase implements Serializable {
             PreparedStatement ps = connection.prepareStatement(sql);
             ResultSet resultSet = ps.executeQuery();
             Schema schema = JdbcUtil.getSchemaLabel(resultSet,isTimeStr);
+
             close(resultSet,ps,connection);
             return schema;
         }else{

@@ -3,7 +3,6 @@ package com.knowlegene.parent.process.io.jdbc.impl;
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.process.io.jdbc.AbstractSwapBase;
 import com.knowlegene.parent.process.io.jdbc.MySQLSwap;
-import com.knowlegene.parent.process.util.MySQLDataSourceUtil;
 import org.apache.beam.sdk.io.jdbc.JdbcIO;
 import org.apache.beam.sdk.schemas.Schema;
 import org.apache.beam.sdk.values.Row;
@@ -16,7 +15,7 @@ import javax.sql.DataSource;
  * @Author: limeng
  * @Date: 2019/8/21 15:18
  */
-public class MySQLSwapImpl extends AbstractSwapBase implements MySQLSwap {
+public abstract class MySQLSwapImpl extends AbstractSwapBase implements MySQLSwap {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
@@ -76,14 +75,6 @@ public class MySQLSwapImpl extends AbstractSwapBase implements MySQLSwap {
         return null;
     }
 
-    /**
-     * 自定义源
-     * @return
-     */
-    @Override
-    public DataSource getDataSource() {
-        return MySQLDataSourceUtil.getDataSource();
-    }
 
 
 }

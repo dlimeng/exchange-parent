@@ -8,9 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.LinkedList;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.logging.Logger;
 
 /**
  * @Classname CacheManager
@@ -38,9 +35,6 @@ public class CacheManager {
 
     private final static  int MAX_CACHE_SIZE = 80;
 
-    private static ReentrantReadWriteLock reentrantReadWriteLock  = new ReentrantReadWriteLock();
-    private static Lock writeLock = reentrantReadWriteLock.writeLock();
-    private static Lock readLock = reentrantReadWriteLock.readLock();
 
     private final  static Map<Object, CacheEntry> cacheEntryMap =new ConcurrentHashMap<>();
 
@@ -52,14 +46,91 @@ public class CacheManager {
         return CacheManagerFactory.CACHE_MANAGER;
     }
 
+    /**
+     * 设置缓存
+     */
+    public static void setCache(String cacheKey, Object cacheValue) {
+        setCache(cacheKey, cacheValue, -1L);
+    }
 
 
-
-    //启动清除失效缓存数据
-    private void initClearTask(){
-        if(clearExpireCacheEnable){
-
+    public static void setCache(String cacheKey, Object cacheValue, long cacheTime){
+        Long ttlTime = null;
+        if (cacheTime <= 0L) {
+            ttlTime = -1L;
         }
+        checkSize();
+        saveCacheUseLog(cacheKey);
+        CURRENT_SIZE = CURRENT_SIZE + 1;
+        if(ttlTime == null){
+            ttlTime = System.currentTimeMillis() + cacheTime;
+        }
+        CacheEntry cacheObj = new CacheEntry(cacheValue, ttlTime);
+        cacheEntryMap.put(cacheKey, cacheObj);
+    }
+
+
+    public static Object getCache(String cacheKey) {
+        startCleanThread();
+        if(checkCache(cacheKey)){
+            saveCacheUseLog(cacheKey);
+            return cacheEntryMap.get(cacheKey).getCacheValue();
+        }
+        return null;
+    }
+
+
+    public static boolean isExist(String cacheKey) {
+        return checkCache(cacheKey);
+    }
+    /**
+     * 判断缓存存在不存
+     * @param cacheKey
+     * @return
+     */
+    private static boolean checkCache(String cacheKey){
+        CacheEntry cacheEntry = cacheEntryMap.get(cacheKey);
+        if(cacheEntry == null){
+            return false;
+        }
+
+        if(cacheEntry.getTtlTime() == -1L){
+            return true;
+        }
+
+        if(cacheEntry.getTtlTime() <System.currentTimeMillis()){
+            deleteCache(cacheKey);
+            return false;
+        }
+
+        return true;
+    }
+
+
+    /**
+     * 保存缓存使用记录
+     */
+    private static  synchronized void saveCacheUseLog(String cacheKey){
+       synchronized (cacheUseRecord){
+           cacheUseRecord.remove(cacheKey);
+           cacheUseRecord.add(0,cacheKey);
+       }
+    }
+
+    /**
+     * 检查大小
+     * 当前大小
+     * 首先删除过期缓存，如果过期缓存删除过后还是达到最大缓存数目
+     * 删除最久未使用缓存
+     */
+    private static void checkSize(){
+        if(CURRENT_SIZE >= MAX_CACHE_SIZE){
+            deleteTimeOut();
+        }
+        if (CURRENT_SIZE >= MAX_CACHE_SIZE) {
+            deleteLRU();
+        }
+
     }
 
 

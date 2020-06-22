@@ -4,9 +4,9 @@ import com.knowlegene.parent.config.common.constantenum.HiveTypeEnum;
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.process.io.jdbc.AbstractSwapBase;
 import com.knowlegene.parent.process.io.jdbc.HiveSwap;
-import com.knowlegene.parent.process.model.ObjectCoder;
+import com.knowlegene.parent.process.pojo.ObjectCoder;
 import com.knowlegene.parent.process.transform.TypeConversion;
-import com.knowlegene.parent.process.util.HiveDataSourceUtil;
+import com.knowlegene.parent.scheduler.utils.CacheManager;
 import org.apache.beam.sdk.io.hcatalog.HCatalogIO;
 import org.apache.beam.sdk.io.jdbc.JdbcIO;
 import org.apache.beam.sdk.schemas.Schema;
@@ -17,7 +17,6 @@ import org.apache.hive.hcatalog.data.HCatRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,17 +25,10 @@ import java.util.Map;
  * @Author: limeng
  * @Date: 2019/8/22 14:46
  */
-public class HiveSwapImpl extends AbstractSwapBase implements HiveSwap {
+public abstract class HiveSwapImpl extends AbstractSwapBase implements HiveSwap {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Override
-    public DataSource getDataSource() {
-        DataSource dataSource = HiveDataSourceUtil.getDataSource();
-        if(dataSource == null){
-            logger.error("hive dataSource is null");
-        }
-        return dataSource;
-    }
+
 
     /**
      * 获取Schema
@@ -64,6 +56,8 @@ public class HiveSwapImpl extends AbstractSwapBase implements HiveSwap {
             logger.error("sql is  null");
             return null;
         }
+
+
         return this.batchHiveSave(sql);
     }
 
@@ -80,6 +74,7 @@ public class HiveSwapImpl extends AbstractSwapBase implements HiveSwap {
             logger.error("sql is null");
         }else{
             try {
+
                 result = this.write(sql);
             } catch (SQLException e) {
                 result = -1;
@@ -188,7 +183,10 @@ public class HiveSwapImpl extends AbstractSwapBase implements HiveSwap {
             logger.error("schema is null");
             return null;
         }
+
         String sql = "select * from "+tableName;
+
+
         return this.query(sql,type);
     }
 
@@ -199,6 +197,7 @@ public class HiveSwapImpl extends AbstractSwapBase implements HiveSwap {
             return null;
         }
         String sql = "select * from "+tableName;
+
         try {
             return this.selectByHive(sql);
         } catch (Exception e) {
@@ -216,6 +215,7 @@ public class HiveSwapImpl extends AbstractSwapBase implements HiveSwap {
     @Override
     public JdbcIO.Read<Row> query(String sql, Schema type) {
         try {
+
             return this.select(sql,type);
         } catch (Exception e) {
             logger.error("query=>sql:{},msg:{}",sql,e.getMessage());

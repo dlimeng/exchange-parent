@@ -1,7 +1,7 @@
 package com.knowlegene.parent.process.route.swap;
 
 import com.knowlegene.parent.process.SwapApplication;
-import com.knowlegene.parent.process.model.SwapOptions;
+import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.runners.SwapRunners;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -20,8 +20,8 @@ public class Neo4jSwapTest   extends SwapRunners {
     private static SwapOptions swapOptions;
     @Override
     public void setJobStream() {
-        getImport();
-        getExport();
+
+
     }
     @BeforeClass
     public static void beforeClass(){
@@ -32,7 +32,7 @@ public class Neo4jSwapTest   extends SwapRunners {
     public static void  afterClass(){
         application.setSwapOptions(swapOptions);
         application.start();
-        application.run();
+
     }
 
 
@@ -56,7 +56,7 @@ public class Neo4jSwapTest   extends SwapRunners {
         swapOptions.setNeoPassword("limeng");
         swapOptions.setNeoFormat("id:ID(Node) name iscp regCap regCapTyp invGrtTyp");
 
-        swapOptions.setExportOptions(true);
+
     }
 
     @Test
@@ -76,7 +76,7 @@ public class Neo4jSwapTest   extends SwapRunners {
          */
         swapOptions.setCypher("CREATE (a:Node {id: {id}, name: {name},iscp:{iscp},regcap:{regcap},regcaptyp:{regcaptyp},invgrttyp:{invgrttyp} })");
 
-        swapOptions.setExportOptions(true);
+
     }
 
     /**
@@ -102,7 +102,7 @@ public class Neo4jSwapTest   extends SwapRunners {
          */
         swapOptions.setNeoFormat(":START_ID(Node) :END_ID(Node) weight isPerson createDate updateDate type title");
 
-        swapOptions.setExportOptions(true);
+
     }
 
     @Test
@@ -126,7 +126,7 @@ public class Neo4jSwapTest   extends SwapRunners {
                 " CREATE (a)-[r:Test {weight:{weight} ,isperson:{isperson} ,createdate:{createdate} ,updatedate:{updatedate} , type:{type} , title:{title}  }] ->(b) ");
 
 
-        swapOptions.setExportOptions(true);
+
     }
 
 

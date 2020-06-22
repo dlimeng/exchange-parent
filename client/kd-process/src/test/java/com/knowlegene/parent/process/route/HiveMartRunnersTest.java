@@ -18,4 +18,5 @@ public class HiveMartRunnersTest extends JobRunners {
         ht.start();
         ht.run();
     }
+
 }

@@ -18,13 +18,13 @@ public abstract class AbstractService  implements Service{
 
     private final String name;
 
-    private final ServiceStateModel stateModel;
+    private volatile ServiceStateModel stateModel;
 
     private long startTime;
 
     private Exception failureCause;
 
-    private STATE failureState = null;
+    private volatile STATE failureState = null;
 
     private final AtomicBoolean terminationNotification = new AtomicBoolean(false);
 
@@ -36,7 +36,7 @@ public abstract class AbstractService  implements Service{
     }
 
     @Override
-    public final STATE getServiceState() {
+    public  synchronized STATE getServiceState() {
         return stateModel.getState();
     }
 
