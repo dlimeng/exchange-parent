@@ -5,7 +5,7 @@ import com.knowlegene.parent.config.common.event.MySQLImportType;
 import com.knowlegene.parent.scheduler.event.AbstractEvent;
 
 /**
- * @Classname HiveTaskEvent
+ * @Classname MySQLImportTaskEvent
  * @Description TODO
  * @Date 2020/6/11 15:29
  * @Created by limeng

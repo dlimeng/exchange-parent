@@ -15,7 +15,4 @@ public class HiveExportTaskEvent extends AbstractEvent<HiveExportType> {
         super(hiveExportEnum);
     }
 
-    public HiveExportTaskEvent(HiveExportType hiveExportEnum, long timestamp) {
-        super(hiveExportEnum, timestamp);
-    }
 }

@@ -1,12 +1,14 @@
 package com.knowlegene.parent.process.swap;
 
+
+
 import com.knowlegene.parent.config.common.constantenum.DBOperationEnum;
-import com.knowlegene.parent.config.common.event.OracleImportType;
+import com.knowlegene.parent.config.common.event.GbaseImportType;
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.config.util.JdbcUtil;
 import com.knowlegene.parent.process.pojo.db.DBOptions;
 import com.knowlegene.parent.process.pojo.SwapOptions;
-import com.knowlegene.parent.process.swap.event.OracleImportTaskEvent;
+import com.knowlegene.parent.process.swap.event.GbaseImportTaskEvent;
 import com.knowlegene.parent.scheduler.event.EventHandler;
 import com.knowlegene.parent.scheduler.utils.CacheManager;
 import org.apache.beam.sdk.schemas.Schema;
@@ -17,23 +19,21 @@ import org.apache.beam.sdk.values.Row;
 
 /**
  * @Author: limeng
- * @Date: 2019/8/20 16:44
+ * @Date: 2019/8/20 16:40
  */
-public class OracleImportJob extends ImportJobBase{
+public class GbaseImportJob extends ImportJobBase{
     private volatile static DBOptions dbOptions = null;
 
-    public OracleImportJob() {
+    public GbaseImportJob() {
     }
 
-    public OracleImportJob(SwapOptions opts) {
+    public GbaseImportJob(SwapOptions opts) {
         super(opts);
     }
 
-
-
-    private static DBOptions getDbOptions(){
+    public static DBOptions getDbOptions(){
         if(dbOptions == null){
-            String name = DBOperationEnum.ORACLE_IMPORT.getName();
+            String name = DBOperationEnum.GBASE_IMPORT.getName();
             Object options = getOptions(name);
             if(options != null){
                 dbOptions = (DBOptions)options;
@@ -42,22 +42,6 @@ public class OracleImportJob extends ImportJobBase{
         return dbOptions;
     }
 
-    /**
-     * 保存
-     * @param rows
-     * @param schema
-     * @param tableName
-     * @return
-     */
-    private static void saveBySQL(PCollection<Row> rows, Schema schema, String tableName){
-        if(rows !=null && schema!=null){
-            String insertSQL = getInsertSQL(schema, tableName);
-            getLogger().info("insertSQL:{}",insertSQL);
-            if(BaseUtil.isNotBlank(insertSQL)){
-                rows.apply(getOracleSwapImport().saveByIO(insertSQL));
-            }
-        }
-    }
 
     /**
      * 批量保存sql
@@ -74,23 +58,42 @@ public class OracleImportJob extends ImportJobBase{
     }
 
 
-    private static Schema getOracleSchemas(){
+
+
+    private static Schema getSchemas(){
         String[] dbColumn = getDbOptions().getDbColumn();
         String tableName = getDbOptions().getTableName();
-        //getDbOptions()
-        Schema allSchema = getOracleSwapImport().desc(tableName);
+        //表所有列
+        Schema allSchema = getGbaseSwapImport().desc(tableName);
 
-        getLogger().info("oracle=>tableName:{}",tableName);
+        getLogger().info("gbase=>tableName:{}",tableName);
         return JdbcUtil.columnConversion(dbColumn, allSchema);
-
 
     }
 
 
+
+    /**
+     * 保存
+     * @param rows
+     * @param schema
+     * @param tableName
+     * @return
+     */
+    private static void saveBySQL(PCollection<Row> rows, Schema schema, String tableName){
+        if(rows !=null && schema!=null){
+            String insertSQL = getInsertSQL(schema, tableName);
+            getLogger().info("insertSQL:{}",insertSQL);
+            if(BaseUtil.isNotBlank(insertSQL)){
+                rows.apply(getGbaseSwapImport().saveByIO(insertSQL));
+            }
+        }
+    }
+
     public static void save(PCollection<Row> rows) {
         if(rows != null){
             String tableName = getDbOptions().getTableName();
-            Schema schema = getOracleSchemas();
+            Schema schema = getSchemas();
             if(schema == null){
                 getLogger().info("schema is null");
             }
@@ -100,11 +103,11 @@ public class OracleImportJob extends ImportJobBase{
     }
 
 
-    public static class OracleImportDispatcher implements EventHandler<OracleImportTaskEvent> {
+    public static class GbaseImportDispatcher implements EventHandler<GbaseImportTaskEvent> {
         @Override
-        public void handle(OracleImportTaskEvent event) {
-            if(event.getType() == OracleImportType.T_IMPORT){
-                getLogger().info("OracleImportDispatcher is start");
+        public void handle(GbaseImportTaskEvent event) {
+            if(event.getType() == GbaseImportType.T_IMPORT){
+                getLogger().info("GbaseImportDispatcher is start");
 
                 if(CacheManager.isExist(DBOperationEnum.PCOLLECTION_QUERYS.getName())){
                     PCollection<Row>  rows = (PCollection<Row>)CacheManager.getCache(DBOperationEnum.PCOLLECTION_QUERYS.getName());
@@ -114,7 +117,6 @@ public class OracleImportJob extends ImportJobBase{
             }
         }
     }
-
 
 
 }

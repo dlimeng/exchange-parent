@@ -6,7 +6,7 @@ import com.knowlegene.parent.config.common.constantenum.DBOperationEnum;
 import com.knowlegene.parent.config.common.event.MySQLImportType;
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.config.util.JdbcUtil;
-import com.knowlegene.parent.process.pojo.DBOptions;
+import com.knowlegene.parent.process.pojo.db.DBOptions;
 import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.swap.event.MySQLImportTaskEvent;
 import com.knowlegene.parent.scheduler.event.EventHandler;
@@ -23,7 +23,7 @@ import org.apache.beam.sdk.values.Row;
  * @Date: 2019/8/20 16:40
  */
 public class MySQLImportJob extends ImportJobBase{
-    private static DBOptions dbOptions = null;
+    private volatile static DBOptions dbOptions = null;
 
     public MySQLImportJob() {
     }
@@ -61,7 +61,7 @@ public class MySQLImportJob extends ImportJobBase{
 
 
 
-    protected static Schema getMysqlSchemas(){
+    private static Schema getMysqlSchemas(){
         String[] dbColumn = getDbOptions().getDbColumn();
         String tableName = getDbOptions().getTableName();
         //表所有列

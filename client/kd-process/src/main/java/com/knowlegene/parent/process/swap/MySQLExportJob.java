@@ -4,7 +4,7 @@ import com.knowlegene.parent.config.common.constantenum.DBOperationEnum;
 import com.knowlegene.parent.config.common.event.MySQLExportType;
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.config.util.JdbcUtil;
-import com.knowlegene.parent.process.pojo.DBOptions;
+import com.knowlegene.parent.process.pojo.db.DBOptions;
 import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.swap.event.MySQLExportTaskEvent;
 import com.knowlegene.parent.scheduler.event.EventHandler;
@@ -15,13 +15,16 @@ import org.apache.beam.sdk.schemas.SchemaCoder;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.Row;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * @Author: limeng
  * @Date: 2019/9/9 14:57
  */
 public class MySQLExportJob extends ExportJobBase {
 
-    private static DBOptions dbOptions = null;
+    private volatile static DBOptions dbOptions = null;
 
     public MySQLExportJob() {
     }
@@ -56,7 +59,7 @@ public class MySQLExportJob extends ExportJobBase {
      * 查询sql
      * @return
      */
-    public static PCollection<Row> queryBySQL(){
+    private static PCollection<Row> queryBySQL(){
         String sql = getDbOptions().getDbSQL();
         String tableName = getDbOptions().getTableName();
         String[] dbColumn = JdbcUtil.getColumnBySqlRex(sql);
@@ -76,7 +79,7 @@ public class MySQLExportJob extends ExportJobBase {
      * 查询表
      * @return
      */
-    protected static PCollection<Row> queryByTable(){
+    private static PCollection<Row> queryByTable(){
 
         Schema schema = getMysqlSchemas();
         String tableName = getDbOptions().getTableName();
@@ -96,10 +99,7 @@ public class MySQLExportJob extends ExportJobBase {
         }else{
             rows = queryByTable();
         }
-//        NestingFields nestingFields = options.getNestingFields();
-//        if(nestingFields !=null && rows!=null){
-//            return nestingFieldToEs(nestingFields,rows);
-//        }
+
         return rows;
     }
 
@@ -109,7 +109,7 @@ public class MySQLExportJob extends ExportJobBase {
         @Override
         public void handle(MySQLExportTaskEvent event) {
             if (event.getType() == MySQLExportType.T_EXPORT) {
-                getLogger().info("HiveExportDispatcher is start");
+                getLogger().info("MySQLExportDispatcher is start");
 
                 PCollection<Row> rows = query();
                 CacheManager.setCache(DBOperationEnum.PCOLLECTION_QUERYS.getName(), rows);
@@ -118,46 +118,6 @@ public class MySQLExportJob extends ExportJobBase {
         }
     }
 
-    //
-//    /**
-//     * 嵌套
-//     * @param nestingFields
-//     * @param querys
-//     * @return
-//     */
-//    private PCollection<Row> nestingFieldToEs(NestingFields nestingFields, PCollection<Row> querys){
-//        if(nestingFields == null){
-//            return null;
-//        }
-//
-//        String[] columns = nestingFields.getColumns();
-//        //查询
-//        String[] keys = nestingFields.getKeys();
-//        KV<String, List<String>> nestings = nestingFields.mapToKV2();
-//
-//        Schema schema = getMysqlSchemas();
-//        if(schema == null){
-//            getLogger().error("schema is null");
-//            return null;
-//        }
-//        if(columns == null){
-//            List<String> strings = schema.getFieldNames();
-//            strings.removeAll(nestings.getValue());
-//            strings.removeAll(Arrays.asList(keys));
-//            int size = strings.size();
-//            if(!BaseUtil.isBlankSet(strings)){
-//                nestingFields.setColumns(strings.toArray(new String[size]));
-//            }
-//        }
-//
-//        nestingFields.creatByNesting(nestings.getKey(),schema);
-//        Schema resultSchema = nestingFields.getResultSchema();
-//        if(resultSchema == null){
-//            getLogger().error("resultSchema is null");
-//            return null;
-//        }
-//
-//        return  querys.apply(new ESTransform.NestingFieldTransform(Arrays.asList(keys),resultSchema,nestings));
-//    }
+
 
 }

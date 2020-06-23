@@ -1,12 +1,18 @@
 package com.knowlegene.parent.process.swap;
 
+import com.knowlegene.parent.config.common.constantenum.DBOperationEnum;
+import com.knowlegene.parent.config.common.event.FileImportType;
 import com.knowlegene.parent.config.util.BaseUtil;
+import com.knowlegene.parent.config.util.HdfsFileUtil;
 import com.knowlegene.parent.process.pojo.SwapOptions;
+import com.knowlegene.parent.process.pojo.file.FileOptions;
+import com.knowlegene.parent.process.swap.event.FileImportTaskEvent;
 import com.knowlegene.parent.process.transform.TypeConversion;
+import com.knowlegene.parent.scheduler.event.EventHandler;
+import com.knowlegene.parent.scheduler.utils.CacheManager;
 import org.apache.beam.sdk.io.TextIO;
-import org.apache.beam.sdk.schemas.Schema;
-import org.apache.beam.sdk.schemas.SchemaCoder;
 import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.Row;
 
@@ -17,6 +23,8 @@ import org.apache.beam.sdk.values.Row;
  */
 public class FileImportJob  extends ImportJobBase{
 
+    private static volatile FileOptions fileOptions= null;
+
     public FileImportJob() {
     }
 
@@ -24,53 +32,64 @@ public class FileImportJob  extends ImportJobBase{
         super(opts);
     }
 
-    public PCollection<String> queryByFile(){
-//        String fieldDelim = options.getFieldDelim();
-//        String filePath = options.getFilePath();
-//        if(fieldDelim == null || fieldDelim == "" || BaseUtil.isBlank(filePath)){
-//            getLogger().error("fieldDelim/filePath is null");
-//            return null;
-//        }
-//
-//        return super.getPipeline().apply(TextIO.read().from(filePath).withHintMatchesManyFiles());
-        return null;
+
+    public static FileOptions getDbOptions(){
+        if(fileOptions == null){
+            String name = DBOperationEnum.FILE_IMPORT.getName();
+            Object options = getOptions(name);
+            if(options != null){
+                fileOptions = (FileOptions)options;
+            }
+        }
+        return fileOptions;
     }
 
     /**
-     *
-     * 转换 根据导入库的类型
-     * @return
+     * 保存文件
+     * @param rows
      */
-    public PCollection<Row> transformPCollection(){
-//        PCollection<Row> result = null;
-//        Schema type= null;
-//        if(isMySQL()){
-//            type = getMysqlSchemas();
-//        }else if(isHiveImport()){
-//            type = getHiveSchemas(true);
-//        }
-//        if(type == null){
-//            getLogger().error("schema is null");
-//            return result;
-//        }
-//        String fieldDelim = options.getFieldDelim();
-//        PCollection<String> files = queryByFile();
-//        if(files!=null){
-//            return files.apply(ParDo.of(new TypeConversion.StringAndRow(type,fieldDelim))).setCoder(SchemaCoder.of(type));
-//        }else{
-//            getLogger().info("files is null");
-//        }
-        return null;
+    private static void saveByFile(PCollection<Row> rows){
+        if(rows != null){
+            String filePath = getDbOptions().getFilePath();
+            String fieldDelim = getDbOptions().getFieldDelim();
+            if(fieldDelim == null || fieldDelim == ""){
+                fieldDelim = "\t";
+            }
+            if(BaseUtil.isBlank(filePath)){
+                getLogger().info("filePath is null");
+                return;
+            }
+            KV<String, String> splitKv = HdfsFileUtil.splitMark(filePath, "\\.");
 
+            //切分路径
+            PCollection<String> apply = rows.apply(ParDo.of(new TypeConversion.RowAndString(fieldDelim)));
+            apply.apply(TextIO.write().to(splitKv.getKey()).withSuffix(splitKv.getValue()));
+        }
     }
 
 
 
-
-
-    public static PCollection<Row> query(){
-
-        //return transformPCollection();
-        return null;
+    public static void save(PCollection<Row> rows) {
+        if(rows!=null){
+           saveByFile(rows);
+        }
     }
+
+
+
+    public static class FileImportDispatcher implements EventHandler<FileImportTaskEvent> {
+        @Override
+        public void handle(FileImportTaskEvent event) {
+            if(event.getType() == FileImportType.T_IMPORT){
+                getLogger().info("FileImportDispatcher is start");
+
+                if(CacheManager.isExist(DBOperationEnum.PCOLLECTION_QUERYS.getName())){
+                    PCollection<Row>  rows = (PCollection<Row>)CacheManager.getCache(DBOperationEnum.PCOLLECTION_QUERYS.getName());
+                    save(rows);
+                }
+
+            }
+        }
+    }
+
 }

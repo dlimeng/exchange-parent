@@ -13,5 +13,7 @@ public interface GbaseSwap {
 
     Schema desc(String tableName);
 
+    JdbcIO.Write<Row> saveByIO(String sql);
+
     JdbcIO.Read<Row> query(String sql, Schema type);
 }

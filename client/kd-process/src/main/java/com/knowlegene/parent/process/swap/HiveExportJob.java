@@ -84,8 +84,10 @@ public class HiveExportJob extends ExportJobBase {
            return  queryBySQL();
         } else {
             String tableName = getHiveOptions().getHiveTableName();
+            String[] dbColumn = getHiveOptions().getHiveColumn();
             //表所有列
-            Schema schema = getHiveSwapExport().descByTableName(tableName, true);
+            Schema allSchema = getHiveSwapExport().descByTableName(tableName,true);
+            Schema schema = JdbcUtil.columnConversion(dbColumn, allSchema);
             if (schema == null) {
                 getLogger().error("schema is null");
                 return null;

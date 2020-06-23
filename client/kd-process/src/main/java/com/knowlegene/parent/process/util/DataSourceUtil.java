@@ -3,8 +3,11 @@ package com.knowlegene.parent.process.util;
 import com.knowlegene.parent.config.common.constantenum.DBOperationEnum;
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.process.pojo.DataSources;
+import com.knowlegene.parent.process.pojo.NestingFields;
 import com.knowlegene.parent.process.pojo.SwapOptions;
-import com.knowlegene.parent.process.pojo.DBOptions;
+import com.knowlegene.parent.process.pojo.db.DBOptions;
+import com.knowlegene.parent.process.pojo.es.ESOptions;
+import com.knowlegene.parent.process.pojo.file.FileOptions;
 import com.knowlegene.parent.process.pojo.hive.HiveOptions;
 import com.knowlegene.parent.scheduler.utils.CacheManager;
 
@@ -24,6 +27,7 @@ public class DataSourceUtil {
      * @param dataSources
      */
     private static void setDataSourcePool(String keys,DataSources dataSources) {
+
         if(BaseUtil.isBlank(keys)) return;
 
         String driverClassName = dataSources.getClassName();
@@ -41,6 +45,7 @@ public class DataSourceUtil {
      * @param options
      */
     public static void setHive(String keys, SwapOptions options){
+        if(options == null) return;
         if(BaseUtil.isBlank(keys)) return;
         HiveOptions hiveOptions = new HiveOptions();
         BaseUtil.copyNonNullProperties(hiveOptions,options);
@@ -63,6 +68,7 @@ public class DataSourceUtil {
 
 
     public static void setHiveImExport(String keys, SwapOptions options){
+        if(options == null) return;
         if(BaseUtil.isBlank(keys)) return;
         String[] hiveDatabases = options.getHiveDatabases();
 
@@ -138,6 +144,7 @@ public class DataSourceUtil {
 
 
     public static void setDBImExport(String keys, SwapOptions options){
+        if(options == null) return;
         if(BaseUtil.isBlank(keys)) return;
 
         String[] driverClasss = options.getDriverClasss();
@@ -162,7 +169,6 @@ public class DataSourceUtil {
 
         int exIndex = 0;
         int imIndex = 1;
-
 
 
 
@@ -207,12 +213,14 @@ public class DataSourceUtil {
 
     }
 
+
     /**setDb
      * oracle gbase mysql
      * @param keys
      * @param options
      */
     public static void setDb(String keys, SwapOptions options){
+        if(options == null) return;
         if(BaseUtil.isBlank(keys)) return;
 
 
@@ -238,6 +246,129 @@ public class DataSourceUtil {
 
     }
 
+
+    public static void setEsImExport(String keys, SwapOptions options){
+        if(options == null) return;
+
+        String[] esAddrsFrom = options.getEsAddrsFrom();
+        String[] esAddrsTo = options.getEsAddrsTo();
+        String[] esIndexs = options.getEsIndexs();
+        String[] esTypes = options.getEsTypes();
+
+
+        ESOptions esoptions = new ESOptions();
+        BaseUtil.copyProperties(esoptions,options);
+
+
+        // exort 1  import 2
+        int esFromLength = esAddrsFrom == null ? 0:esAddrsFrom.length;
+        int esToLength = esAddrsTo == null ? 0:esAddrsTo.length;
+
+        int esIndexLength = esIndexs == null ? 0:esIndexs.length;
+        int esTypeLength = esTypes == null ? 0:esTypes.length;
+
+
+        int exIndex = 0;
+        int imIndex = 1;
+
+
+        if(keys.contains(DBOperationEnum.EXPORT.getName())){
+            if(esFromLength > exIndex) esoptions.setEsAddrs(esAddrsFrom);
+
+            if(esIndexLength > exIndex) esoptions.setEsIndex(esIndexs[exIndex]);
+            if(esTypeLength > exIndex) esoptions.setEsType(esIndexs[exIndex]);
+
+
+        }else if(keys.contains(DBOperationEnum.IMPORT.getName())){
+            if(esToLength > exIndex) esoptions.setEsAddrs(esAddrsTo);
+
+            if(esIndexLength > imIndex) esoptions.setEsIndex(esIndexs[imIndex]);
+            if(esTypeLength > imIndex) esoptions.setEsType(esIndexs[imIndex]);
+        }
+
+
+        if(esoptions == null) return;
+
+        NestingFields nestingFields = options.getNestingFields();
+        if(nestingFields != null){
+            esoptions.setNestingFields(nestingFields);
+        }
+
+        CacheManager.setCache(keys,esoptions);
+    }
+
+
+
+    public static void setEs(String keys, SwapOptions options){
+        if(options == null) return;
+
+        ESOptions esoptions = new ESOptions();
+        BaseUtil.copyProperties(esoptions,options);
+
+        if(esoptions == null) return;
+
+        NestingFields nestingFields = options.getNestingFields();
+        if(nestingFields != null){
+            esoptions.setNestingFields(nestingFields);
+        }
+
+        CacheManager.setCache(keys,esoptions);
+
+    }
+
+
+    public static void setFileImExport(String keys, SwapOptions options){
+        if(options == null) return;
+
+        String[] fieldDelims = options.getFieldDelims();
+        String[] filePaths = options.getFilePaths();
+
+
+
+        FileOptions fileoptions = new FileOptions();
+        BaseUtil.copyProperties(fileoptions,options);
+
+
+        // exort 1  import 2
+        int fieldDelimLength = fieldDelims == null ? 0:fieldDelims.length;
+        int filePathLength = filePaths == null ? 0:filePaths.length;
+
+
+
+        int exIndex = 0;
+        int imIndex = 1;
+
+
+        if(keys.contains(DBOperationEnum.EXPORT.getName())){
+            if(fieldDelimLength > exIndex) fileoptions.setFieldDelim(fieldDelims[exIndex]);
+
+            if(filePathLength > exIndex) fileoptions.setFilePath(filePaths[exIndex]);
+
+
+        }else if(keys.contains(DBOperationEnum.IMPORT.getName())){
+            if(fieldDelimLength > imIndex) fileoptions.setFieldDelim(fieldDelims[imIndex]);
+
+            if(filePathLength > imIndex)  fileoptions.setFilePath(filePaths[imIndex]);
+
+        }
+
+
+        if(fileoptions == null) return;
+
+
+        CacheManager.setCache(keys,fileoptions);
+    }
+
+    public static void setFile(String keys, SwapOptions options){
+        if(options == null) return;
+
+        FileOptions fileoptions = new FileOptions();
+        BaseUtil.copyProperties(fileoptions,options);
+
+        if(fileoptions == null) return;
+
+        CacheManager.setCache(keys,fileoptions);
+    }
 
     private static String getDBName(String keys){
         DBOperationEnum anEnum = DBOperationEnum.getEnum(keys);

@@ -91,4 +91,23 @@ public class SqlUtil {
         return null;
     }
 
+    public static Schema getSchemaByTitle(String[] titles){
+        Schema result = null;
+        if(titles == null || titles.length == 0) return result;
+
+
+        List<Schema.Field>  fields = new ArrayList<>();
+        for(String t:titles){
+            if(BaseUtil.isNotBlank(t)){
+                fields.add(Schema.Field.of(t,Schema.FieldType.STRING));
+            }
+        }
+
+        if(!BaseUtil.isBlankSet(fields)){
+            result = Schema.builder().addFields(fields).build();
+        }
+
+        return result;
+    }
+
 }

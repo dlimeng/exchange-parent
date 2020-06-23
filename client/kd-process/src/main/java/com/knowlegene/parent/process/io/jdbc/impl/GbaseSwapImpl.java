@@ -1,8 +1,8 @@
 package com.knowlegene.parent.process.io.jdbc.impl;
 
+import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.process.io.jdbc.AbstractSwapBase;
 import com.knowlegene.parent.process.io.jdbc.GbaseSwap;
-import com.knowlegene.parent.process.util.GbaseDataSourceUtil;
 import org.apache.beam.sdk.io.jdbc.JdbcIO;
 import org.apache.beam.sdk.schemas.Schema;
 import org.apache.beam.sdk.values.Row;
@@ -14,7 +14,7 @@ import javax.sql.DataSource;
  * @Author: limeng
  * @Date: 2019/10/12 14:16
  */
-public class GbaseSwapImpl extends AbstractSwapBase implements GbaseSwap {
+public abstract class GbaseSwapImpl extends AbstractSwapBase implements GbaseSwap {
 
     @Override
     public JdbcIO.Read<Row> queryByTable(String tableName, Schema type) {
@@ -42,9 +42,14 @@ public class GbaseSwapImpl extends AbstractSwapBase implements GbaseSwap {
         return null;
     }
 
+
     @Override
-    public DataSource getDataSource() {
-        return GbaseDataSourceUtil.getDataSource();
+    public JdbcIO.Write<Row> saveByIO(String sql) {
+        if(BaseUtil.isBlank(sql)){
+            getLogger().error("sql is null");
+            return null;
+        }
+        return this.batchSaveCommon(sql);
     }
 
 }

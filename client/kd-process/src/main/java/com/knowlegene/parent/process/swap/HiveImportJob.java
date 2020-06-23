@@ -74,24 +74,6 @@ public class HiveImportJob extends ImportJobBase{
 
 
 
-    /**
-     * 匹配hive列
-     * @return
-     */
-//    private static boolean matchColumn(){
-//       String[] hiveColumn = getHiveOptions().getHiveColumn();
-//       String[] dbColumn = options.getDbColumn();
-//       boolean result=false;
-//       if(dbColumn == null && hiveColumn==null){
-//           result =true;
-//       }
-//       if(dbColumn !=null && hiveColumn!=null){
-//           if(dbColumn.length == hiveColumn.length){
-//               result = true;
-//           }
-//       }
-//       return result;
-//   }
 
     /**
      * HCatalogIO保存
