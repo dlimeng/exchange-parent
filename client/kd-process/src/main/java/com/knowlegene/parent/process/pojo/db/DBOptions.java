@@ -1,4 +1,4 @@
-package com.knowlegene.parent.process.pojo;
+package com.knowlegene.parent.process.pojo.db;
 
 import com.knowlegene.parent.process.common.annotation.StoredAsProperty;
 import lombok.Data;

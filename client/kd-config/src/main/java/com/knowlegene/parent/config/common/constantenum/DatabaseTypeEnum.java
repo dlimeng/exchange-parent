@@ -14,7 +14,7 @@ public enum DatabaseTypeEnum {
      */
     HIVE(1,"hive"),ORACLE(2,"oracle"),MYSQL(3,"mysql")
     ,HDFS(4,"hdfs"),HIVEDB1(5,"h1"),ES(6,"es"),ELASTICSEARCH(7,"elasticsearch"),GBASE(8,"gbase"),
-    FILE(9,"file");
+    FILE(9,"file"),NEO4J(10,"neo4j");
 
 
     /**

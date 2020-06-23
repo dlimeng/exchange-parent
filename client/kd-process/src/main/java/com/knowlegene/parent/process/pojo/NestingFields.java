@@ -35,10 +35,7 @@ public class NestingFields {
 
     public boolean isEmpty(){
         boolean result=false;
-        if(BaseUtil.isBlank(tableName)){
-            logger.error("table is null");
-            result = true;
-        }
+
         if(keys == null || keys.length<=0){
             logger.error("keys is null");
             result = true;

@@ -30,6 +30,15 @@ public class SwapOptions {
     private String filePath;
     @StoredAsProperty("field.delim")
     private String fieldDelim;
+    @StoredAsProperty("field.fieldTitle")
+    private String[] fieldTitle;
+
+    @StoredAsProperty("file.urls")
+    private String[] filePaths;
+    @StoredAsProperty("field.delims")
+    private String[] fieldDelims;
+
+
 
     @StoredAsProperty("db.url")
     private String url;
@@ -68,6 +77,18 @@ public class SwapOptions {
     private String esQuery;
     @StoredAsProperty("es.idFn")
     private String esIdFn;
+
+    @StoredAsProperty("es.addrs.from")
+    private String[] esAddrsFrom;
+    @StoredAsProperty("es.addrs.to")
+    private String[] esAddrsTo;
+
+    @StoredAsProperty("es.indexs")
+    private String[] esIndexs;
+    @StoredAsProperty("es.type")
+    private String[] esTypes;
+
+
 
     @StoredAsProperty("hive.driver.class")
     private String hiveClass;
@@ -321,10 +342,9 @@ public class SwapOptions {
      * @return 返回值
      */
     private void setNestingFields(){
-        if(this.nestingFields == null && nestingKeys != null  && nestingValues!=null && BaseUtil.isNotBlank(tableName)){
+        if(this.nestingFields == null && nestingKeys != null  && nestingValues!=null){
             NestingFields nestingFields = new NestingFields();
             nestingFields.setColumns(nestingColumns);
-            nestingFields.setTableName(tableName);
             Map<String,String[]> nestings=new HashMap<>();
             //nestings key为结果表嵌套字段名称
             nestings.put("nestingsjson",nestingValues);

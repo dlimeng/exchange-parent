@@ -2,10 +2,8 @@ package com.knowlegene.parent.process.swap;
 
 
 import com.knowlegene.parent.config.common.constantenum.DBOperationEnum;
-import com.knowlegene.parent.process.pojo.DBOptions;
 import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.pojo.hive.HiveOptions;
-import org.apache.beam.sdk.schemas.Schema;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.Row;
 

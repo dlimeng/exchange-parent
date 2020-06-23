@@ -36,16 +36,24 @@ public class BaseSwap  implements Serializable {
     @Resource
     private static MySQLSwap mySQLSwapExport;
 
+
     @Resource
-    private static MySQLSwap mySQLSwap;
+    private static OracleSwap oracleSwapImport;
+
+    private static OracleSwap oracleSwapExport;
+
+
     @Resource
-    private static OracleSwap oracleSwap;
+    private static GbaseSwap gbaseSwapImport;
+    @Resource
+    private static GbaseSwap gbaseSwapExport;
+
+
     @Resource
     private static ESSwap eSSwap;
     @Resource
     private static Neo4jSwap neo4jSwap;
-    @Resource
-    private static GbaseSwap gbaseSwap;
+
 
     public BaseSwap() {
         hiveSwapImport = new HiveSwapImport();
@@ -54,11 +62,15 @@ public class BaseSwap  implements Serializable {
         mySQLSwapImport = new MySQLSwapImport();
         mySQLSwapExport = new MySQLSwapExport();
 
+        oracleSwapImport = new OracleSwapImport();
+        oracleSwapExport = new OracleSwapExport();
 
-        oracleSwap = new OracleSwapImpl();
+        gbaseSwapImport = new GbaseSwapImport();
+        gbaseSwapExport = new GbaseSwapExport();
+
         eSSwap = new ESSwapImpl();
         neo4jSwap = new Neo4jSwapImpl();
-        gbaseSwap = new GbaseSwapImpl();
+
     }
 
     public static HiveSwap getHiveSwapImport(){
@@ -78,9 +90,22 @@ public class BaseSwap  implements Serializable {
     }
 
 
-    public static OracleSwap getOracleSwap(){
-        return oracleSwap;
+    public static OracleSwap getOracleSwapImport() {
+        return oracleSwapImport;
     }
+
+    public static OracleSwap getOracleSwapExport() {
+        return oracleSwapExport;
+    }
+
+    public static GbaseSwap getGbaseSwapImport() {
+        return gbaseSwapImport;
+    }
+
+    public static GbaseSwap getGbaseSwapExport() {
+        return gbaseSwapExport;
+    }
+
 
     public static ESSwap getESSwap(){
         return eSSwap;
@@ -90,8 +115,6 @@ public class BaseSwap  implements Serializable {
         return neo4jSwap;
     }
 
-    public static GbaseSwap getGbaseSwap(){
-        return gbaseSwap;
-    }
+
 
 }

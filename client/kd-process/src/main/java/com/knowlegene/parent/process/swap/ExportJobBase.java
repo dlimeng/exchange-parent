@@ -31,34 +31,6 @@ public class ExportJobBase extends JobBase {
         return hiveOptions;
     }
 
-    /**
-     * 注册
-     * 导入
-     */
-    public void runExport(){
-//        PCollection<Row> query = null;
-//        if(isHiveExport()){
-//            query = getExportJobBase(HiveExportJob.class).query();
-//            if(isFilePath()){
-//                getExportJobBase(FileExportJob.class).save(query);
-//            }else if(isEs()){
-//                getExportJobBase(ESExportJob.class).save(query);
-//            }else if(isNeo4j()){
-//                getExportJobBase(Neo4jExportJob.class).save(query);
-//            }
-//        }else if(isGbase()){
-//            query = getExportJobBase(GbaseExportJob.class).query();
-//            if(isEs()){
-//                getExportJobBase(ESExportJob.class).save(query);
-//            }
-//        }else if(isMySQL()){
-//            query = getImportJobBase(MySQLImportJob.class).query();
-//            if(isEs()){
-//                getExportJobBase(ESExportJob.class).save(query);
-//            }
-//        }
-    }
-
 
     public static PCollection<Row> query() {
         return null;

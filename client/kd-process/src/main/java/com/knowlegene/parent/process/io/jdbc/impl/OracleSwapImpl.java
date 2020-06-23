@@ -3,20 +3,17 @@ package com.knowlegene.parent.process.io.jdbc.impl;
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.process.io.jdbc.AbstractSwapBase;
 import com.knowlegene.parent.process.io.jdbc.OracleSwap;
-import com.knowlegene.parent.process.util.OracleDataSourceUtil;
 import org.apache.beam.sdk.io.jdbc.JdbcIO;
 import org.apache.beam.sdk.schemas.Schema;
 import org.apache.beam.sdk.values.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.sql.DataSource;
-
 /**
  * @Author: limeng
  * @Date: 2019/8/26 19:09
  */
-public class OracleSwapImpl  extends AbstractSwapBase implements OracleSwap {
+public abstract class OracleSwapImpl  extends AbstractSwapBase implements OracleSwap {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
@@ -72,10 +69,7 @@ public class OracleSwapImpl  extends AbstractSwapBase implements OracleSwap {
     }
 
 
-    @Override
-    public DataSource getDataSource() {
-        return OracleDataSourceUtil.getDataSource();
-    }
+
 
 
 }
