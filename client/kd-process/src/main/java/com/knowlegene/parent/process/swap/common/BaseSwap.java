@@ -1,8 +1,7 @@
 package com.knowlegene.parent.process.swap.common;
 
 
-import com.knowlegene.parent.process.extract.ExtractFile;
-import com.knowlegene.parent.process.extract.ExtractHive;
+
 import com.knowlegene.parent.process.io.es.ESSwap;
 import com.knowlegene.parent.process.io.es.impl.ESSwapImpl;
 import com.knowlegene.parent.process.io.jdbc.GbaseSwap;

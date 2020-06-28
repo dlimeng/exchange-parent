@@ -284,46 +284,6 @@
         </dependency>
     </dependencies>
 
-    <profiles>
-        <!-- 开发环境 -->
-        <profile>
-            <id>dev</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-
-                <!--hive-->
-                <kd.hive.classname>org.apache.hive.jdbc.HiveDriver</kd.hive.classname>
-                <kd.hive.url>jdbc:hive2://192.168.20.117:10000/default</kd.hive.url>
-                <kd.hive.user>hive</kd.hive.user>
-                <kd.hive.password>hive</kd.hive.password>
-                <kd.hive.database>default</kd.hive.database>
-                <kd.hive.metastore.uris>thrift://m5.server:9083</kd.hive.metastore.uris>
-                <kd.hive.minPoolSize>5</kd.hive.minPoolSize>
-                <kd.hive.acquireIncrement>5</kd.hive.acquireIncrement>
-                <kd.hive.maxPoolSize>100</kd.hive.maxPoolSize>
-                <kd.hive.maxIdleTime>600</kd.hive.maxIdleTime>
-
-
-
-                <!--hadoop file-->
-                <kd.hdfs.defaultname>hdfs://192.168.200.117:8020</kd.hdfs.defaultname>
-                <kd.hdfs.impl>org.apache.hadoop.hdfs.DistributedFileSystem</kd.hdfs.impl>
-
-            </properties>
-        </profile>
-        <!-- 生产环境 -->
-        <profile>
-            <id>release</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <properties>
-
-            </properties>
-        </profile>
-    </profiles>
     <build>
         <finalName>kd-config</finalName>
         <resources>

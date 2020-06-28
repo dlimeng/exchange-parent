@@ -5,7 +5,6 @@
 	<modules>
 		<module>client/kd-process</module>
 		<module>client/kd-config</module>
-		<module>client/kd-cetl</module>
 		<module>core/scheduler</module>
 	</modules>
 

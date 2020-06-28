@@ -4,8 +4,6 @@ import com.knowlegene.parent.process.runners.options.IndexerPipelineOptions;
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.config.util.PipelineSingletonUtil;
 import com.knowlegene.parent.process.common.constantenum.OptionsEnum;
-import com.knowlegene.parent.process.extract.BaseExtract;
-import com.knowlegene.parent.process.swap.common.BaseSwap;
 import lombok.Data;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.options.PipelineOptions;

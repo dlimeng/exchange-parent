@@ -64,8 +64,8 @@ public abstract class SwapRunners extends BaseJobRunners {
         if(swapOptions != null){
             String fromName = swapOptions.getFromName();
             String toName = swapOptions.getToName();
-            Integer fromVal = DatabaseTypeEnum.queryValue(fromName);
-            Integer toVal = DatabaseTypeEnum.queryValue(toName);
+            Integer fromVal = DatabaseTypeEnum.queryValue(fromName).getValue();
+            Integer toVal = DatabaseTypeEnum.queryValue(toName).getValue();
             if(fromVal==null || toVal==null){
                 logger.error("fromName or toName is null");
             }

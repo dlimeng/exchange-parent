@@ -1,7 +1,7 @@
 package com.knowlegene.parent.process.transform.common;
 
 
-import com.knowlegene.parent.process.transform.HiveFun;
+
 
 import javax.annotation.Resource;
 
@@ -12,14 +12,5 @@ import javax.annotation.Resource;
 
 public class BaseTransform {
 
-    public BaseTransform() {
-        this.hiveFun = new HiveFun();
-    }
 
-    @Resource
-    private HiveFun hiveFun;
-
-    public HiveFun getHiveFun() {
-        return hiveFun;
-    }
 }
