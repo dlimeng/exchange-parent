@@ -4,6 +4,8 @@ import com.google.auto.value.AutoValue;
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.process.common.constantenum.Neo4jEnum;
 import com.knowlegene.parent.process.pojo.neo4j.Neo4jObject;
+import org.apache.beam.sdk.coders.Coder;
+import org.apache.beam.sdk.io.jdbc.JdbcIO;
 import org.apache.beam.sdk.options.ValueProvider;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
@@ -13,6 +15,7 @@ import org.apache.beam.sdk.util.BackOff;
 import org.apache.beam.sdk.util.BackOffUtils;
 import org.apache.beam.sdk.util.FluentBackoff;
 import org.apache.beam.sdk.util.Sleeper;
+import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PDone;
 import org.joda.time.Duration;
@@ -22,6 +25,7 @@ import org.neo4j.driver.v1.*;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.Serializable;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +43,9 @@ public class Neo4jIO {
     private static final int DEFAULT_FETCH_SIZE = 50_000;
 
     private Neo4jIO() {}
+
+
+
 
     public static <T>Write<T> write(){
         return new AutoValue_Neo4jIO_Write.Builder<T>()
@@ -113,6 +120,38 @@ public class Neo4jIO {
 
     }
 
+    @FunctionalInterface
+    public interface RowMapper<T> extends Serializable {
+        T mapRow(ResultSet resultSet) throws Exception;
+    }
+
+    @AutoValue
+    public abstract static class Read<T> extends  PTransform<PBegin, PCollection<T>>{
+        @Nullable
+        abstract DriverConfiguration getDriverConfiguration();
+        @Nullable
+        abstract String getQuery();
+        @Nullable
+        abstract Coder<T> getCoder();
+
+        @Nullable
+        abstract RowMapper<T> getRowMapper();
+
+        @AutoValue.Builder
+        abstract static class Builder<T>{
+            abstract Builder<T> setDriverConfiguration(DriverConfiguration config);
+            abstract Builder<T> setQuery(String query);
+            abstract Builder<T> setCoder(Coder<T> coder);
+            abstract Builder<T> setRowMapper(RowMapper<T> rowMapper);
+            abstract Read<T> build();
+        }
+
+
+
+
+    }
+
+
 
     @AutoValue
     public abstract static class Write<T> extends PTransform<PCollection<T>, PDone> {
@@ -121,6 +160,7 @@ public class Neo4jIO {
         abstract String getStatement();
 
         abstract long getBatchSize();
+
         @Nullable
         abstract String getOptionsType();
 
