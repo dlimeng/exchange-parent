@@ -1,6 +1,5 @@
 package com.knowlegene.parent.process.runners.options;
 
-import com.knowlegene.parent.process.common.annotation.StoredAsProperty;
 import org.apache.beam.runners.spark.SparkPipelineOptions;
 import org.apache.beam.sdk.options.Description;
 

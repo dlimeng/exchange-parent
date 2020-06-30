@@ -4,7 +4,7 @@ import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.process.common.constantenum.Neo4jEnum;
 import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.pojo.neo4j.Neo4jObject;
-import com.knowlegene.parent.process.pojo.neo4j.Neo4jOptions;
+import com.knowlegene.parent.process.pojo.neo4j.Neo4jCode;
 import com.knowlegene.parent.process.transform.TypeConversion;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
@@ -47,10 +47,10 @@ public class Neo4jImportJob extends ImportJobBase{
      * @param rows
      */
     private void formatSave(PCollection<Row> rows){
-        Neo4jOptions neo4jOptions = new Neo4jOptions();
-        neo4jOptions.toDSL(options.getNeoFormat());
-        Integer type = neo4jOptions.getType();
-        List<String> keys = neo4jOptions.getKeys();
+        Neo4jCode neo4jCode = new Neo4jCode();
+        neo4jCode.toDSL(options.getNeoFormat());
+        Integer type = neo4jCode.getType();
+        List<String> keys = neo4jCode.getKeys();
         if(type == null){
             getLogger().error("format type is null");
             return ;
@@ -59,7 +59,7 @@ public class Neo4jImportJob extends ImportJobBase{
             getLogger().error("keys is null");
             return ;
         }
-        String cypher = neo4jOptions.getDsl();
+        String cypher = neo4jCode.getDsl();
         if(BaseUtil.isBlank(cypher)){
             getLogger().error("cypher is null");
             return ;

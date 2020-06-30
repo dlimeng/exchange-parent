@@ -15,4 +15,6 @@ public interface Neo4jSwap {
     Neo4jIO.Write<Neo4jObject> write(String statement);
 
     Neo4jIO.Write<Neo4jObject> relate(String statement, String label);
+
+    Neo4jIO.Read<Neo4jObject> query(String sql);
 }
