@@ -1,5 +1,6 @@
 package com.knowlegene.parent.process.runners.options;
 
+import lombok.Data;
 import org.apache.beam.runners.spark.SparkPipelineOptions;
 import org.apache.beam.sdk.options.Description;
 
@@ -25,6 +26,19 @@ public interface SwapPipelineOptions extends SparkPipelineOptions {
     public String getFieldDelim();
     public void setFieldDelim(String fieldDelim);
 
+    @Description("文件标题")
+    public String[] getFieldTitle();
+    public void setFieldTitle(String fieldTitle);
+
+    @Description("文件路径")
+    public String[] getFilePaths();
+    public void setFilePaths(String filePaths);
+
+    @Description("文件字段分割符")
+    public String[] getFieldDelims();
+    public void setFieldDelims(String fieldDelims);
+
+
     @Description("db.url")
     public String getUrl();
     public void setUrl(String url);
@@ -48,6 +62,29 @@ public interface SwapPipelineOptions extends SparkPipelineOptions {
     @Description("db.dbColumn")
     public String[] getDbColumn();
     public void setDbColumn(String[] dbColumn);
+
+
+    @Description("db.driver.class")
+    public String[] getDriverClasss();
+    public void setDriverClasss(String[] driverClasss);
+
+    @Description("db.urls")
+    public String[] getUrls();
+    public void setUrls(String[] urls);
+
+    @Description("db.tables")
+    public String[] getTableNames();
+    public void setTableNames(String[] tableNames);
+
+    @Description("db.usernames")
+    public String[] getUsernames();
+    public void setUsernames(String[] usernames);
+
+    @Description("db.passwords")
+    public String[] getPasswords();
+    public void setPasswords(String[] passwords);
+
+
 
     @Description("db.hiveClass")
     public String getHiveClass();

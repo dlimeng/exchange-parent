@@ -6,7 +6,6 @@ import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.runners.options.SwapPipelineOptions;
 import com.knowlegene.parent.process.runners.common.BaseJobRunners;
 import com.knowlegene.parent.process.tool.BaseSwapTool;
-import com.knowlegene.parent.scheduler.service.Service;
 import lombok.Data;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.slf4j.Logger;

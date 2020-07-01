@@ -116,7 +116,7 @@ public class Neo4jIO {
                 driver = getDriver();
             }else{
                 if(getUrl() != null && getUsername()!=null && getPassword()!=null){
-                    driver = GraphDatabase.driver( getUrl().get(), AuthTokens.basic( getUsername().get(), getPassword().get()));
+                    driver = GraphDatabase.driver(getUrl().get(), AuthTokens.basic( getUsername().get(), getPassword().get()));
                 }
             }
             return driver;

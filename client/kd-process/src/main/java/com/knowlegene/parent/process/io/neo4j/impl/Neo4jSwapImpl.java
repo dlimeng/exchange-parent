@@ -6,6 +6,7 @@ import com.knowlegene.parent.process.io.neo4j.Neo4jIO;
 import com.knowlegene.parent.process.io.neo4j.Neo4jSwap;
 import com.knowlegene.parent.process.pojo.neo4j.Neo4jObject;
 
+import com.knowlegene.parent.scheduler.utils.CacheManager;
 import org.apache.beam.sdk.coders.SerializableCoder;
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.StatementResult;
@@ -70,5 +71,13 @@ public abstract class Neo4jSwapImpl implements Neo4jSwap, Serializable {
     }
 
     public abstract Driver getDriver();
+
+    protected static Object getOptions(String keys){
+        boolean exist = CacheManager.isExist(keys);
+        Object result = null;
+        if(!exist) return result;
+        result = CacheManager.getCache(keys);
+        return result;
+    }
 
 }

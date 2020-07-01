@@ -10,7 +10,8 @@ import com.knowlegene.parent.process.io.jdbc.MySQLSwap;
 import com.knowlegene.parent.process.io.jdbc.OracleSwap;
 import com.knowlegene.parent.process.io.jdbc.impl.*;
 import com.knowlegene.parent.process.io.neo4j.Neo4jSwap;
-import com.knowlegene.parent.process.io.neo4j.impl.Neo4jSwapImpl;
+import com.knowlegene.parent.process.io.neo4j.impl.Neo4jSwapExport;
+import com.knowlegene.parent.process.io.neo4j.impl.Neo4jSwapImport;
 import lombok.Data;
 
 
@@ -50,8 +51,12 @@ public class BaseSwap  implements Serializable {
 
     @Resource
     private static ESSwap eSSwap;
+
     @Resource
-    private static Neo4jSwap neo4jSwap;
+    private static Neo4jSwap neo4jSwapImport;
+
+    @Resource
+    private static Neo4jSwap neo4jSwapExport;
 
 
     public BaseSwap() {
@@ -68,52 +73,56 @@ public class BaseSwap  implements Serializable {
         gbaseSwapExport = new GbaseSwapExport();
 
         eSSwap = new ESSwapImpl();
-        neo4jSwap = new Neo4jSwapImpl();
 
+        neo4jSwapImport = new Neo4jSwapImport();
+        neo4jSwapExport = new Neo4jSwapExport();
     }
 
-    public static HiveSwap getHiveSwapImport(){
+    protected static HiveSwap getHiveSwapImport(){
         return hiveSwapImport;
     }
 
-    public static HiveSwap getHiveSwapExport(){
+    protected static HiveSwap getHiveSwapExport(){
         return hiveSwapExport;
     }
 
-    public static MySQLSwap getMySQLSwapImport(){
+    protected static MySQLSwap getMySQLSwapImport(){
         return mySQLSwapImport;
     }
 
-    public static MySQLSwap getMySQLSwapExport(){
+    protected static MySQLSwap getMySQLSwapExport(){
         return mySQLSwapExport;
     }
 
 
-    public static OracleSwap getOracleSwapImport() {
+    protected static OracleSwap getOracleSwapImport() {
         return oracleSwapImport;
     }
 
-    public static OracleSwap getOracleSwapExport() {
+    protected static OracleSwap getOracleSwapExport() {
         return oracleSwapExport;
     }
 
-    public static GbaseSwap getGbaseSwapImport() {
+    protected static GbaseSwap getGbaseSwapImport() {
         return gbaseSwapImport;
     }
 
-    public static GbaseSwap getGbaseSwapExport() {
+    protected static GbaseSwap getGbaseSwapExport() {
         return gbaseSwapExport;
     }
 
 
-    public static ESSwap getESSwap(){
+    protected static ESSwap getESSwap(){
         return eSSwap;
     }
 
-    public static Neo4jSwap getNeo4jSwap(){
-        return neo4jSwap;
+
+
+    protected static Neo4jSwap getNeo4jSwapImport() {
+        return neo4jSwapImport;
     }
 
-
-
+    protected static Neo4jSwap getNeo4jSwapExport() {
+        return neo4jSwapExport;
+    }
 }

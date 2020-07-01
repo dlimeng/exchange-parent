@@ -67,7 +67,7 @@ public class JdbcTransform {
                 for (int i = 0; i < columnCount; i++) {
                     String columnLabel = metaData.getColumnLabel(i+1);
                     if(BaseUtil.isNotBlank(columnLabel)){
-                        ObjectCoder objectCoder = new ObjectCoder(resultSet.getString(columnLabel));
+                        ObjectCoder objectCoder = new ObjectCoder(resultSet.getObject(columnLabel));
                         if(columnLabel.contains(".")){
                             columnLabel = columnLabel.split("\\.")[1];
                         }

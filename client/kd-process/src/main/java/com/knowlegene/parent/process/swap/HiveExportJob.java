@@ -6,6 +6,7 @@ import com.knowlegene.parent.config.common.event.HiveExportType;
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.config.util.JdbcUtil;
 import com.knowlegene.parent.process.pojo.SwapOptions;
+import com.knowlegene.parent.process.pojo.hive.HiveOptions;
 import com.knowlegene.parent.process.swap.event.HiveExportTaskEvent;
 import com.knowlegene.parent.process.transform.TypeConversion;
 import com.knowlegene.parent.scheduler.event.EventHandler;
@@ -28,6 +29,7 @@ import java.util.Map;
  */
 public class HiveExportJob extends ExportJobBase {
 
+    protected static HiveOptions hiveOptions;
 
     public HiveExportJob() {
     }
@@ -36,6 +38,16 @@ public class HiveExportJob extends ExportJobBase {
         super(options);
     }
 
+    private static HiveOptions getHiveOptions(){
+        if(hiveOptions == null){
+            String name = DBOperationEnum.HIVE_EXPORT.getName();
+            Object options = getOptions(name);
+            if(options != null){
+                hiveOptions = (HiveOptions)options;
+            }
+        }
+        return hiveOptions;
+    }
 
     private static PCollection<Row> getHCatRecordAndRow(PCollection<HCatRecord> ps) {
         if (ps != null) {

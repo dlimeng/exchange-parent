@@ -30,7 +30,7 @@ import java.util.Map;
  */
 public class HiveImportJob extends ImportJobBase{
 
-
+    protected static HiveOptions hiveOptions;
 
     public HiveImportJob() {
 
@@ -38,6 +38,17 @@ public class HiveImportJob extends ImportJobBase{
 
     public HiveImportJob(SwapOptions opts) {
         super(opts);
+    }
+
+    private static HiveOptions getHiveOptions(){
+        if(hiveOptions == null){
+            String name = DBOperationEnum.HIVE_IMPORT.getName();
+            Object options = getOptions(name);
+            if(options != null){
+                hiveOptions = (HiveOptions)options;
+            }
+        }
+        return hiveOptions;
     }
 
     /**

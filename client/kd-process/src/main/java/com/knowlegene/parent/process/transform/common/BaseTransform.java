@@ -3,7 +3,6 @@ package com.knowlegene.parent.process.transform.common;
 
 
 
-import javax.annotation.Resource;
 
 /**
  * @Author: limeng

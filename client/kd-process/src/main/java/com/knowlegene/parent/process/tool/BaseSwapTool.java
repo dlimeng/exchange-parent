@@ -3,7 +3,6 @@ package com.knowlegene.parent.process.tool;
 import com.knowlegene.parent.config.common.constantenum.DBOperationEnum;
 import com.knowlegene.parent.config.common.constantenum.DatabaseTypeEnum;
 import com.knowlegene.parent.config.common.event.*;
-import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.swap.dispatcher.SwapMaster;
 import com.knowlegene.parent.process.swap.JobBase;
@@ -24,8 +23,6 @@ import java.util.TreeMap;
 public  class BaseSwapTool {
     private final Logger logger=LoggerFactory.getLogger(getClass());
     private SwapOptions options;
-    public static String isImport = "import";
-    public static String isExport = "export";
     private static String fromPre = "from_";
     private static String toSuffix = "to_";
 
@@ -67,6 +64,8 @@ public  class BaseSwapTool {
         registerTool(fromPre+DatabaseTypeEnum.FILE.getName(),new FileExportTaskEvent(FileExportType.T_EXPORT));
         registerTool(toSuffix+DatabaseTypeEnum.FILE.getName(),new FileImportTaskEvent(FileImportType.T_IMPORT));
 
+        registerTool(fromPre+DatabaseTypeEnum.NEO4J.getName(),new Neo4jExportTaskEvent(Neo4jExportType.T_EXPORT));
+        registerTool(toSuffix+DatabaseTypeEnum.NEO4J.getName(),new Neo4jImportTaskEvent(Neo4jImportType.T_IMPORT));
     }
 
     private static void registerTool(String toolName,
@@ -100,8 +99,9 @@ public  class BaseSwapTool {
         String fromName = options.getFromName();
         String toName = options.getToName();
 
+        boolean iseqName = fromName.equalsIgnoreCase(toName);
 
-        if(fromName.equalsIgnoreCase(toName) && fromName.equalsIgnoreCase(DatabaseTypeEnum.HIVE.getName())){
+        if(iseqName && fromName.equalsIgnoreCase(DatabaseTypeEnum.HIVE.getName())){
             DataSourceUtil.setHiveImExport(queryOperation(fromName,true,false),options);
             DataSourceUtil.setHiveImExport(queryOperation(toName,false,false),options);
 
@@ -109,13 +109,17 @@ public  class BaseSwapTool {
             DataSourceUtil.setDBImExport(queryOperation(fromName,true,false),options);
             DataSourceUtil.setDBImExport(queryOperation(toName,false,false),options);
 
-        } else if(fromName.equalsIgnoreCase(toName) && fromName.equalsIgnoreCase(DatabaseTypeEnum.ES.getName())){
+        } else if(iseqName && fromName.equalsIgnoreCase(DatabaseTypeEnum.ES.getName())){
             DataSourceUtil.setEsImExport(queryOperation(fromName,true,false),options);
             DataSourceUtil.setEsImExport(queryOperation(toName,false,false),options);
 
-        } else if(fromName.equalsIgnoreCase(toName) && fromName.equalsIgnoreCase(DatabaseTypeEnum.FILE.getName())){
+        } else if(iseqName && fromName.equalsIgnoreCase(DatabaseTypeEnum.FILE.getName())){
             DataSourceUtil.setFileImExport(queryOperation(fromName,true,false),options);
             DataSourceUtil.setFileImExport(queryOperation(toName,false,false),options);
+
+        }else if(iseqName && fromName.equalsIgnoreCase(DatabaseTypeEnum.NEO4J.getName())){
+            DataSourceUtil.setNeo4jImExport(queryOperation(fromName,true,false),options);
+            DataSourceUtil.setNeo4jImExport(queryOperation(toName,false,false),options);
         } else{
             queryOperation(fromName,true,true);
             queryOperation(toName,false,true);
@@ -143,11 +147,6 @@ public  class BaseSwapTool {
                 else  result = DBOperationEnum.ES_IMPORT.getName();
                 if(isOptions) DataSourceUtil.setEs(result,options);
                 break;
-            case ELASTICSEARCH:
-                if(isFrom) result = DBOperationEnum.ES_EXPORT.getName();
-                else  result = DBOperationEnum.ES_IMPORT.getName();
-                if(isOptions) DataSourceUtil.setEs(result,options);
-                break;
             case GBASE:
                 if(isFrom)  result = DBOperationEnum.GBASE_EXPORT.getName();
                 else  result = DBOperationEnum.GBASE_IMPORT.getName();
@@ -166,11 +165,10 @@ public  class BaseSwapTool {
             case NEO4J:
                 if(isFrom)  result = DBOperationEnum.NEO4J_EXPORT.getName();
                 else  result = DBOperationEnum.NEO4J_IMPORT.getName();
-
+                if(isOptions) DataSourceUtil.setNeo4j(result,options);
                 break;
         }
         return result;
     }
-
 
 }
