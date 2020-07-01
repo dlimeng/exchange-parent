@@ -31,4 +31,11 @@ public class Neo4jObject  implements Serializable {
         }
         return result;
     }
+
+    public Neo4jObject() {
+    }
+
+    public Neo4jObject(Object[] objects) {
+        Objects = objects;
+    }
 }

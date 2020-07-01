@@ -6,7 +6,6 @@ import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.runners.options.SwapPipelineOptions;
 import com.knowlegene.parent.process.runners.common.BaseJobRunners;
 import com.knowlegene.parent.process.tool.BaseSwapTool;
-import com.knowlegene.parent.scheduler.service.Service;
 import lombok.Data;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.slf4j.Logger;
@@ -64,8 +63,8 @@ public abstract class SwapRunners extends BaseJobRunners {
         if(swapOptions != null){
             String fromName = swapOptions.getFromName();
             String toName = swapOptions.getToName();
-            Integer fromVal = DatabaseTypeEnum.queryValue(fromName);
-            Integer toVal = DatabaseTypeEnum.queryValue(toName);
+            Integer fromVal = DatabaseTypeEnum.queryValue(fromName).getValue();
+            Integer toVal = DatabaseTypeEnum.queryValue(toName).getValue();
             if(fromVal==null || toVal==null){
                 logger.error("fromName or toName is null");
             }

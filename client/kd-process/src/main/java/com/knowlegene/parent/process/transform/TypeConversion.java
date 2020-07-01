@@ -379,7 +379,7 @@ public class TypeConversion implements Serializable {
                     for(String name:fieldNames){
                         Object value = element.get(name).getValue();
                         if(value == null){
-                            result.add("");
+                            result.add(new Object());
                         }else{
                             result.add(value);
                         }

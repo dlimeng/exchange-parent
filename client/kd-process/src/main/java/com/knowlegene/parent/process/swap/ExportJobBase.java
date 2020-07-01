@@ -11,7 +11,7 @@ import org.apache.beam.sdk.values.Row;
  * @Date: 2019/8/20 15:52
  */
 public class ExportJobBase extends JobBase {
-    protected static HiveOptions hiveOptions;
+
 
     public ExportJobBase() {
     }
@@ -20,16 +20,7 @@ public class ExportJobBase extends JobBase {
         super(options);
     }
 
-    public static HiveOptions getHiveOptions(){
-        if(hiveOptions == null){
-            String name = DBOperationEnum.HIVE_EXPORT.getName();
-            Object options = getOptions(name);
-            if(options != null){
-                hiveOptions = (HiveOptions)options;
-            }
-        }
-        return hiveOptions;
-    }
+
 
 
     public static PCollection<Row> query() {

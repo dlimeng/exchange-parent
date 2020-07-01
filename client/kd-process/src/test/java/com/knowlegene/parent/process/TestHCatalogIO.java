@@ -1,6 +1,4 @@
-package com.knowlegene.parent.process;/**
- * Created by Administrator on 2019/8/5 0005.
- */
+package com.knowlegene.parent.process;
 
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.hcatalog.HCatalogIO;
@@ -25,15 +23,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * <code>TestHCatalogIO</code>
- * <p>功能:
- * <p>Copyright 知因智慧 2019 All right reserved.
- *
- * @author 文齐辉 wenqihui@knowlegene.com 时间 2019/8/5 0005 下午 19:13
- * @version 1.0
- *          最后修改人 无
- */
+
 public class TestHCatalogIO implements Serializable{
 
     @Test

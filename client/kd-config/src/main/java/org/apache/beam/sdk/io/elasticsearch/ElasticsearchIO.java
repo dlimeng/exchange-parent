@@ -555,7 +555,7 @@ public class ElasticsearchIO {
           sources.add(new BoundedElasticsearchSource(spec, shardId, null, null, backendVersion));
         }
         checkArgument(!sources.isEmpty(), "No shard found");
-      } else if (backendVersion == 5 || backendVersion == 6) {
+      } else if (backendVersion == 5 || backendVersion == 6 || backendVersion == 7) {
         long indexSize = BoundedElasticsearchSource.estimateIndexSize(connectionConfiguration);
         float nbBundlesFloat = (float) indexSize / desiredBundleSizeBytes;
         int nbBundles = (int) Math.ceil(nbBundlesFloat);

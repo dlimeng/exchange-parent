@@ -150,6 +150,17 @@ public class SwapOptions {
     private String neoFormat;
     @StoredAsProperty("neo4j.label")
     private String neoLabel;
+    @StoredAsProperty("neo4j.type")
+    private String neoType;
+
+    @StoredAsProperty("neo4j.cyphers")
+    private String[] cyphers;
+    @StoredAsProperty("neo4j.neourls")
+    private String[] neoUrls;
+    @StoredAsProperty("neo4j.neousernames")
+    private String[] neoUsernames;
+    @StoredAsProperty("neo4j.neopasswords")
+    private String[] neoPasswords;
 
 
     /**

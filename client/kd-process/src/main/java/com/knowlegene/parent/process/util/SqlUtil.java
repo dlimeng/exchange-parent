@@ -5,7 +5,6 @@ import com.knowlegene.parent.config.common.constantenum.HiveTypeEnum;
 import com.knowlegene.parent.config.util.BaseSqlParserFactoryUtil;
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.config.util.HSqlThreadLocalUtil;
-import com.knowlegene.parent.config.util.JdbcUtil;
 import org.apache.beam.sdk.schemas.Schema;
 import org.apache.hadoop.hive.serde2.typeinfo.TypeInfoFactory;
 import org.apache.hive.hcatalog.common.HCatException;
@@ -13,11 +12,6 @@ import org.apache.hive.hcatalog.data.schema.HCatFieldSchema;
 import org.apache.hive.hcatalog.data.schema.HCatSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.sql.JDBCType;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 

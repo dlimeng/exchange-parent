@@ -9,6 +9,7 @@ import com.knowlegene.parent.process.pojo.db.DBOptions;
 import com.knowlegene.parent.process.pojo.es.ESOptions;
 import com.knowlegene.parent.process.pojo.file.FileOptions;
 import com.knowlegene.parent.process.pojo.hive.HiveOptions;
+import com.knowlegene.parent.process.pojo.neo4j.Neo4jOptions;
 import com.knowlegene.parent.scheduler.utils.CacheManager;
 
 import javax.sql.DataSource;
@@ -369,6 +370,67 @@ public class DataSourceUtil {
 
         CacheManager.setCache(keys,fileoptions);
     }
+
+
+    public static void setNeo4jImExport(String keys, SwapOptions options){
+        if(options == null) return;
+
+        String[] cyphers = options.getCyphers();
+        String[] neoUrls = options.getNeoUrls();
+        String[] neoUsernames = options.getNeoUsernames();
+        String[] neoPasswords = options.getNeoPasswords();
+
+        // exort 1  import 2
+        int cyphersLength = cyphers == null ? 0:cyphers.length;
+        int urlLength = neoUrls == null ? 0:neoUrls.length;
+        int userLength = neoUsernames == null ? 0:neoUsernames.length;
+        int passwordsLength = neoPasswords == null ? 0:neoPasswords.length;
+
+
+        Neo4jOptions noptions = new Neo4jOptions();
+        BaseUtil.copyProperties(noptions,options);
+
+
+        int exIndex = 0;
+        int imIndex = 1;
+
+        if(keys.contains(DBOperationEnum.EXPORT.getName())){
+            if(cyphersLength > exIndex) noptions.setCypher(cyphers[exIndex]);
+
+            if(urlLength > exIndex) noptions.setNeoUrl(neoUrls[exIndex]);
+
+            if(userLength > exIndex) noptions.setNeoUsername(neoUsernames[exIndex]);
+
+            if(passwordsLength > exIndex) noptions.setNeoPassword(neoPasswords[exIndex]);
+
+
+        }else if(keys.contains(DBOperationEnum.IMPORT.getName())){
+            if(cyphersLength > imIndex) noptions.setCypher(cyphers[imIndex]);
+
+            if(urlLength > imIndex) noptions.setNeoUrl(neoUrls[imIndex]);
+
+            if(userLength > imIndex) noptions.setNeoUsername(neoUsernames[imIndex]);
+
+            if(passwordsLength > imIndex) noptions.setNeoPassword(neoPasswords[imIndex]);
+        }
+
+
+        if(noptions == null) return;
+
+        CacheManager.setCache(keys,noptions);
+    }
+
+    public static void setNeo4j(String keys, SwapOptions options){
+        if(options == null) return;
+
+
+        Neo4jOptions noptions = new Neo4jOptions();
+        BaseUtil.copyProperties(noptions,options);
+        if(noptions == null) return;
+
+        CacheManager.setCache(keys,noptions);
+    }
+
 
     private static String getDBName(String keys){
         DBOperationEnum anEnum = DBOperationEnum.getEnum(keys);

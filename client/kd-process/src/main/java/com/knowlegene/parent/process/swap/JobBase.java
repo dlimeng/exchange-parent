@@ -1,29 +1,19 @@
 package com.knowlegene.parent.process.swap;
 
 
-import com.knowlegene.parent.config.common.constantenum.DBOperationEnum;
-import com.knowlegene.parent.config.common.event.HiveExportType;
-import com.knowlegene.parent.config.common.event.HiveImportType;
 import com.knowlegene.parent.config.common.event.SwapJobEventType;
 import com.knowlegene.parent.config.util.PipelineSingletonUtil;
 import com.knowlegene.parent.process.pojo.SwapOptions;
-import com.knowlegene.parent.process.pojo.hive.HiveOptions;
 import com.knowlegene.parent.process.swap.dispatcher.SwapMaster;
 import com.knowlegene.parent.process.swap.common.BaseSwap;
-import com.knowlegene.parent.process.swap.event.HiveExportTaskEvent;
-import com.knowlegene.parent.process.swap.event.HiveImportTaskEvent;
 import com.knowlegene.parent.process.swap.event.SwapJobEvent;
 import com.knowlegene.parent.process.tool.BaseSwapTool;
 import com.knowlegene.parent.process.util.SwapMasterUtil;
 import com.knowlegene.parent.scheduler.event.AbstractEvent;
 import com.knowlegene.parent.scheduler.event.EventHandler;
-import com.knowlegene.parent.scheduler.service.Service;
 import com.knowlegene.parent.scheduler.utils.CacheManager;
 import lombok.Data;
 import org.apache.beam.sdk.Pipeline;
-import org.apache.beam.sdk.schemas.Schema;
-import org.apache.beam.sdk.values.PCollection;
-import org.apache.beam.sdk.values.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +52,6 @@ public class JobBase extends BaseSwap {
         result = CacheManager.getCache(keys);
         return result;
     }
-
 
 
     public static class SwapJobEventDispatcher implements EventHandler<SwapJobEvent> {

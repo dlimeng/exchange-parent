@@ -21,6 +21,7 @@
         <hadoop.version>2.6.5</hadoop.version>
         <hive.version>1.1.0</hive.version>
         <spark.version>2.2.0</spark.version>
+        <log4j.version>2.8.2</log4j.version>
     </properties>
 
 
@@ -29,30 +30,30 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-1.2-api</artifactId>
-            <version>2.8.2</version>
+            <version>${log4j.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <version>2.8.2</version>
+            <version>${log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-jcl</artifactId>
-            <version>2.8.1</version>
+            <version>${log4j.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.8.2</version>
+            <version>${log4j.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
-            <version>2.8.2</version>
+            <version>${log4j.version}</version>
         </dependency>
 
 
@@ -284,46 +285,6 @@
         </dependency>
     </dependencies>
 
-    <profiles>
-        <!-- 开发环境 -->
-        <profile>
-            <id>dev</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-
-                <!--hive-->
-                <kd.hive.classname>org.apache.hive.jdbc.HiveDriver</kd.hive.classname>
-                <kd.hive.url>jdbc:hive2://192.168.20.117:10000/default</kd.hive.url>
-                <kd.hive.user>hive</kd.hive.user>
-                <kd.hive.password>hive</kd.hive.password>
-                <kd.hive.database>default</kd.hive.database>
-                <kd.hive.metastore.uris>thrift://m5.server:9083</kd.hive.metastore.uris>
-                <kd.hive.minPoolSize>5</kd.hive.minPoolSize>
-                <kd.hive.acquireIncrement>5</kd.hive.acquireIncrement>
-                <kd.hive.maxPoolSize>100</kd.hive.maxPoolSize>
-                <kd.hive.maxIdleTime>600</kd.hive.maxIdleTime>
-
-
-
-                <!--hadoop file-->
-                <kd.hdfs.defaultname>hdfs://192.168.200.117:8020</kd.hdfs.defaultname>
-                <kd.hdfs.impl>org.apache.hadoop.hdfs.DistributedFileSystem</kd.hdfs.impl>
-
-            </properties>
-        </profile>
-        <!-- 生产环境 -->
-        <profile>
-            <id>release</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <properties>
-
-            </properties>
-        </profile>
-    </profiles>
     <build>
         <finalName>kd-config</finalName>
         <resources>

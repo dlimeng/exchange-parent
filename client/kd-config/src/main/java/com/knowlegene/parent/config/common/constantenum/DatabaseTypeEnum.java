@@ -13,8 +13,8 @@ public enum DatabaseTypeEnum {
      * 各个源
      */
     HIVE(1,"hive"),ORACLE(2,"oracle"),MYSQL(3,"mysql")
-    ,HDFS(4,"hdfs"),HIVEDB1(5,"h1"),ES(6,"es"),ELASTICSEARCH(7,"elasticsearch"),GBASE(8,"gbase"),
-    FILE(9,"file"),NEO4J(10,"neo4j");
+    ,ES(4,"es"),GBASE(5,"gbase"),
+    FILE(6,"file"),NEO4J(7,"neo4j");
 
 
     /**
