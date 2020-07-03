@@ -119,6 +119,9 @@ public class SwapOptions {
     @StoredAsProperty("hive.metastore.partition")
     private String hivePartition;
 
+    @StoredAsProperty("hive.execution.engine")
+    private String hiveEngine;
+
     @StoredAsProperty("hive.urls")
     private String[] hiveUrls;
     @StoredAsProperty("hive.usernames")
@@ -135,6 +138,8 @@ public class SwapOptions {
     private String[] hMetastoreHosts;
     @StoredAsProperty("hcatalog.metastore.ports")
     private String[] hMetastorePorts;
+
+
 
 
 

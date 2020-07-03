@@ -1,16 +1,14 @@
 package com.knowlegene.parent.process.runners.options;
 
-import lombok.Data;
-import org.apache.beam.runners.spark.SparkPipelineOptions;
 import org.apache.beam.sdk.options.Description;
 
-import java.util.List;
-
 /**
- * @Author: limeng
- * @Date: 2019/8/22 16:51
+ * @Classname BasePipelineOptions
+ * @Description TODO
+ * @Date 2020/7/3 15:50
+ * @Created by limeng
  */
-public interface SwapPipelineOptions extends SparkPipelineOptions {
+public interface BasePipelineOptions {
     @Description("导出名称")
     public String getFromName();
     public void setFromName(String fromName);
@@ -194,14 +192,30 @@ public interface SwapPipelineOptions extends SparkPipelineOptions {
     public void setEsIdFn(String esIdFn);
 
 
+    @Description("es.addrs.from")
+    public String[] getEsAddrsFrom();
+    public void setEsAddrsFrom(String[] esAddrsFrom);
+
+    @Description("es.addrs.to")
+    public String[] getEsAddrsTo();
+    public void setEsAddrsTo(String[] esAddrsTo);
+
+    @Description("es.indexs")
+    public String[] getEsIndexs();
+    public void setEsIndexs(String[] esIndexs);
+
+    @Description("es.type")
+    public String[] getEsTypes();
+    public void setEsTypes(String[] esTypes);
+
     @Description("neo4j.cypher")
     String getCypher();
     void  setCypher(String cypher);
 
 
     @Description("neo4j.neourl")
-     String getNeoUrl();
-     void setNeoUrl(String neoUrl);
+    String getNeoUrl();
+    void setNeoUrl(String neoUrl);
 
     @Description("neo4j.neousername")
     String getNeoUsername();
@@ -218,4 +232,26 @@ public interface SwapPipelineOptions extends SparkPipelineOptions {
     @Description("neo4j.neoLabel")
     String getNeoLabel();
     void  setNeoLabel(String neoLabel);
+
+
+    @Description("neo4j.type")
+    public String getNeoType();
+    public void setNeoType(String neoType);
+
+    @Description("neo4j.cyphers")
+    public String[] getCyphers();
+    public void setCyphers(String[] cyphers);
+
+    @Description("neo4j.neourls")
+    public String[] getNeoUrls();
+    public void setNeoUrls(String[] neoUrls);
+
+    @Description("neo4j.neousernames")
+    public String[] getNeoUsernames();
+    public void setNeoUsernames(String[] neoUsernames);
+
+
+    @Description("neo4j.neopasswords")
+    public String[] getNeoPasswords();
+    public void setNeoPasswords(String[] neoPasswords);
 }

@@ -499,14 +499,18 @@ public class Neo4jIO {
         }
 
         private String getDSL(Value value){
-            String optionsType = spec.getOptionsType().get().toString();
-            String statement = spec.getStatement().get().toString();
-            String result=statement;
-            if(BaseUtil.isNotBlank(optionsType) && BaseUtil.isNotBlank(statement)){
-                if(optionsType.equals(Neo4jEnum.RELATE.getName())){
+            ValueProvider optionsType = spec.getOptionsType();
+            ValueProvider statement = spec.getStatement();
+            String result=null;
+            if(statement != null){
+                result = statement.get().toString();
+            }
+
+            if(optionsType!=null && statement!= null){
+                if(Neo4jEnum.RELATE.getName().equalsIgnoreCase(optionsType.get().toString())){
                     Value value1 = value.get(spec.getLabel().get().toString());
                     if(value1 != null){
-                        result = String.format(statement,value1.asString());
+                        result = String.format(statement.get().toString(),value1.asString());
                     }
                 }
             }

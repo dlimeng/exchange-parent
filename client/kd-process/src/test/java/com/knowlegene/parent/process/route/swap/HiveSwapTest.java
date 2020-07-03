@@ -213,4 +213,33 @@ public class HiveSwapTest extends SwapRunners {
     }
 
 
+    public void testMysql(){
+
+    }
+
+    public void testOracle(){
+
+    }
+
+    public void testHive(){
+
+    }
+
+    public void testES(){
+
+    }
+
+    public void testNeo4j(){
+
+    }
+
+    public void testGbase(){
+
+    }
+
+    public void testFile(){
+
+    }
+
+
 }

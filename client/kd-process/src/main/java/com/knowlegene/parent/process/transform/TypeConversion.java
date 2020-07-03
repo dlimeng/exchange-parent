@@ -434,15 +434,19 @@ public class TypeConversion implements Serializable {
         @ProcessElement
         public void processElement(ProcessContext ctx) throws Exception {
             Row element = ctx.element();
-            values = element.getValues();
-            parMap = new HashMap<>();
+            int fieldCount = element.getSchema().getFieldCount();
+            int keysSize = keys.size();
+            if(fieldCount >= keysSize){
+                values = element.getValues();
+                parMap = new HashMap<>();
 
-            getMapValue();
+                getMapValue();
 
-            if(!BaseUtil.isBlankMap(parMap)){
-                neo4jObject = new Neo4jObject();
-                neo4jObject.setParMap(parMap);
-                ctx.output(neo4jObject);
+                if(!BaseUtil.isBlankMap(parMap)){
+                    neo4jObject = new Neo4jObject();
+                    neo4jObject.setParMap(parMap);
+                    ctx.output(neo4jObject);
+                }
             }
         }
 
@@ -458,7 +462,7 @@ public class TypeConversion implements Serializable {
                 }
             }else{
                 if(optionsType == Neo4jEnum.RELATE.getValue()){
-                    if(values.size() == keys.size()){
+
                         for(int i=0;i < keys.size();i++){
                             String key= keys.get(i);
                             String value = values.get(i).toString();
@@ -473,10 +477,10 @@ public class TypeConversion implements Serializable {
                                 parMap.put(key,value);
                             }
                         }
-                    }
+
 
                 }else if(optionsType == Neo4jEnum.SAVE.getValue()){
-                    if(values.size() == keys.size()){
+
                         for(int i=0;i < keys.size();i++){
                             String key= keys.get(i);
                             String value = values.get(i).toString();
@@ -486,7 +490,7 @@ public class TypeConversion implements Serializable {
                                 parMap.put(key,value);
                             }
                         }
-                    }
+
                 }
             }
         }
