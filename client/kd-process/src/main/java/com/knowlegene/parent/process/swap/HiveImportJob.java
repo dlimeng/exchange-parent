@@ -7,6 +7,7 @@ import com.knowlegene.parent.config.common.constantenum.HiveTypeEnum;
 import com.knowlegene.parent.config.common.event.HiveImportType;
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.config.util.JdbcUtil;
+import com.knowlegene.parent.process.pojo.ObjectCoder;
 import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.pojo.hive.HiveOptions;
 import com.knowlegene.parent.process.swap.event.HiveImportTaskEvent;
@@ -14,11 +15,9 @@ import com.knowlegene.parent.process.transform.TypeConversion;
 import com.knowlegene.parent.scheduler.event.EventHandler;
 import com.knowlegene.parent.scheduler.utils.CacheManager;
 import org.apache.beam.sdk.schemas.Schema;
-import org.apache.beam.sdk.schemas.SchemaCoder;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.transforms.windowing.Window;
 import org.apache.beam.sdk.values.PCollection;
-import org.apache.beam.sdk.values.Row;
 import org.apache.hive.hcatalog.data.HCatRecord;
 
 import java.util.HashMap;
@@ -58,7 +57,7 @@ public class HiveImportJob extends ImportJobBase{
      * @param tableName
      * @return
      */
-    private static void saveBySQL(PCollection<Row> rows,Schema schema,String tableName){
+    private static void saveBySQL(PCollection<Map<String, ObjectCoder>> rows, Schema schema, String tableName){
         if(rows !=null && schema!=null){
             String insertSQL = getInsertSQL(schema, tableName);
             getLogger().info("insertSQL:{}",insertSQL);
@@ -90,7 +89,7 @@ public class HiveImportJob extends ImportJobBase{
      * HCatalogIO保存
      * @param rows
      */
-    private static boolean saveByHCatalog(PCollection<Row> rows){
+    private static boolean saveByHCatalog(PCollection<Map<String, ObjectCoder>> rows){
         if(rows != null){
             String uris = HiveTypeEnum.HCATALOGMETASTOREURIS.getName();
             String db=HiveTypeEnum.HIVEDATABASE.getName();
@@ -127,7 +126,7 @@ public class HiveImportJob extends ImportJobBase{
                     return false;
                 }
             }
-            PCollection<HCatRecord> hCatRecordPCollection = rows.apply(ParDo.of(new TypeConversion.RowAndHCatRecord(schema)))
+            PCollection<HCatRecord> hCatRecordPCollection = rows.apply(ParDo.of(new TypeConversion.MapObjectAndHCatRecord(schema)))
                     .setCoder(TypeConversion.getOutputCoder());
 
 
@@ -166,7 +165,7 @@ public class HiveImportJob extends ImportJobBase{
     }
 
 
-   public  static void save(PCollection<Row> rows){
+   public  static void save(PCollection<Map<String, ObjectCoder>> rows){
         if(rows ==null ){
            getLogger().info("rows is null");
            return;
@@ -187,8 +186,7 @@ public class HiveImportJob extends ImportJobBase{
                 return;
             }
         }
-        PCollection<Row> newRow = rows.setCoder(SchemaCoder.of(hiveSchema));
-        saveBySQL(newRow,hiveSchema,tableName);
+        saveBySQL(rows,hiveSchema,tableName);
 
    }
 
@@ -201,8 +199,8 @@ public class HiveImportJob extends ImportJobBase{
                getLogger().info("HiveImportDispatcher is start");
 
                if(CacheManager.isExist(DBOperationEnum.PCOLLECTION_QUERYS.getName())){
-                   PCollection<Row>  rows = (PCollection<Row>)CacheManager.getCache(DBOperationEnum.PCOLLECTION_QUERYS.getName());
-                   save(rows);
+                   PCollection<Map<String, ObjectCoder>>  rows = (PCollection<Map<String, ObjectCoder>>)CacheManager.getCache(DBOperationEnum.PCOLLECTION_QUERYS.getName());
+                   save((PCollection<Map<String, ObjectCoder>>)CacheManager.getCache(DBOperationEnum.PCOLLECTION_QUERYS.getName()));
                }
 
            }

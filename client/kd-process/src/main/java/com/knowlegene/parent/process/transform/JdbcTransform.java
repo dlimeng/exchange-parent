@@ -22,14 +22,6 @@ import java.util.*;
  */
 public class JdbcTransform {
 
-//    public static class HiveRowMapper implements JdbcIO.RowMapper<Row>{
-//
-//        @Override
-//        public Row mapRow(ResultSet resultSet) throws Exception {
-//            Schema build = Schema.builder().addStringField("name").addStringField("id").build();
-//            return  Row.withSchema(build).addValue(resultSet.getString(1)).addValue(resultSet.getString(2)).build();
-//        }
-//    }
 
     /**
      * 查询map
@@ -63,7 +55,7 @@ public class JdbcTransform {
             int columnCount = metaData.getColumnCount();
             Map<String, ObjectCoder> map=null;
             if(columnCount > 0){
-                map=new HashMap<>();
+                map=new LinkedHashMap<>();
                 for (int i = 0; i < columnCount; i++) {
                     String columnLabel = metaData.getColumnLabel(i+1);
                     if(BaseUtil.isNotBlank(columnLabel)){
@@ -79,6 +71,41 @@ public class JdbcTransform {
         }
     }
 
+
+    /**
+     * hive
+     */
+    public static class PrepareStatementFromHiveMap implements JdbcIO.PreparedStatementSetter<Map<String, ObjectCoder>>{
+        private Logger logger = LoggerFactory.getLogger(this.getClass());
+
+        @Override
+        public void setParameters(Map<String, ObjectCoder> element, PreparedStatement preparedStatement) throws Exception {
+
+            if(!BaseUtil.isBlankMap(element)){
+                logger.info("values start=>fieldCount:{}",element.size());
+                int i=1;
+                for(Map.Entry<String, ObjectCoder> map:element.entrySet()){
+                    ObjectCoder value = map.getValue();
+                    Object o = value.getValue();
+                    String instantName = Instant.class.getSimpleName();
+                    String objecteName = o.getClass().getSimpleName();
+                    if(instantName.equals(objecteName)){
+                        Timestamp sqlDate =BaseUtil.instantToTimestamp(o);
+                        preparedStatement.setObject(i++,sqlDate);
+                    }else{
+                        preparedStatement.setObject(i++,o);
+                    }
+                }
+
+            }else{
+                logger.info("sql values is null");
+            }
+            int i = preparedStatement.executeUpdate();
+            logger.info("statement=>rowNum:{}",i);
+        }
+
+    }
+
     /**
      * hive
      */
@@ -88,8 +115,7 @@ public class JdbcTransform {
         public void setParameters(Row element, PreparedStatement preparedStatement) throws Exception {
             List<Object> values = element.getValues();
             int fieldCount = element.getFieldCount();
-            Schema schema = element.getSchema();
-            List<Schema.Field> fields = schema.getFields();
+
             logger.info("values start=>fieldCount:{}",fieldCount);
             if(!BaseUtil.isBlankSet(values)){
                 for (int i = 0; i < values.size(); i++) {
@@ -116,16 +142,56 @@ public class JdbcTransform {
     /**
      * 通用关系型数据库
      */
+    public static class PrepareStatementFromMap implements JdbcIO.PreparedStatementSetter<Map<String, ObjectCoder>>{
+        private Logger logger = LoggerFactory.getLogger(this.getClass());
+        @Override
+        public void setParameters(Map<String, ObjectCoder> element, PreparedStatement preparedStatement) throws Exception {
+            if(!BaseUtil.isBlankMap(element)){
+                logger.info("values start=>fieldCount:{}",element.size());
+                int i=1;
+                for(Map.Entry<String, ObjectCoder> map:element.entrySet()){
+                    ObjectCoder value = map.getValue();
+                    Object o =  value.getValue();
+                    String instantName = Instant.class.getSimpleName();
+                    String objecteName = o.getClass().getSimpleName();
+                    if(instantName.equals(objecteName)){
+                        Timestamp sqlDate =BaseUtil.instantToTimestamp(o);
+                        preparedStatement.setObject(i++,sqlDate);
+                    }else{
+                        preparedStatement.setObject(i++,o);
+                    }
+                }
+
+            }else{
+                logger.info("sql values is null");
+            }
+        }
+    }
+
+    /**
+     * 通用关系型数据库
+     */
     public static class PrepareStatementFromRow implements JdbcIO.PreparedStatementSetter<Row>{
         private Logger logger = LoggerFactory.getLogger(this.getClass());
         @Override
         public void setParameters(Row element, PreparedStatement preparedStatement) throws Exception {
             List<Object> values = element.getValues();
+
             int fieldCount = element.getFieldCount();
             logger.info("values start=>fieldCount:{}",fieldCount);
+
             if(!BaseUtil.isBlankSet(values)){
                 for (int i = 0; i < values.size(); i++) {
-                    preparedStatement.setObject(i+1,values.get(i));
+                    Object o = values.get(i);
+
+                    String instantName = Instant.class.getSimpleName();
+                    String objecteName = o.getClass().getSimpleName();
+                    if(instantName.equals(objecteName)){
+                        Timestamp sqlDate =BaseUtil.instantToTimestamp(o);
+                        preparedStatement.setObject(i+1,sqlDate);
+                    }else{
+                        preparedStatement.setObject(i+1,o);
+                    }
                 }
             }else{
                 logger.info("sql values is null");

@@ -3,6 +3,7 @@ package com.knowlegene.parent.process.swap;
 import com.knowlegene.parent.config.common.constantenum.DBOperationEnum;
 import com.knowlegene.parent.config.common.event.ESExportType;
 import com.knowlegene.parent.config.util.BaseUtil;
+import com.knowlegene.parent.process.pojo.ObjectCoder;
 import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.pojo.es.ESOptions;
 import com.knowlegene.parent.process.swap.event.ESExportTaskEvent;
@@ -12,7 +13,9 @@ import com.knowlegene.parent.scheduler.utils.CacheManager;
 import org.apache.beam.sdk.io.elasticsearch.ElasticsearchIO;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
-import org.apache.beam.sdk.values.Row;
+
+import java.util.Map;
+
 
 /**
  * @Author: limeng
@@ -72,11 +75,11 @@ public class ESExportJob extends ExportJobBase {
      * 转换 根据导入库的类型
      * @return
      */
-    private static PCollection<Row> transformPCollection(){
-        PCollection<Row> result = null;
+    private static PCollection<Map<String, ObjectCoder>> transformPCollection(){
+        PCollection<Map<String, ObjectCoder>> result = null;
         PCollection<String> strings = queryAll();
         if(strings != null){
-            return strings.apply(ParDo.of(new TypeConversion.JsonAndRow()));
+            return strings.apply(ParDo.of(new TypeConversion.JsonAndMap()));
         }
         return result;
 
@@ -84,7 +87,7 @@ public class ESExportJob extends ExportJobBase {
 
 
 
-    public static PCollection<Row> query() {
+    public static PCollection<Map<String, ObjectCoder>> query() {
         return  transformPCollection();
     }
 
@@ -94,10 +97,10 @@ public class ESExportJob extends ExportJobBase {
         public void handle(ESExportTaskEvent event) {
             if (event.getType() == ESExportType.T_EXPORT) {
                 getLogger().info("ESExportDispatcher is start");
-
-                PCollection<Row> rows = query();
-                CacheManager.setCache(DBOperationEnum.PCOLLECTION_QUERYS.getName(), rows);
-
+                PCollection<Map<String, ObjectCoder>> result = query();
+                if(result != null){
+                    CacheManager.setCache(DBOperationEnum.PCOLLECTION_QUERYS.getName(), result);
+                }
             }
         }
     }

@@ -4,6 +4,7 @@ import com.knowlegene.parent.config.common.constantenum.DBOperationEnum;
 import com.knowlegene.parent.config.common.event.Neo4jImportType;
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.process.common.constantenum.Neo4jEnum;
+import com.knowlegene.parent.process.pojo.ObjectCoder;
 import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.pojo.neo4j.Neo4jObject;
 import com.knowlegene.parent.process.pojo.neo4j.Neo4jCode;
@@ -14,9 +15,9 @@ import com.knowlegene.parent.scheduler.event.EventHandler;
 import com.knowlegene.parent.scheduler.utils.CacheManager;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
-import org.apache.beam.sdk.values.Row;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author: limeng
@@ -49,14 +50,14 @@ public class Neo4jImportJob extends ImportJobBase{
      * cypher 语句
      * @param rows
      */
-    private static void cypherSave(PCollection<Row> rows){
+    private static void cypherSave(PCollection<Map<String, ObjectCoder>> rows){
         List<String> fieldNames = rows.getSchema().getFieldNames();
         if(BaseUtil.isBlankSet(fieldNames)){
             getLogger().error("fieldNames is null");
             return ;
         }
         String cypher = getDbOptions().getCypher();
-        PCollection<Neo4jObject> apply = rows.apply(ParDo.of(new TypeConversion.RowAndNeo4jObject(label,fieldNames)));
+        PCollection<Neo4jObject> apply = rows.apply(ParDo.of(new TypeConversion.MapAndNeo4jObject(label,fieldNames)));
         saveNeo4jObject(apply,cypher, Neo4jEnum.SAVE.getValue());
     }
 
@@ -64,7 +65,7 @@ public class Neo4jImportJob extends ImportJobBase{
      * 模板
      * @param rows
      */
-    private static void formatSave(PCollection<Row> rows){
+    private static void formatSave(PCollection<Map<String, ObjectCoder>> rows){
         Neo4jCode neo4jCode = new Neo4jCode();
         neo4jCode.toDSL(getDbOptions().getNeoFormat());
         Integer type = neo4jCode.getType();
@@ -83,7 +84,7 @@ public class Neo4jImportJob extends ImportJobBase{
             return ;
         }
 
-        PCollection<Neo4jObject> apply = rows.apply(ParDo.of(new TypeConversion.RowAndNeo4jObject(label,type, keys)));
+        PCollection<Neo4jObject> apply = rows.apply(ParDo.of(new TypeConversion.MapAndNeo4jObject(label,type, keys)));
         saveNeo4jObject(apply,cypher,type);
     }
 
@@ -106,7 +107,7 @@ public class Neo4jImportJob extends ImportJobBase{
 
 
 
-    public static void save(PCollection<Row> rows) {
+    public static void save(PCollection<Map<String, ObjectCoder>> rows) {
         if(rows != null){
             String cypher = getDbOptions().getCypher();
             String neoFormat = getDbOptions().getNeoFormat();
@@ -129,8 +130,7 @@ public class Neo4jImportJob extends ImportJobBase{
                 getLogger().info("Neo4jImportDispatcher is start");
 
                 if(CacheManager.isExist(DBOperationEnum.PCOLLECTION_QUERYS.getName())){
-                    PCollection<Row>  rows = (PCollection<Row>)CacheManager.getCache(DBOperationEnum.PCOLLECTION_QUERYS.getName());
-                    save(rows);
+                    save((PCollection<Map<String, ObjectCoder>>)CacheManager.getCache(DBOperationEnum.PCOLLECTION_QUERYS.getName()));
                 }
 
             }

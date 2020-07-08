@@ -4,6 +4,7 @@ import com.knowlegene.parent.config.common.constantenum.DBOperationEnum;
 import com.knowlegene.parent.config.common.event.FileImportType;
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.config.util.HdfsFileUtil;
+import com.knowlegene.parent.process.pojo.ObjectCoder;
 import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.pojo.file.FileOptions;
 import com.knowlegene.parent.process.swap.event.FileImportTaskEvent;
@@ -14,7 +15,9 @@ import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
-import org.apache.beam.sdk.values.Row;
+
+import java.util.Map;
+
 
 /**
  * 文件导入
@@ -48,7 +51,7 @@ public class FileImportJob  extends ImportJobBase{
      * 保存文件
      * @param rows
      */
-    private static void saveByFile(PCollection<Row> rows){
+    private static void saveByFile(PCollection<Map<String, ObjectCoder>> rows){
         if(rows != null){
             String filePath = getDbOptions().getFilePath();
             String fieldDelim = getDbOptions().getFieldDelim();
@@ -62,14 +65,14 @@ public class FileImportJob  extends ImportJobBase{
             KV<String, String> splitKv = HdfsFileUtil.splitMark(filePath, "\\.");
 
             //切分路径
-            PCollection<String> apply = rows.apply(ParDo.of(new TypeConversion.RowAndString(fieldDelim)));
+            PCollection<String> apply = rows.apply(ParDo.of(new TypeConversion.MapAndString(fieldDelim)));
             apply.apply(TextIO.write().to(splitKv.getKey()).withSuffix(splitKv.getValue()));
         }
     }
 
 
 
-    public static void save(PCollection<Row> rows) {
+    public static void save(PCollection<Map<String, ObjectCoder>> rows) {
         if(rows!=null){
            saveByFile(rows);
         }
@@ -84,8 +87,7 @@ public class FileImportJob  extends ImportJobBase{
                 getLogger().info("FileImportDispatcher is start");
 
                 if(CacheManager.isExist(DBOperationEnum.PCOLLECTION_QUERYS.getName())){
-                    PCollection<Row>  rows = (PCollection<Row>)CacheManager.getCache(DBOperationEnum.PCOLLECTION_QUERYS.getName());
-                    save(rows);
+                    save((PCollection<Map<String, ObjectCoder>>)CacheManager.getCache(DBOperationEnum.PCOLLECTION_QUERYS.getName()));
                 }
 
             }

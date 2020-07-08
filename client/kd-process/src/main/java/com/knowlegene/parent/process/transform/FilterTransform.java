@@ -1,6 +1,7 @@
 package com.knowlegene.parent.process.transform;
 
 import com.knowlegene.parent.config.util.BaseUtil;
+import com.knowlegene.parent.process.pojo.ObjectCoder;
 import com.knowlegene.parent.process.util.CommonUtil;
 import org.apache.beam.sdk.schemas.Schema;
 import org.apache.beam.sdk.transforms.DoFn;
@@ -13,10 +14,7 @@ import org.apache.hive.hcatalog.data.schema.HCatSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 过滤自定义
@@ -70,6 +68,51 @@ public class FilterTransform {
     /**
      * 过滤，根据key
      */
+    public static  class FilterByKeysMap extends DoFn<Map<String, ObjectCoder>, KV<String, Map<String, ObjectCoder>>>{
+        private Logger logger = LoggerFactory.getLogger(this.getClass());
+        private final List<String> keys;
+        private Map<String, ObjectCoder> element = null;
+        public FilterByKeysMap(List<String> keys) {
+            this.keys = keys;
+        }
+        @Setup
+        public void setup(){
+            logger.info("filter keys start");
+        }
+        @ProcessElement
+        public void processElement(ProcessContext pc){
+            element = pc.element();
+            String encrypt = getEncrypt(keys, element);
+            if(BaseUtil.isNotBlank(encrypt) && !BaseUtil.isBlankMap(element)){
+                pc.output(KV.of(encrypt, element));
+            }
+        }
+
+        /**
+         * 唯一值
+         * @param keys 多个key
+         * @return
+         */
+        private String getEncrypt(List<String> keys,Map<String, ObjectCoder> row){
+            String result="";
+            if(!BaseUtil.isBlankSet(keys) && !BaseUtil.isBlankMap(row)){
+                Iterator<String> iterator = keys.iterator();
+                StringBuffer sb = new StringBuffer();
+                while (iterator.hasNext()){
+                    String next = iterator.next();
+                    Object value = row.get(next).getValue();
+                    if(value !=  null){
+                        sb.append(value.toString());
+                    }
+                }
+                result = CommonUtil.encryptStr(sb.toString());
+            }
+            return result;
+        }
+    }
+    /**
+     * 过滤，根据key
+     */
     public static  class FilterByKeys extends DoFn<Row, KV<String, Row>>{
         private Logger logger = LoggerFactory.getLogger(this.getClass());
         private final List<String> keys;
@@ -90,6 +133,7 @@ public class FilterTransform {
                 pc.output(result);
             }
         }
+
 
         /**
          * 唯一值
@@ -112,6 +156,105 @@ public class FilterTransform {
             }
             return result;
         }
+    }
+
+    /**
+     * 合并出，转换成嵌套形式
+     */
+    public static  class FilterKeysAndMapJson extends DoFn<KV<String, Set<Map<String, ObjectCoder>>>, Map<String, ObjectCoder>>{
+        private Logger logger = LoggerFactory.getLogger(this.getClass());
+        private final Schema type;
+        //嵌套字段名称
+        private final KV<String,List<String>> mergeds;
+        private Map<String, ObjectCoder> result;
+
+        @Setup
+        public void setup(){
+            logger.info("filter to json start");
+        }
+
+        public FilterKeysAndMapJson(Schema type,KV<String,List<String>> mergeds) {
+            this.type = type;
+            this.mergeds = mergeds;
+        }
+
+        @ProcessElement
+        public void processElement(ProcessContext pc) {
+            Set<Map<String, ObjectCoder>> value = pc.element().getValue();
+            if (!BaseUtil.isBlankSet(value)) {
+                String key = mergeds.getKey();
+                result = new LinkedHashMap<>();
+                Iterator<Map<String, ObjectCoder>> iterator = value.iterator();
+
+                while (iterator.hasNext()) {
+                    Map<String, ObjectCoder> next = iterator.next();
+                    if (!BaseUtil.isBlankMap(next)) {
+                        List<Schema.Field> fields = type.getFields();
+                        for (Schema.Field fieldName : fields) {
+                            String name = fieldName.getName();
+                            if (BaseUtil.isNotBlank(name) && name.equalsIgnoreCase(key)) {
+                                String json = getJson(value, mergeds.getValue());
+                                result.put(name,new ObjectCoder(json,Schema.FieldType.STRING));
+
+                            } else {
+                                Object fieldValue = next.get(fieldName).getValue();
+                                if (fieldValue == null) {
+                                    fieldValue = "";
+                                }
+                                result.put(name,new ObjectCoder(fieldValue,fieldName.getType()));
+                            }
+                        }
+                        break;
+                    }
+                }
+
+                if (!BaseUtil.isBlankMap(result)) {
+                    pc.output(result);
+                }
+            }
+        }
+            /**
+             * 集合转换嵌套json
+             * @param value
+             * @param mergeds
+             * @return
+             */
+            private String getJson(Set<Map<String, ObjectCoder>> value,List<String> mergeds){
+                String result="";
+                if(!BaseUtil.isBlankSet(mergeds) && !BaseUtil.isBlankSet(value)){
+                    Iterator<Map<String, ObjectCoder>> iterator = value.iterator();
+                    StringBuffer mergedJson = new StringBuffer();
+                    StringBuffer columnJson2=null;
+                    String columnJson1="{%s},";
+                    mergedJson.append("[");
+                    while (iterator.hasNext()){
+                        Map<String, ObjectCoder> next = iterator.next();
+                        if(!BaseUtil.isBlankMap(next)){
+                            columnJson2 = new StringBuffer();
+                            boolean first=false;
+                            for(String column:mergeds){
+                                Object columnValue = next.get(column).getValue();
+                                if(first){
+                                    columnJson2.append(",");
+                                }
+                                first = true;
+                                columnJson2.append("\"").append(column).append("\":\"").append(columnValue).append("\"");
+                            }
+                            mergedJson.append(String.format(columnJson1, columnJson2.toString()));
+                        }
+                    }
+                    int length = mergedJson.length();
+                    if(length > 1){
+                        mergedJson.deleteCharAt(length-1);
+                        mergedJson.append("]");
+                        return mergedJson.toString();
+                    }else{
+                        return result;
+                    }
+                }
+                return result;
+            }
+
     }
 
     /**

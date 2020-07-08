@@ -4,15 +4,17 @@ import com.knowlegene.parent.config.common.constantenum.DBOperationEnum;
 import com.knowlegene.parent.config.common.event.OracleImportType;
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.config.util.JdbcUtil;
+import com.knowlegene.parent.process.pojo.ObjectCoder;
 import com.knowlegene.parent.process.pojo.db.DBOptions;
 import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.swap.event.OracleImportTaskEvent;
 import com.knowlegene.parent.scheduler.event.EventHandler;
 import com.knowlegene.parent.scheduler.utils.CacheManager;
 import org.apache.beam.sdk.schemas.Schema;
-import org.apache.beam.sdk.schemas.SchemaCoder;
 import org.apache.beam.sdk.values.PCollection;
-import org.apache.beam.sdk.values.Row;
+
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -49,7 +51,7 @@ public class OracleImportJob extends ImportJobBase{
      * @param tableName
      * @return
      */
-    private static void saveBySQL(PCollection<Row> rows, Schema schema, String tableName){
+    private static void saveBySQL(PCollection<Map<String, ObjectCoder>> rows, Schema schema, String tableName){
         if(rows !=null && schema!=null){
             String insertSQL = getInsertSQL(schema, tableName);
             getLogger().info("insertSQL:{}",insertSQL);
@@ -74,28 +76,21 @@ public class OracleImportJob extends ImportJobBase{
     }
 
 
-    private static Schema getOracleSchemas(){
-        String[] dbColumn = getDbOptions().getDbColumn();
-        String tableName = getDbOptions().getTableName();
-        //getDbOptions()
-        Schema allSchema = getOracleSwapImport().desc(tableName);
-
-        getLogger().info("oracle=>tableName:{}",tableName);
-        return JdbcUtil.columnConversion(dbColumn, allSchema);
 
 
-    }
-
-
-    public static void save(PCollection<Row> rows) {
+    public static void save(PCollection<Map<String, ObjectCoder>> rows) {
         if(rows != null){
             String tableName = getDbOptions().getTableName();
-            Schema schema = getOracleSchemas();
+            Schema srcSchema = rows.getSchema();
+            String[] dbColumn = getDbOptions().getDbColumn();
+            Schema schema = JdbcUtil.columnConversion(dbColumn, srcSchema);
+
             if(schema == null){
                 getLogger().info("schema is null");
             }
-            PCollection<Row> newRows = rows.setCoder(SchemaCoder.of(schema));
-            saveBySQL(newRows,schema,tableName);
+
+
+            saveBySQL(rows,schema,tableName);
         }
     }
 
@@ -107,8 +102,7 @@ public class OracleImportJob extends ImportJobBase{
                 getLogger().info("OracleImportDispatcher is start");
 
                 if(CacheManager.isExist(DBOperationEnum.PCOLLECTION_QUERYS.getName())){
-                    PCollection<Row>  rows = (PCollection<Row>)CacheManager.getCache(DBOperationEnum.PCOLLECTION_QUERYS.getName());
-                    save(rows);
+                    save((PCollection<Map<String, ObjectCoder>>)CacheManager.getCache(DBOperationEnum.PCOLLECTION_QUERYS.getName()));
                 }
 
             }

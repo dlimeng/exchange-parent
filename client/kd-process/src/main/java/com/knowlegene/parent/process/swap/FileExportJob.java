@@ -3,6 +3,7 @@ package com.knowlegene.parent.process.swap;
 import com.knowlegene.parent.config.common.constantenum.DBOperationEnum;
 import com.knowlegene.parent.config.common.event.FileExportType;
 import com.knowlegene.parent.config.util.BaseUtil;
+import com.knowlegene.parent.process.pojo.ObjectCoder;
 import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.pojo.file.FileOptions;
 import com.knowlegene.parent.process.swap.event.FileExportTaskEvent;
@@ -12,10 +13,11 @@ import com.knowlegene.parent.scheduler.event.EventHandler;
 import com.knowlegene.parent.scheduler.utils.CacheManager;
 import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.schemas.Schema;
-import org.apache.beam.sdk.schemas.SchemaCoder;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
-import org.apache.beam.sdk.values.Row;
+
+import java.util.Map;
+
 
 /**
  * @Author: limeng
@@ -62,8 +64,8 @@ public class FileExportJob extends ExportJobBase {
      * 转换 根据导入库的类型
      * @return
      */
-    private static PCollection<Row> transformPCollection(){
-        PCollection<Row> result = null;
+    private static PCollection<Map<String, ObjectCoder>> transformPCollection(){
+        PCollection<Map<String, ObjectCoder>> result = null;
 
         String[] fieldTitle = getDbOptions().getFieldTitle();
         Schema type = SqlUtil.getSchemaByTitle(fieldTitle);
@@ -74,7 +76,7 @@ public class FileExportJob extends ExportJobBase {
         String fieldDelim = getDbOptions().getFieldDelim();
         PCollection<String> files = queryByFile();
         if(files!=null){
-            return files.apply(ParDo.of(new TypeConversion.StringAndRow(type,fieldDelim))).setCoder(SchemaCoder.of(type));
+            return files.apply(ParDo.of(new TypeConversion.StringAndMap(type,fieldDelim)));
         }else{
             getLogger().info("files is null");
         }
@@ -85,7 +87,7 @@ public class FileExportJob extends ExportJobBase {
 
 
 
-    public static PCollection<Row> query(){
+    public static PCollection<Map<String, ObjectCoder>> query(){
         return transformPCollection();
     }
 
@@ -96,9 +98,10 @@ public class FileExportJob extends ExportJobBase {
         public void handle(FileExportTaskEvent event) {
             if (event.getType() == FileExportType.T_EXPORT) {
                 getLogger().info("FileExportDispatcher is start");
-
-                PCollection<Row> rows = query();
-                CacheManager.setCache(DBOperationEnum.PCOLLECTION_QUERYS.getName(), rows);
+                PCollection<Map<String, ObjectCoder>> result = query();
+                if(result != null){
+                    CacheManager.setCache(DBOperationEnum.PCOLLECTION_QUERYS.getName(), result);
+                }
 
             }
         }

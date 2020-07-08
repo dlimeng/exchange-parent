@@ -2,13 +2,18 @@ package com.knowlegene.parent.process.swap;
 
 import com.knowlegene.parent.config.common.constantenum.DBOperationEnum;
 import com.knowlegene.parent.config.common.event.Neo4jExportType;
+import com.knowlegene.parent.config.util.BaseUtil;
+import com.knowlegene.parent.process.pojo.ObjectCoder;
 import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.pojo.neo4j.Neo4jOptions;
 import com.knowlegene.parent.process.swap.event.Neo4jExportTaskEvent;
+import com.knowlegene.parent.process.transform.TypeConversion;
 import com.knowlegene.parent.scheduler.event.EventHandler;
 import com.knowlegene.parent.scheduler.utils.CacheManager;
+import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
-import org.apache.beam.sdk.values.Row;
+
+import java.util.Map;
 
 
 /**
@@ -38,7 +43,13 @@ public class Neo4jExportJob extends ExportJobBase  {
 
 
 
-    public static PCollection<Row> query() {
+    public static PCollection<Map<String, ObjectCoder>> query() {
+        String cypher = getDbOptions().getCypher();
+        String neoType = getDbOptions().getNeoType();
+        if(BaseUtil.isNotBlank(cypher) && BaseUtil.isNotBlank(neoType)){
+            return getPipeline().apply(getNeo4jSwapExport().query(cypher,neoType))
+                    .apply(ParDo.of(new TypeConversion.ObjectCodersAndMap()));
+        }
         return null;
     }
 
@@ -48,9 +59,11 @@ public class Neo4jExportJob extends ExportJobBase  {
         public void handle(Neo4jExportTaskEvent event) {
             if (event.getType() == Neo4jExportType.T_EXPORT) {
                 getLogger().info("Neo4jExportDispatcher is start");
+                PCollection<Map<String, ObjectCoder>> result = query();
+                if(result != null){
+                    CacheManager.setCache(DBOperationEnum.PCOLLECTION_QUERYS.getName(), result);
+                }
 
-                PCollection<Row> rows = query();
-                CacheManager.setCache(DBOperationEnum.PCOLLECTION_QUERYS.getName(), rows);
             }
         }
     }

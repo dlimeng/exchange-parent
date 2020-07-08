@@ -213,16 +213,57 @@ public class HiveSwapTest extends SwapRunners {
     }
 
 
+    @Test
     public void testMysql(){
+        swapOptions.setFromName("hive");
+        swapOptions.setToName("mysql");
 
+        swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
+        swapOptions.setHiveUrl("jdbc:hive2://192.168.200.117:10000/linkis_db");
+        swapOptions.setUsername("hdfs");
+        swapOptions.setPassword("hdfs");
+        swapOptions.setHiveTableName("pretest");
+      //  swapOptions.setHiveSQL("select * from pretest");
+
+        swapOptions.setUrl("jdbc:mysql://192.168.200.115:3306/kd_test?useSSL=false");
+        swapOptions.setTableName("test3");
+        swapOptions.setDriverClass("com.mysql.jdbc.Driver");
+        swapOptions.setUsername("root");
+        swapOptions.setPassword("root");
     }
-
+    @Test
     public void testOracle(){
+        swapOptions.setFromName("hive");
+        swapOptions.setToName("oracle");
+
+        swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
+        swapOptions.setHiveUrl("jdbc:hive2://192.168.200.117:10000/linkis_db");
+        swapOptions.setUsername("hdfs");
+        swapOptions.setPassword("hdfs");
+        swapOptions.setHiveTableName("pretest");
+        //  swapOptions.setHiveSQL("select * from pretest");
+
+        swapOptions.setUrl("jdbc:oracle:thin:@//192.168.200.25:1521/huaxia");
+        swapOptions.setTableName("test1");
+        swapOptions.setDriverClass("oracle.jdbc.driver.OracleDriver");
+        swapOptions.setUsername("kg");
+        swapOptions.setPassword("kg");
 
     }
 
     public void testHive(){
+        swapOptions.setFromName("hive");
+        swapOptions.setToName("hive");
 
+        swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
+        swapOptions.setHiveUrls(new String[]{"jdbc:hive2://192.168.200.117:10000/linkis_db","jdbc:hive2://192.168.200.117:10000/linkis_db"});
+        swapOptions.setHiveUsernames(new String[]{"hdfs","hdfs"});
+        swapOptions.setHivePasswords(new String[]{"hdfs","hdfs"});
+        swapOptions.setHiveTableNames(new String[]{"test4","test3"});
+
+        swapOptions.setHiveDatabases(new String[]{"linkis_db","linkis_db"});
+        swapOptions.setHMetastoreHosts(new String[]{"192.168.200.117","192.168.200.117"});
+        swapOptions.setHMetastorePorts(new String[]{"9083","9083"});
     }
 
     public void testES(){
@@ -234,11 +275,37 @@ public class HiveSwapTest extends SwapRunners {
     }
 
     public void testGbase(){
+        swapOptions.setFromName("hive");
+        swapOptions.setToName("gbase");
 
+        swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
+        swapOptions.setHiveUrl("jdbc:hive2://192.168.200.117:10000/linkis_db");
+        swapOptions.setUsername("hdfs");
+        swapOptions.setPassword("hdfs");
+        swapOptions.setHiveTableName("pretest");
+        //  swapOptions.setHiveSQL("select * from pretest");
+
+        swapOptions.setUrl("jdbc:gbase://192.168.100.1:5258/test");
+        swapOptions.setTableName("batch_test");
+        swapOptions.setDriverClass("com.gbase.jdbc.Driver");
+        swapOptions.setUsername("root");
+        swapOptions.setPassword("gbase");
     }
 
+    @Test
     public void testFile(){
+        swapOptions.setFromName("hive");
+        swapOptions.setToName("file");
 
+        swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
+        swapOptions.setHiveUrl("jdbc:hive2://192.168.200.117:10000/linkis_db");
+        swapOptions.setUsername("hdfs");
+        swapOptions.setPassword("hdfs");
+        swapOptions.setHiveTableName("pretest");
+        //  swapOptions.setHiveSQL("select * from pretest");
+
+        swapOptions.setFilePath("test.cvs");
+        swapOptions.setFieldDelim("#");
     }
 
 
