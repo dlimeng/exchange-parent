@@ -1,10 +1,12 @@
 package com.knowlegene.parent.process.swap;
 
-import com.knowlegene.parent.config.common.constantenum.DBOperationEnum;
+
+import com.knowlegene.parent.process.pojo.ObjectCoder;
 import com.knowlegene.parent.process.pojo.SwapOptions;
-import com.knowlegene.parent.process.pojo.hive.HiveOptions;
 import org.apache.beam.sdk.values.PCollection;
-import org.apache.beam.sdk.values.Row;
+
+
+import java.util.Map;
 
 /**
  * @Author: limeng
@@ -23,12 +25,12 @@ public class ExportJobBase extends JobBase {
 
 
 
-    public static PCollection<Row> query() {
+    public static PCollection<Map<String, ObjectCoder>> query() {
         return null;
     }
 
 
-    public static void save(PCollection<Row> rows) {
+    public static void save(PCollection<Map<String, ObjectCoder>> rows) {
 
     }
 }

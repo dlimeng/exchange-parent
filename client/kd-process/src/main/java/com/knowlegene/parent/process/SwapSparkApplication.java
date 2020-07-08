@@ -1,7 +1,8 @@
 package com.knowlegene.parent.process;
 
 import com.knowlegene.parent.process.runners.SwapRunners;
-import com.knowlegene.parent.process.runners.options.SwapFunPipelineOptions;
+import com.knowlegene.parent.process.runners.options.SwapSparkPipelineOptions;
+
 
 /**
  * 数据交换 自定义fun
@@ -11,7 +12,7 @@ import com.knowlegene.parent.process.runners.options.SwapFunPipelineOptions;
 public class SwapSparkApplication extends SwapRunners {
     public static void main(String[] args) {
         SwapSparkApplication application=new SwapSparkApplication();
-        application.start(SwapFunPipelineOptions.class,args);
+        application.start(SwapSparkPipelineOptions.class,args);
     }
 
     @Override

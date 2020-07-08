@@ -4,16 +4,18 @@ import com.knowlegene.parent.config.common.constantenum.DBOperationEnum;
 import com.knowlegene.parent.config.common.event.GbaseExportType;
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.config.util.JdbcUtil;
+import com.knowlegene.parent.process.pojo.ObjectCoder;
 import com.knowlegene.parent.process.pojo.db.DBOptions;
 import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.swap.event.GbaseExportTaskEvent;
+import com.knowlegene.parent.process.transform.TypeConversion;
 import com.knowlegene.parent.scheduler.event.EventHandler;
 import com.knowlegene.parent.scheduler.utils.CacheManager;
-import org.apache.beam.sdk.io.jdbc.JdbcIO;
 import org.apache.beam.sdk.schemas.Schema;
-import org.apache.beam.sdk.schemas.SchemaCoder;
+import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
-import org.apache.beam.sdk.values.Row;
+
+import java.util.Map;
 
 /**
  * @Author: limeng
@@ -57,13 +59,14 @@ public class GbaseExportJob extends ExportJobBase {
      * 查询sql
      * @return
      */
-    private static PCollection<Row> queryBySQL(){
+    private static PCollection<Map<String, ObjectCoder>> queryBySQL(){
         String sql = getDbOptions().getDbSQL();
         String tableName = getDbOptions().getTableName();
         Schema schema = getGbaseSchemas();
         getLogger().info("gbase=>sql:{},tableName:{}",sql,tableName);
-        JdbcIO.Read<Row> rows = getGbaseSwapExport().query(sql, schema);
-        return getPipeline().apply(rows).setCoder(SchemaCoder.of(schema));
+
+        return getPipeline().apply(getGbaseSwapExport().query(sql))
+                .apply(ParDo.of(new TypeConversion.MapObjectAndType(schema)));
     }
 
 
@@ -71,20 +74,20 @@ public class GbaseExportJob extends ExportJobBase {
      * 查询表
      * @return
      */
-    private static PCollection<Row> queryByTable(){
+    private static PCollection<Map<String, ObjectCoder>> queryByTable(){
         Schema schema = getGbaseSchemas();
         String tableName = getDbOptions().getTableName();
         getLogger().info("gbase=>tableName:{}",tableName);
-        JdbcIO.Read<Row> rowRead = getGbaseSwapExport().queryByTable(tableName, schema);
 
-        return getPipeline().apply(rowRead).setCoder(SchemaCoder.of(schema));
+        return getPipeline().apply(getGbaseSwapExport().queryByTable(tableName))
+                .apply(ParDo.of(new TypeConversion.MapObjectAndType(schema)));
 
     }
 
 
-    public static PCollection<Row> query() {
+    public static PCollection<Map<String, ObjectCoder>> query() {
         String sql = getDbOptions().getDbSQL();
-        PCollection<Row> rows=null;
+        PCollection<Map<String, ObjectCoder>> rows=null;
         if(BaseUtil.isNotBlank(sql)){
             rows = queryBySQL();
         }else {
@@ -102,9 +105,10 @@ public class GbaseExportJob extends ExportJobBase {
         public void handle(GbaseExportTaskEvent event) {
             if (event.getType() == GbaseExportType.T_EXPORT) {
                 getLogger().info("GbaseExportDispatcher is start");
-
-                PCollection<Row> rows = query();
-                CacheManager.setCache(DBOperationEnum.PCOLLECTION_QUERYS.getName(), rows);
+                PCollection<Map<String, ObjectCoder>> result = query();
+                if(result != null){
+                    CacheManager.setCache(DBOperationEnum.PCOLLECTION_QUERYS.getName(), result);
+                }
 
             }
         }

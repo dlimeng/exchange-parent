@@ -1,6 +1,7 @@
 package com.knowlegene.parent.process.pojo;
 
 import lombok.Data;
+import org.apache.beam.sdk.schemas.Schema;
 
 import java.io.Serializable;
 
@@ -11,8 +12,17 @@ import java.io.Serializable;
 @Data
 public class ObjectCoder implements Serializable {
     private Object value;
+    private Schema.FieldType fieldType;
+
+    public ObjectCoder(Object value, Schema.FieldType fieldType) {
+        this.value = value;
+        this.fieldType = fieldType;
+    }
 
     public ObjectCoder(Object value) {
         this.value = value;
+    }
+
+    public ObjectCoder() {
     }
 }

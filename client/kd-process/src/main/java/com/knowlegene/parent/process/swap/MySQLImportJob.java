@@ -6,15 +6,15 @@ import com.knowlegene.parent.config.common.constantenum.DBOperationEnum;
 import com.knowlegene.parent.config.common.event.MySQLImportType;
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.config.util.JdbcUtil;
+import com.knowlegene.parent.process.pojo.ObjectCoder;
 import com.knowlegene.parent.process.pojo.db.DBOptions;
 import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.swap.event.MySQLImportTaskEvent;
 import com.knowlegene.parent.scheduler.event.EventHandler;
 import com.knowlegene.parent.scheduler.utils.CacheManager;
 import org.apache.beam.sdk.schemas.Schema;
-import org.apache.beam.sdk.schemas.SchemaCoder;
 import org.apache.beam.sdk.values.PCollection;
-import org.apache.beam.sdk.values.Row;
+import java.util.Map;
 
 
 
@@ -81,25 +81,25 @@ public class MySQLImportJob extends ImportJobBase{
      * @param tableName
      * @return
      */
-    private static void saveBySQL(PCollection<Row> rows, Schema schema, String tableName){
+    private static void saveBySQL(PCollection<Map<String, ObjectCoder>> rows, Schema schema, String tableName){
         if(rows !=null && schema!=null){
             String insertSQL = getInsertSQL(schema, tableName);
             getLogger().info("insertSQL:{}",insertSQL);
             if(BaseUtil.isNotBlank(insertSQL)){
-                rows.apply(getMySQLSwapImport().saveByIO(insertSQL));
+                rows.apply(getMySQLSwapImport().saveByIO(insertSQL,schema));
             }
         }
     }
 
-    public static void save(PCollection<Row> rows) {
+    public static void save(PCollection<Map<String, ObjectCoder>> rows) {
         if(rows != null){
             String tableName = getDbOptions().getTableName();
             Schema schema = getMysqlSchemas();
             if(schema == null){
                 getLogger().info("schema is null");
             }
-            PCollection<Row> newRows = rows.setCoder(SchemaCoder.of(schema));
-            saveBySQL(newRows,schema,tableName);
+
+            saveBySQL(rows,schema,tableName);
         }
     }
 
@@ -111,8 +111,7 @@ public class MySQLImportJob extends ImportJobBase{
                 getLogger().info("MySQLImportDispatcher is start");
 
                 if(CacheManager.isExist(DBOperationEnum.PCOLLECTION_QUERYS.getName())){
-                    PCollection<Row>  rows = (PCollection<Row>)CacheManager.getCache(DBOperationEnum.PCOLLECTION_QUERYS.getName());
-                    save(rows);
+                    save((PCollection<Map<String, ObjectCoder>>)CacheManager.getCache(DBOperationEnum.PCOLLECTION_QUERYS.getName()));
                 }
 
             }

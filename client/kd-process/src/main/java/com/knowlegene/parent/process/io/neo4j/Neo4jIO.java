@@ -135,9 +135,10 @@ public class Neo4jIO {
         abstract DriverConfiguration getDriverConfiguration();
         @Nullable
         abstract ValueProvider<String> getQuery();
+
+
         @Nullable
         abstract Coder<T> getCoder();
-
         @Nullable
         abstract RowMapper<T> getRowMapper();
 
@@ -158,6 +159,8 @@ public class Neo4jIO {
             return toBuilder().setDriverConfiguration(config).build();
         }
 
+
+
         public Read<T> withQuery(String query){
             checkArgument(query != null, "query can not be null");
             return withQuery(ValueProvider.StaticValueProvider.of(query));
@@ -167,6 +170,7 @@ public class Neo4jIO {
             checkArgument(query != null, "query can not be null");
             return toBuilder().setQuery(query).build();
         }
+
 
         public Read<T> withRowMapper(RowMapper<T> rowMapper){
             checkArgument(rowMapper != null, "rowMapper can not be null");
@@ -210,6 +214,8 @@ public class Neo4jIO {
         abstract DriverConfiguration getDriverConfiguration();
         @Nullable
         abstract ValueProvider<String> getQuery();
+
+
         @Nullable
         abstract Coder<OutputT> getCoder();
 
@@ -225,6 +231,7 @@ public class Neo4jIO {
 
             abstract Builder<ParameterT, OutputT> setQuery(ValueProvider<String> query);
 
+
             abstract Builder<ParameterT, OutputT> setRowMapper(RowMapper<OutputT> rowMapper);
 
             abstract Builder<ParameterT, OutputT> setCoder(Coder<OutputT> coder);
@@ -237,6 +244,7 @@ public class Neo4jIO {
             checkArgument(config instanceof Serializable, "driverConfiguration must be Serializable");
             return toBuilder().setDriverConfiguration(config).build();
         }
+
 
         public ReadAll<ParameterT, OutputT> withQuery(String query){
             checkArgument(query != null, "query can not be null");
@@ -499,14 +507,18 @@ public class Neo4jIO {
         }
 
         private String getDSL(Value value){
-            String optionsType = spec.getOptionsType().get().toString();
-            String statement = spec.getStatement().get().toString();
-            String result=statement;
-            if(BaseUtil.isNotBlank(optionsType) && BaseUtil.isNotBlank(statement)){
-                if(optionsType.equals(Neo4jEnum.RELATE.getName())){
+            ValueProvider optionsType = spec.getOptionsType();
+            ValueProvider statement = spec.getStatement();
+            String result=null;
+            if(statement != null){
+                result = statement.get().toString();
+            }
+
+            if(optionsType!=null && statement!= null){
+                if(Neo4jEnum.RELATE.getName().equalsIgnoreCase(optionsType.get().toString())){
                     Value value1 = value.get(spec.getLabel().get().toString());
                     if(value1 != null){
-                        result = String.format(statement,value1.asString());
+                        result = String.format(statement.get().toString(),value1.asString());
                     }
                 }
             }

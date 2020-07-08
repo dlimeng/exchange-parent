@@ -10,6 +10,7 @@ import org.apache.beam.sdk.coders.StringUtf8Coder;
 import org.apache.beam.sdk.io.jdbc.JdbcIO;
 import org.apache.beam.sdk.schemas.Schema;
 import org.apache.beam.sdk.values.Row;
+import org.joda.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,14 +55,20 @@ public abstract class AbstractSwapBase implements Serializable {
     /**
      * 查询
      * @param sql sql
-     * @param type 类型
+     *
      * @return
      * @throws Exception
      */
-    public JdbcIO.Read<Row> select(String sql, Schema type) throws Exception {
+    public JdbcIO.Read<Map<String, ObjectCoder>> select(String sql) throws Exception {
         DataSource dataSource = this.getDataSource();
         if(dataSource!= null){
-            return JdbcUtil.read(dataSource,sql,type);
+            return JdbcIO.<Map<String,ObjectCoder>>read().
+                    withDataSourceConfiguration(JdbcIO.DataSourceConfiguration
+                            .create(dataSource)
+
+                    ).withCoder(MapCoder.of(StringUtf8Coder.of(), SerializableCoder.of(ObjectCoder.class)))
+                    .withQuery(sql).withFetchSize(50000)
+                    .withRowMapper(new JdbcTransform.MapHiveRowMapper());
         }
         return null;
     }
@@ -82,7 +89,7 @@ public abstract class AbstractSwapBase implements Serializable {
                             .create(dataSource)
 
                     ).withCoder(MapCoder.of(StringUtf8Coder.of(), SerializableCoder.of(ObjectCoder.class)))
-                    .withQuery(sql).withFetchSize(10000)
+                    .withQuery(sql).withFetchSize(50000)
                     .withRowMapper(new JdbcTransform.MapHiveRowMapper());
         }
         return null;
@@ -113,6 +120,7 @@ public abstract class AbstractSwapBase implements Serializable {
                     String name = resultSet.getString(columnLabel1);
                     String type = resultSet.getString(columnLabel2);
                     Schema.Field  field = JdbcUtil.getSchemaField(name,type,isTimeStr);
+
                     if(field == null) continue;
                     fields.add(field);
                 }
@@ -132,7 +140,7 @@ public abstract class AbstractSwapBase implements Serializable {
      * @throws SQLException
      */
     public Schema getSchema(String tableName) throws SQLException {
-        return getSchema(tableName,true);
+        return getSchema(tableName,false);
     }
 
     /**
@@ -142,7 +150,7 @@ public abstract class AbstractSwapBase implements Serializable {
      * @throws SQLException
      */
     public Schema getOracleSchema(String tableName) throws SQLException {
-        return getOracleSchema(tableName,true);
+        return getOracleSchema(tableName,false);
     }
     /**
      * 普通获取类型  oracle关系型数据
@@ -203,15 +211,15 @@ public abstract class AbstractSwapBase implements Serializable {
      * @param sql
      * @return
      */
-    public JdbcIO.Write<Row> batchHiveSave(String sql){
+    public JdbcIO.Write<Map<String, ObjectCoder>> batchHiveSave(String sql){
         DataSource dataSource = this.getDataSource();
         if(dataSource!= null){
-            return JdbcIO.<Row>write()
+            return JdbcIO.<Map<String, ObjectCoder>>write()
                     .withDataSourceConfiguration(
                             JdbcIO.DataSourceConfiguration.create(
                                     dataSource).withConnectionProperties("hive"))
                     .withStatement(sql)
-                    .withPreparedStatementSetter(new JdbcTransform.PrepareStatementFromHiveRow());
+                    .withPreparedStatementSetter(new JdbcTransform.PrepareStatementFromHiveMap());
         }
         return null;
     }
@@ -222,19 +230,63 @@ public abstract class AbstractSwapBase implements Serializable {
      * @param sql
      * @return
      */
-    public JdbcIO.Write<Row> batchSaveCommon(String sql){
+    public JdbcIO.Write<Map<String, ObjectCoder>> batchSaveCommon(String sql){
         DataSource dataSource = this.getDataSource();
         if(dataSource!= null){
-            return JdbcIO.<Row>write()
+            return JdbcIO.<Map<String, ObjectCoder>>write()
                     .withDataSourceConfiguration(
                             JdbcIO.DataSourceConfiguration.create(
                                     dataSource))
                     .withStatement(sql)
-                    .withPreparedStatementSetter(new JdbcTransform.PrepareStatementFromRow());
+                    .withPreparedStatementSetter(new JdbcTransform.PrepareStatementFromMap());
         }
         return null;
     }
 
+    /**
+     * 批量保存 关系型数据
+     * @param sql
+     * @return
+     */
+    public JdbcIO.Write<Map<String, ObjectCoder>> batchSaveCommon(String sql,Schema schema){
+        DataSource dataSource = this.getDataSource();
+        if(dataSource!= null){
+            return JdbcIO.<Map<String, ObjectCoder>>write()
+                    .withDataSourceConfiguration(
+                            JdbcIO.DataSourceConfiguration.create(
+                                    dataSource))
+                    .withStatement(sql)
+                    .withPreparedStatementSetter(new JdbcIO.PreparedStatementSetter<Map<String, ObjectCoder>>(){
+                        @Override
+                        public void setParameters(Map<String, ObjectCoder> element, PreparedStatement preparedStatement) throws Exception {
+
+                            if(!BaseUtil.isBlankMap(element)){
+                                logger.info("values start=>fieldCount:{}",element.size());
+
+                                List<String> fieldNames = schema.getFieldNames();
+                                for (int j = 0; j < fieldNames.size(); j++) {
+                                    String name = fieldNames.get(j);
+                                    if(BaseUtil.isNotBlank(name)){
+                                        Object o =  element.get(name).getValue();
+                                        String instantName = Instant.class.getSimpleName();
+                                        String objecteName = o.getClass().getSimpleName();
+                                        if(instantName.equals(objecteName)){
+                                            Timestamp sqlDate =BaseUtil.instantToTimestamp(o);
+                                            preparedStatement.setObject(j+1,sqlDate);
+                                        }else{
+                                            preparedStatement.setObject(j+1,o);
+                                        }
+                                    }
+
+                                }
+                            }else{
+                                logger.info("sql values is null");
+                            }
+                        }
+                    });
+        }
+        return null;
+    }
 
     /**
      * 创建表

@@ -1,8 +1,11 @@
 package com.knowlegene.parent.process.io.jdbc;
 
+import com.knowlegene.parent.process.pojo.ObjectCoder;
 import org.apache.beam.sdk.io.jdbc.JdbcIO;
 import org.apache.beam.sdk.schemas.Schema;
 import org.apache.beam.sdk.values.Row;
+
+import java.util.Map;
 
 /**
  * @Author: limeng
@@ -10,9 +13,12 @@ import org.apache.beam.sdk.values.Row;
  */
 public interface MySQLSwap {
 
-    JdbcIO.Read<Row> queryByTable(String tableName, Schema type);
-    JdbcIO.Write<Row> saveByIO(String sql);
+    JdbcIO.Read<Map<String, ObjectCoder>> queryByTable(String tableName);
+
+    JdbcIO.Write<Map<String, ObjectCoder>> saveByIO(String sql);
+
+    JdbcIO.Write<Map<String, ObjectCoder>> saveByIO(String sql,Schema schema);
 
     Schema desc(String tableName);
-    JdbcIO.Read<Row> query(String sql, Schema type);
+    JdbcIO.Read<Map<String, ObjectCoder>> query(String sql);
 }

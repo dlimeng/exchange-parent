@@ -66,6 +66,7 @@ public class JdbcUtil {
 
     }
 
+
     /**
      * 查询
      * @param sql sql
@@ -207,6 +208,8 @@ public class JdbcUtil {
             String longtextNumber = "longtext";
             String textNumber = "text";
             String stringNumber = "string";
+            String numberNumber = "number";
+            String longNumber ="long";
             String varcharNumber = JDBCType.VARCHAR.getName().toLowerCase();
             String longVarcharNumber = JDBCType.LONGNVARCHAR.getName().toLowerCase();
             String charNumber = JDBCType.CHAR.getName().toLowerCase();
@@ -269,11 +272,11 @@ public class JdbcUtil {
                 //BigDecimal
                 result = Schema.Field.of(tmpColumnName,Schema.FieldType.DECIMAL);
 
-            }else if(tmpColumnType.contains(integerNumber) || tmpColumnType.contains(intNumber)){
+            }else if(tmpColumnType.contains(integerNumber) || tmpColumnType.contains(intNumber) || tmpColumnType.equalsIgnoreCase(numberNumber)){
                 //int
                 result = Schema.Field.of(tmpColumnName,Schema.FieldType.INT32);
 
-            }else if(tmpColumnType.contains(bigintNumber)){
+            }else if(tmpColumnType.contains(bigintNumber) || tmpColumnType.equalsIgnoreCase(longNumber)){
                 //long
                 result = Schema.Field.of(tmpColumnName,Schema.FieldType.INT64);
 
@@ -308,205 +311,8 @@ public class JdbcUtil {
         return null;
     }
 
-    public static Schema.Field getSchemaField2(String columnName,String columnType){
-        Schema.Field result=null;
-        if(BaseUtil.isNotBlank(columnType) && BaseUtil.isNotBlank(columnName)){
-            String tmpColumnType = columnType.toLowerCase();
-            String tmpColumnName = columnName.toLowerCase();
-            //string
-            String stringNumber = "string";
-            String varcharNumber = JDBCType.VARCHAR.getName().toLowerCase();
-            String longVarcharNumber = JDBCType.LONGNVARCHAR.getName().toLowerCase();
-            String charNumber = JDBCType.CHAR.getName().toLowerCase();
-            //BigDecimal
-            String numericNumber = JDBCType.NUMERIC.getName().toLowerCase();
-            String decimalNumber = JDBCType.DECIMAL.getName().toLowerCase();
-            //boolean
-            String bitNumber = JDBCType.BIT.getName().toLowerCase();
-            String booleanNumber = JDBCType.BOOLEAN.getName().toLowerCase();
-            //byte
-            String tinyintNumber = JDBCType.TINYINT.getName().toLowerCase();
-            //short
-            String smallintNumber = JDBCType.SMALLINT.getName().toLowerCase();
-            String intNumber="int";
-            //int
-            String integerNumber = JDBCType.INTEGER.getName().toLowerCase();
-            //long
-            String bigintNumber = JDBCType.BIGINT.getName().toLowerCase();
-            //float
-            String realNumber = JDBCType.REAL.getName().toLowerCase();
-            //double
-            String floatNumber = JDBCType.FLOAT.getName().toLowerCase();
-            String doubleNumber = JDBCType.DOUBLE.getName().toLowerCase();
-            //byte[]
-            String binaryNumber = JDBCType.BINARY.getName().toLowerCase();
-            String varbinaryNumber = JDBCType.VARBINARY.getName().toLowerCase();
-            String longvarbinaryNumber = JDBCType.LONGVARBINARY.getName().toLowerCase();
-            //date
-            String dateNumber = JDBCType.DATE.getName().toLowerCase();
-            //time
-            String timeNumber = JDBCType.TIME.getName().toLowerCase();
-            //timestamp
-            String timestampNumber = JDBCType.TIMESTAMP.getName().toLowerCase();
-            //clob
-            String clobNumber = JDBCType.CLOB.getName().toLowerCase();
-            //blob
-            String blobNumber = JDBCType.BLOB.getName().toLowerCase();
-            //array
-            String arrayNumber = JDBCType.ARRAY.getName().toLowerCase();
-            //mapping of underlying type
-            String distinctNumber = JDBCType.DISTINCT.getName().toLowerCase();
-            //Struct
-            String structNumber = JDBCType.STRUCT.getName().toLowerCase();
-            //ref
-            String refNumber = JDBCType.REF.getName().toLowerCase();
-            //URL
-            String datalinkNumber = JDBCType.DATALINK.getName().toLowerCase();
-
-            //string
-            if(tmpColumnType.contains(stringNumber) || tmpColumnType.contains(varcharNumber)||  tmpColumnType.contains(longVarcharNumber)|| tmpColumnType.contains(charNumber)){
-                result = Schema.Field.of(tmpColumnName,Schema.FieldType.STRING);
-
-            }else if(tmpColumnType.contains(bitNumber) || tmpColumnType.contains(booleanNumber)){
-                //boolean
-                result = Schema.Field.of(tmpColumnName,Schema.FieldType.BOOLEAN);
-
-            }else if(tmpColumnType.contains(numericNumber) || tmpColumnType.contains(decimalNumber)){
-                //BigDecimal
-                result = Schema.Field.of(tmpColumnName,Schema.FieldType.DECIMAL);
-
-            }else if(tmpColumnType.contains(integerNumber) || tmpColumnType.contains(intNumber)){
-                //int
-                result = Schema.Field.of(tmpColumnName,Schema.FieldType.INT32);
-
-            }else if(tmpColumnType.contains(bigintNumber)){
-                //long
-                result = Schema.Field.of(tmpColumnName,Schema.FieldType.INT64);
-
-            }else if(tmpColumnType.contains(realNumber)) {
-                //float
-                result = Schema.Field.of(tmpColumnName,Schema.FieldType.FLOAT);
-
-            }else if(tmpColumnType.contains(floatNumber) || tmpColumnType.contains(doubleNumber)){
-                //double
-                result = Schema.Field.of(tmpColumnName,Schema.FieldType.DOUBLE);
-
-            }else if(tmpColumnType.contains(smallintNumber)){
-                //short
-                result = Schema.Field.of(tmpColumnName,Schema.FieldType.INT16);
-
-            }else if(tmpColumnType.contains(dateNumber)|| tmpColumnType.contains(timeNumber) || tmpColumnType.contains(timestampNumber)){
-                //Schema.FieldType.DATETIME
-                //date time timestamp
-                result = Schema.Field.of(tmpColumnName,Schema.FieldType.DATETIME);
-
-            }else if(tmpColumnType.contains(tinyintNumber)){
-                //byte
-                result = Schema.Field.of(tmpColumnName,Schema.FieldType.BYTE);
-
-            }
-            return result;
-        }
-        return null;
-    }
 
 
-    public static Schema.Field getSchemaField(String columnName,Integer columnType){
-        Schema.Field field=null;
-        if(columnType != null && BaseUtil.isNotBlank(columnName)){
-            //string
-            Integer varcharNumber = JDBCType.VARCHAR.getVendorTypeNumber();
-            Integer longVarcharNumber = JDBCType.LONGNVARCHAR.getVendorTypeNumber();
-            Integer charNumber = JDBCType.CHAR.getVendorTypeNumber();
-            //BigDecimal
-            Integer numericNumber = JDBCType.NUMERIC.getVendorTypeNumber();
-            Integer decimalNumber = JDBCType.DECIMAL.getVendorTypeNumber();
-            //boolean
-            Integer bitNumber = JDBCType.BIT.getVendorTypeNumber();
-            Integer booleanNumber = JDBCType.BOOLEAN.getVendorTypeNumber();
-            //byte
-            Integer tinyintNumber = JDBCType.TINYINT.getVendorTypeNumber();
-            //short
-            Integer smallintNumber = JDBCType.SMALLINT.getVendorTypeNumber();
-            //int
-            Integer integerNumber = JDBCType.INTEGER.getVendorTypeNumber();
-            //long
-            Integer bigintNumber = JDBCType.BIGINT.getVendorTypeNumber();
-            //float
-            Integer realNumber = JDBCType.REAL.getVendorTypeNumber();
-            //double
-            Integer floatNumber = JDBCType.FLOAT.getVendorTypeNumber();
-            Integer doubleNumber = JDBCType.DOUBLE.getVendorTypeNumber();
-            //byte[]
-            Integer binaryNumber = JDBCType.BINARY.getVendorTypeNumber();
-            Integer varbinaryNumber = JDBCType.VARBINARY.getVendorTypeNumber();
-            Integer longvarbinaryNumber = JDBCType.LONGVARBINARY.getVendorTypeNumber();
-            //date
-            Integer dateNumber = JDBCType.DATE.getVendorTypeNumber();
-            //time
-            Integer timeNumber = JDBCType.TIME.getVendorTypeNumber();
-            //timestamp
-            Integer timestampNumber = JDBCType.TIMESTAMP.getVendorTypeNumber();
-            //clob
-            Integer clobNumber = JDBCType.CLOB.getVendorTypeNumber();
-            //blob
-            Integer blobNumber = JDBCType.BLOB.getVendorTypeNumber();
-            //array
-            Integer arrayNumber = JDBCType.ARRAY.getVendorTypeNumber();
-            //mapping of underlying type
-            Integer distinctNumber = JDBCType.DISTINCT.getVendorTypeNumber();
-            //Struct
-            Integer structNumber = JDBCType.STRUCT.getVendorTypeNumber();
-            //ref
-            Integer refNumber = JDBCType.REF.getVendorTypeNumber();
-            //URL
-            Integer datalinkNumber = JDBCType.DATALINK.getVendorTypeNumber();
-
-            //string
-            if(varcharNumber.equals(columnType) || longVarcharNumber.equals(columnType) || charNumber.equals(columnType)){
-                field = Schema.Field.of(columnName,Schema.FieldType.STRING);
-
-            }else if(bitNumber.equals(columnType) || booleanNumber.equals(columnType)){
-                //boolean
-                field = Schema.Field.of(columnName,Schema.FieldType.BOOLEAN);
-
-            }else if(numericNumber.equals(columnType) || decimalNumber.equals(columnType)){
-                //BigDecimal
-                field = Schema.Field.of(columnName,Schema.FieldType.DECIMAL);
-
-            }else if(integerNumber.equals(columnType)){
-                //int
-                field = Schema.Field.of(columnName,Schema.FieldType.INT32);
-
-            }else if(bigintNumber.equals(columnType)){
-                //long
-                field = Schema.Field.of(columnName,Schema.FieldType.INT64);
-
-            }else if(realNumber.equals(columnType)) {
-                //float
-                field = Schema.Field.of(columnName,Schema.FieldType.FLOAT);
-
-            }else if(floatNumber.equals(columnType) || doubleNumber.equals(columnType)){
-                //double
-                field = Schema.Field.of(columnName,Schema.FieldType.DOUBLE);
-
-            }else if(smallintNumber.equals(columnType)){
-                //short
-                field = Schema.Field.of(columnName,Schema.FieldType.INT16);
-
-            }else if(dateNumber.equals(columnType) || timeNumber.equals(columnType) || timestampNumber.equals(columnType)){
-                //date time timestamp
-                field = Schema.Field.of(columnName,Schema.FieldType.DATETIME);
-
-            }else if(tinyintNumber.equals(columnType)){
-                //byte
-                field = Schema.Field.of(columnName,Schema.FieldType.BYTE);
-
-            }
-            return field;
-        }
-        return null;
-    }
     /**
      * schema类型转换
      * @param dbColumn

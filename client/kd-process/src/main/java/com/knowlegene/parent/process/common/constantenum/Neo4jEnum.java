@@ -6,7 +6,8 @@ package com.knowlegene.parent.process.common.constantenum;
  */
 public enum Neo4jEnum {
 
-    RELATE(1,"relate"),SAVE(2,"save"),UPDATE(3,"update"),DELETE(4,"delete");
+    RELATE(1,"relate"),SAVE(2,"save"),UPDATE(3,"update"),DELETE(4,"delete"),
+    START_ID(5,"start_id"),END_ID(6,"end_id"),NODE_ID(7,"node_id"),NODE(8,"node");
     /**
      * 类型标记
      */

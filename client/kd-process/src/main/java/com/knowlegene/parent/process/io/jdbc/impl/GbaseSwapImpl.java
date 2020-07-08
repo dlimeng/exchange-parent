@@ -3,12 +3,14 @@ package com.knowlegene.parent.process.io.jdbc.impl;
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.process.io.jdbc.AbstractSwapBase;
 import com.knowlegene.parent.process.io.jdbc.GbaseSwap;
+import com.knowlegene.parent.process.pojo.ObjectCoder;
 import org.apache.beam.sdk.io.jdbc.JdbcIO;
 import org.apache.beam.sdk.schemas.Schema;
 import org.apache.beam.sdk.values.Row;
 
 
 import javax.sql.DataSource;
+import java.util.Map;
 
 /**
  * @Author: limeng
@@ -17,9 +19,9 @@ import javax.sql.DataSource;
 public abstract class GbaseSwapImpl extends AbstractSwapBase implements GbaseSwap {
 
     @Override
-    public JdbcIO.Read<Row> queryByTable(String tableName, Schema type) {
+    public JdbcIO.Read<Map<String, ObjectCoder>> queryByTable(String tableName) {
         String sql = "select * from "+tableName;
-        return this.query(sql,type);
+        return this.query(sql);
     }
 
     @Override
@@ -33,9 +35,9 @@ public abstract class GbaseSwapImpl extends AbstractSwapBase implements GbaseSwa
     }
 
     @Override
-    public JdbcIO.Read<Row> query(String sql, Schema type) {
+    public JdbcIO.Read<Map<String, ObjectCoder>> query(String sql) {
         try {
-            return this.select(sql,type);
+            return this.select(sql);
         } catch (Exception e) {
             getLogger().error("query=>sql:{},msg:{}",sql,e.getMessage());
         }
@@ -44,7 +46,7 @@ public abstract class GbaseSwapImpl extends AbstractSwapBase implements GbaseSwa
 
 
     @Override
-    public JdbcIO.Write<Row> saveByIO(String sql) {
+    public JdbcIO.Write<Map<String, ObjectCoder>> saveByIO(String sql) {
         if(BaseUtil.isBlank(sql)){
             getLogger().error("sql is null");
             return null;

@@ -6,15 +6,16 @@ import com.knowlegene.parent.config.common.constantenum.DBOperationEnum;
 import com.knowlegene.parent.config.common.event.GbaseImportType;
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.config.util.JdbcUtil;
+import com.knowlegene.parent.process.pojo.ObjectCoder;
 import com.knowlegene.parent.process.pojo.db.DBOptions;
 import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.swap.event.GbaseImportTaskEvent;
 import com.knowlegene.parent.scheduler.event.EventHandler;
 import com.knowlegene.parent.scheduler.utils.CacheManager;
 import org.apache.beam.sdk.schemas.Schema;
-import org.apache.beam.sdk.schemas.SchemaCoder;
 import org.apache.beam.sdk.values.PCollection;
-import org.apache.beam.sdk.values.Row;
+
+import java.util.Map;
 
 
 /**
@@ -80,7 +81,7 @@ public class GbaseImportJob extends ImportJobBase{
      * @param tableName
      * @return
      */
-    private static void saveBySQL(PCollection<Row> rows, Schema schema, String tableName){
+    private static void saveBySQL(PCollection<Map<String, ObjectCoder>> rows, Schema schema, String tableName){
         if(rows !=null && schema!=null){
             String insertSQL = getInsertSQL(schema, tableName);
             getLogger().info("insertSQL:{}",insertSQL);
@@ -90,15 +91,15 @@ public class GbaseImportJob extends ImportJobBase{
         }
     }
 
-    public static void save(PCollection<Row> rows) {
+    public static void save(PCollection<Map<String, ObjectCoder>> rows) {
         if(rows != null){
             String tableName = getDbOptions().getTableName();
             Schema schema = getSchemas();
             if(schema == null){
                 getLogger().info("schema is null");
             }
-            PCollection<Row> newRows = rows.setCoder(SchemaCoder.of(schema));
-            saveBySQL(newRows,schema,tableName);
+
+            saveBySQL(rows,schema,tableName);
         }
     }
 
@@ -110,8 +111,7 @@ public class GbaseImportJob extends ImportJobBase{
                 getLogger().info("GbaseImportDispatcher is start");
 
                 if(CacheManager.isExist(DBOperationEnum.PCOLLECTION_QUERYS.getName())){
-                    PCollection<Row>  rows = (PCollection<Row>)CacheManager.getCache(DBOperationEnum.PCOLLECTION_QUERYS.getName());
-                    save(rows);
+                    save((PCollection<Map<String, ObjectCoder>>)CacheManager.getCache(DBOperationEnum.PCOLLECTION_QUERYS.getName()));
                 }
 
             }

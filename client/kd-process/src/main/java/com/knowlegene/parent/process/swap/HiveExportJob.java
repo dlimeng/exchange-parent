@@ -5,6 +5,7 @@ import com.knowlegene.parent.config.common.constantenum.HiveTypeEnum;
 import com.knowlegene.parent.config.common.event.HiveExportType;
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.config.util.JdbcUtil;
+import com.knowlegene.parent.process.pojo.ObjectCoder;
 import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.pojo.hive.HiveOptions;
 import com.knowlegene.parent.process.swap.event.HiveExportTaskEvent;
@@ -49,12 +50,15 @@ public class HiveExportJob extends ExportJobBase {
         return hiveOptions;
     }
 
-    private static PCollection<Row> getHCatRecordAndRow(PCollection<HCatRecord> ps) {
+    private static PCollection<Map<String, ObjectCoder>> getHCatRecordAndRow(PCollection<HCatRecord> ps) {
         if (ps != null) {
             String tableName = getHiveOptions().getHiveTableName();
-            Schema allSchema = getHiveSwapExport().descByTableName(tableName, true);
-            if (allSchema != null) {
-                return ps.apply(ParDo.of(new TypeConversion.HCatRecordAndRow(allSchema))).setCoder(SchemaCoder.of(allSchema));
+            String[] dbColumn = getHiveOptions().getHiveColumn();
+            //表所有列
+            Schema allSchema = getHiveSwapExport().descByTableName(tableName,false);
+            Schema schema = JdbcUtil.columnConversion(dbColumn, allSchema);
+            if (schema != null) {
+                return ps.apply(ParDo.of(new TypeConversion.HCatRecordAndMapObject(schema)));
             } else {
                 getLogger().error("allSchema is null");
             }
@@ -67,12 +71,12 @@ public class HiveExportJob extends ExportJobBase {
      * 查询sql
      * @return
      */
-    private static PCollection<Row> queryBySQL(){
+    private static PCollection<Map<String, ObjectCoder>> queryBySQL(){
         String hiveSQL = getHiveOptions().getHiveSQL();
         String tableName = getHiveOptions().getHiveTableName();
 
         String[] dbColumn = JdbcUtil.getColumnBySqlRex(hiveSQL);
-        Schema allSchema = getHiveSwapExport().descByTableName(tableName, true);
+        Schema allSchema = getHiveSwapExport().descByTableName(tableName, false);
 
         getLogger().info("hive=>sql:{},tableName:{}",hiveSQL,tableName);
 
@@ -82,15 +86,15 @@ public class HiveExportJob extends ExportJobBase {
             return null;
         }
 
-        JdbcIO.Read<Row> rows = getHiveSwapExport().query(hiveSQL, schema);
-        return getPipeline().apply(rows).setCoder(SchemaCoder.of(schema));
+        return getPipeline().apply(getHiveSwapExport().query(hiveSQL))
+                .apply(ParDo.of(new TypeConversion.MapObjectAndType(schema)));
     }
     /**
      * 查询表
      *
      * @return
      */
-    private static PCollection<Row> queryByTable() {
+    private static PCollection<Map<String, ObjectCoder>> queryByTable() {
         String hiveSQL = getHiveOptions().getHiveSQL();
         if (BaseUtil.isNotBlank(hiveSQL)) {
            return  queryBySQL();
@@ -98,15 +102,16 @@ public class HiveExportJob extends ExportJobBase {
             String tableName = getHiveOptions().getHiveTableName();
             String[] dbColumn = getHiveOptions().getHiveColumn();
             //表所有列
-            Schema allSchema = getHiveSwapExport().descByTableName(tableName,true);
+            Schema allSchema = getHiveSwapExport().descByTableName(tableName,false);
             Schema schema = JdbcUtil.columnConversion(dbColumn, allSchema);
             if (schema == null) {
                 getLogger().error("schema is null");
                 return null;
             }
             getLogger().info("hive=>tableName:{}", tableName);
+
             return getPipeline().apply(getHiveSwapExport().queryByTable(tableName))
-                    .apply(ParDo.of(new TypeConversion.MapObjectAndRow(schema))).setCoder(SchemaCoder.of(schema));
+                    .apply(ParDo.of(new TypeConversion.MapObjectAndType(schema)));
         }
     }
 
@@ -144,8 +149,8 @@ public class HiveExportJob extends ExportJobBase {
     }
 
 
-    public static PCollection<Row> query () {
-        PCollection<Row> result = null;
+    public static PCollection<Map<String, ObjectCoder>> query () {
+        PCollection<Map<String, ObjectCoder>> result = null;
         PCollection<HCatRecord> ps = queryByHCatalog();
         result = getHCatRecordAndRow(ps);
 
@@ -160,9 +165,10 @@ public class HiveExportJob extends ExportJobBase {
         public void handle(HiveExportTaskEvent event) {
             if (event.getType() == HiveExportType.T_EXPORT) {
                 getLogger().info("HiveExportDispatcher is start");
-
-                PCollection<Row> rows = query();
-                CacheManager.setCache(DBOperationEnum.PCOLLECTION_QUERYS.getName(), rows);
+                PCollection<Map<String, ObjectCoder>> result = query();
+                if(result != null){
+                    CacheManager.setCache(DBOperationEnum.PCOLLECTION_QUERYS.getName(), result);
+                }
 
             }
         }

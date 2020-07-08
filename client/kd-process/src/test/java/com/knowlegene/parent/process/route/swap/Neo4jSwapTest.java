@@ -49,14 +49,16 @@ public class Neo4jSwapTest   extends SwapRunners {
         swapOptions.setHiveUrl("jdbc:hive2://192.168.200.117:10000/default");
         swapOptions.setHiveUsername("hive");
         swapOptions.setHivePassword("hive");
-        swapOptions.setHiveTableName("neo4j_test");
+        swapOptions.setHiveTableName("node1");
 
 
         swapOptions.setToName("neo4j");
         swapOptions.setNeoUrl("bolt://localhost:7687");
         swapOptions.setNeoUsername("neo4j");
         swapOptions.setNeoPassword("limeng");
-        swapOptions.setNeoFormat("id:ID(Node) name iscp regCap regCapTyp invGrtTyp");
+
+        //id:ID(Node) name iscp regCap regCapTyp invGrtTyp
+        swapOptions.setNeoFormat("id:ID(Node) name age");
 
 
     }
@@ -90,34 +92,36 @@ public class Neo4jSwapTest   extends SwapRunners {
      */
     @Test
     public void testExportRelate(){
-
+        swapOptions.setFromName("hive");
         swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
-        swapOptions.setHiveUrl("jdbc:hive2://192.168.20.117:10000/default");
-        swapOptions.setHiveUsername("hive");
-        swapOptions.setHivePassword("hive");
-        swapOptions.setHiveTableName("neo4j_relate");
+        swapOptions.setHiveUrl("jdbc:hive2://192.168.200.117:10000/linkis_db");
+        swapOptions.setHiveUsername("hdfs");
+        swapOptions.setHivePassword("hdfs");
+        swapOptions.setHiveTableName("relate1");
 
-
+        swapOptions.setToName("neo4j");
         swapOptions.setNeoUrl("bolt://localhost:7687");
         swapOptions.setNeoUsername("neo4j");
         swapOptions.setNeoPassword("limeng");
         /**
          * type 为固定列，标识关系的标签名称
+         * isPerson createDate updateDate type title
          */
-        swapOptions.setNeoFormat(":START_ID(Node) :END_ID(Node) weight isPerson createDate updateDate type title");
+        swapOptions.setNeoFormat(":START_ID(Node) :END_ID(Node) weight type");
 
 
     }
 
     @Test
     public void testExportRelate2(){
+        swapOptions.setFromName("hive");
         swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
-        swapOptions.setHiveUrl("jdbc:hive2://192.168.20.117:10000/default");
-        swapOptions.setHiveUsername("hive");
-        swapOptions.setHivePassword("hive");
-        swapOptions.setHiveTableName("neo4j_relate");
+        swapOptions.setHiveUrl("jdbc:hive2://192.168.200.117:10000/linkis_db");
+        swapOptions.setHiveUsername("hdfs");
+        swapOptions.setHivePassword("hdfs");
+        swapOptions.setHiveTableName("relate1");
 
-
+        swapOptions.setToName("neo4j");
         swapOptions.setNeoUrl("bolt://localhost:7687");
         swapOptions.setNeoUsername("neo4j");
         swapOptions.setNeoPassword("limeng");
@@ -126,9 +130,12 @@ public class Neo4jSwapTest   extends SwapRunners {
          * 连接 标签名称Test
          * 语句字段名称跟hive表列名一致
          */
-        swapOptions.setCypher("MATCH (a:Node),(b:Node) WHERE a.id={start_id} AND b.id={end_id} " +
-                " CREATE (a)-[r:Test {weight:{weight} ,isperson:{isperson} ,createdate:{createdate} ,updatedate:{updatedate} , type:{type} , title:{title}  }] ->(b) ");
-
+        /**
+         * MATCH (a:Node),(b:Node) WHERE a.id={start_id} AND b.id={end_id} " +
+         *                 " CREATE (a)-[r:Test {weight:{weight} ,isperson:{isperson} ,createdate:{createdate} ,updatedate:{updatedate} , type:{type} , title:{title}  }] ->(b)
+         */
+        swapOptions.setCypher("MATCH (a:Node),(b:Node) WHERE a.id={startid} AND b.id={endid} " +
+                " CREATE (a)-[r:Test {weight:{weight}  , type:{type}   }] ->(b) ");
 
 
     }

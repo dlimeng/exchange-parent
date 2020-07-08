@@ -5,6 +5,7 @@ import com.knowlegene.parent.config.common.constantenum.DBOperationEnum;
 import com.knowlegene.parent.config.common.event.ESImportType;
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.process.pojo.NestingFields;
+import com.knowlegene.parent.process.pojo.ObjectCoder;
 import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.pojo.es.ESOptions;
 import com.knowlegene.parent.process.swap.event.ESImportTaskEvent;
@@ -18,10 +19,11 @@ import org.apache.beam.sdk.schemas.Schema;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
-import org.apache.beam.sdk.values.Row;
+
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author: limeng
@@ -53,7 +55,7 @@ public class ESImportJob extends ImportJobBase {
      * 更新
      * @param rows
      */
-    private static void update(PCollection<Row> rows){
+    private static void update(PCollection<Map<String, ObjectCoder>> rows){
         String[] esAddrs = getDbOptions().getEsAddrs();
         String esIndex = getDbOptions().getEsIndex();
         String esType = getDbOptions().getEsType();
@@ -73,7 +75,7 @@ public class ESImportJob extends ImportJobBase {
         getLogger().info("update start=>index:{},type:{}",esIndex,esType);
 
         Schema schema = rows.getSchema();
-        rows.apply(ParDo.of(new TypeConversion.RowAndJson(schema))).setCoder(StringUtf8Coder.of())
+        rows.apply(ParDo.of(new TypeConversion.mapAndJson(schema))).setCoder(StringUtf8Coder.of())
                 .apply(write);
     }
 
@@ -83,7 +85,7 @@ public class ESImportJob extends ImportJobBase {
      * @param querys
      * @return
      */
-    private static PCollection<Row> nestingFieldToEs(NestingFields nestingFields, PCollection<Row> querys){
+    private static PCollection<Map<String, ObjectCoder>> nestingFieldToEs(NestingFields nestingFields, PCollection<Map<String, ObjectCoder>> querys){
         if(nestingFields == null){
             return null;
         }
@@ -115,11 +117,11 @@ public class ESImportJob extends ImportJobBase {
             return null;
         }
 
-        return  querys.apply(new ESTransform.NestingFieldTransform(Arrays.asList(keys),resultSchema,nestings));
+        return  querys.apply(new ESTransform.NestingFieldTransformMap(Arrays.asList(keys),resultSchema,nestings));
     }
 
-    public static void save(PCollection<Row> rows) {
-        PCollection<Row> reslut = rows;
+    public static void save(PCollection<Map<String, ObjectCoder>> rows) {
+        PCollection<Map<String, ObjectCoder>> reslut = rows;
         if(rows != null){
             NestingFields nestingFields = getDbOptions().getNestingFields();
             if(nestingFields != null) reslut = nestingFieldToEs(nestingFields,rows);
@@ -136,8 +138,8 @@ public class ESImportJob extends ImportJobBase {
                 getLogger().info("ESImportDispatcher is start");
 
                 if(CacheManager.isExist(DBOperationEnum.PCOLLECTION_QUERYS.getName())){
-                    PCollection<Row>  rows = (PCollection<Row>)CacheManager.getCache(DBOperationEnum.PCOLLECTION_QUERYS.getName());
-                    save(rows);
+
+                    save((PCollection<Map<String, ObjectCoder>>)CacheManager.getCache(DBOperationEnum.PCOLLECTION_QUERYS.getName()));
                 }
 
             }

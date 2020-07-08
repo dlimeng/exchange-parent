@@ -3,7 +3,7 @@ package com.knowlegene.parent.process.runners;
 import com.knowlegene.parent.config.common.constantenum.DatabaseTypeEnum;
 import com.knowlegene.parent.config.util.BaseUtil;
 import com.knowlegene.parent.process.pojo.SwapOptions;
-import com.knowlegene.parent.process.runners.options.SwapPipelineOptions;
+import com.knowlegene.parent.process.runners.options.SwapSparkPipelineOptions;
 import com.knowlegene.parent.process.runners.common.BaseJobRunners;
 import com.knowlegene.parent.process.tool.BaseSwapTool;
 import lombok.Data;
@@ -40,8 +40,8 @@ public abstract class SwapRunners extends BaseJobRunners {
     }
 
     public void start(String[] args){
-        this.startRunnersByArgs(SwapPipelineOptions.class,args);
-        argsAndOptions(this.getPipelineOptions().as(SwapPipelineOptions.class));
+        this.startRunnersByArgs(SwapSparkPipelineOptions.class,args);
+        argsAndOptions(this.getPipelineOptions().as(SwapSparkPipelineOptions.class));
         this.init();
         this.setJobStream();
         this.join();

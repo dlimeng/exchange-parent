@@ -16,11 +16,13 @@ import org.apache.beam.sdk.values.Row;
 import org.apache.hive.hcatalog.common.HCatException;
 import org.apache.hive.hcatalog.data.HCatRecord;
 import org.apache.hive.hcatalog.data.schema.HCatSchema;
+import org.neo4j.driver.v1.Record;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,6 +39,47 @@ public class TypeConversion implements Serializable {
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static Coder<HCatRecord> getOutputCoder() {
         return (Coder) WritableCoder.of(DefaultHCatRecord.class);
+    }
+
+    public static class MapObjectAndHCatRecord extends DoFn<Map<String, ObjectCoder>, HCatRecord> {
+        private Logger logger = LoggerFactory.getLogger(this.getClass());
+
+        private final Schema type;
+        private HCatSchema hCatSchema;
+        private HCatRecord record;
+        private List<String> fieldNames;
+
+        public MapObjectAndHCatRecord(Schema type) {
+            this.type = type;
+        }
+
+        @Setup
+        public void setUp() throws HCatException {
+            logger.info("map to HCatRecord  start");
+            hCatSchema = SqlUtil.getRowAndHCatSchema(type);
+            fieldNames = type.getFieldNames();
+        }
+
+        @ProcessElement
+        public void processElement(ProcessContext ctx) throws Exception {
+            Map<String, ObjectCoder> element = ctx.element();
+            if(!BaseUtil.isBlankMap(element)){
+                record = new DefaultHCatRecord(fieldNames.size());
+                for(String fieldName:fieldNames){
+                    ObjectCoder objectCoder = element.get(fieldName);
+                    Object value = null;
+                    if(objectCoder == null){
+                        value = new Object();
+                    }else if(type.getField(fieldName).getType().getTypeName().isDateType()){
+                        value = java.sql.Timestamp.valueOf(objectCoder.getValue().toString());
+                    }else{
+                        value = objectCoder.getValue();
+                    }
+                    record.set(fieldName,hCatSchema,value);
+                }
+                ctx.output(record);
+            }
+        }
     }
 
 
@@ -115,6 +158,47 @@ public class TypeConversion implements Serializable {
         }
     }
 
+    public static class MapAndString extends DoFn<Map<String, ObjectCoder>,String> {
+        private Logger logger = LoggerFactory.getLogger(this.getClass());
+        private final String terminated;
+        private StringBuffer sb=null;
+        private List<Object> values=null;
+        private AtomicBoolean first;
+        @Setup
+        public void setup(){
+            logger.info("row to string start");
+        }
+
+        public MapAndString(String terminated) {
+            this.terminated = terminated;
+        }
+        @ProcessElement
+        public void processElement(ProcessContext ctx) throws Exception {
+            Map<String, ObjectCoder> element = ctx.element();
+            if(!BaseUtil.isBlankMap(element)){
+                Collection<ObjectCoder> values = element.values();
+                if(!BaseUtil.isBlankSet(values)){
+                    first = new AtomicBoolean(true);
+                    sb = new StringBuffer();
+                    values.forEach(f->{
+                        if(!first.get()){
+                            sb.append(terminated);
+                        }
+                        Object value = f.getValue();
+                        if(value!= null){
+                            sb.append(value.toString());
+                        }else{
+                            sb.append(" ");
+                        }
+                        first.set(false);
+                    });
+                    ctx.output(sb.toString());
+                }
+
+            }
+        }
+
+    }
 
     public static class RowAndString extends DoFn<Row,String> {
         private static final long serialVersionUID = -6598813617294579482L;
@@ -151,6 +235,45 @@ public class TypeConversion implements Serializable {
     /**
      * cvs转换row
      */
+    public static class StringAndMap extends DoFn<String,Map<String, ObjectCoder>>{
+        private final Schema type;
+        private final String fieldDelim;
+        private Map<String, ObjectCoder> result = null;
+
+        private  Logger logger = LoggerFactory.getLogger(this.getClass());
+        @Setup
+        public void setup(){
+            logger.info("string to row start");
+        }
+
+        public StringAndMap(Schema type,String fieldDelim) {
+            this.type = type;
+            this.fieldDelim = fieldDelim;
+        }
+
+        @ProcessElement
+        public void processElement(ProcessContext ctx) throws Exception {
+            String element = ctx.element();
+            String[] split = element.split(fieldDelim);
+            int fieldCount = type.getFieldCount();
+            if(split!=null && fieldCount > 0){
+                int size = Math.min(split.length,fieldCount);
+                List<Schema.Field> fields = type.getFields();
+                result = new LinkedHashMap<>();
+                Schema.Field field = null;
+                for (int i = 0; i < size; i++) {
+                    field = fields.get(i);
+                    result.put(field.getName(),new ObjectCoder(split[i],field.getType()));
+                }
+
+                ctx.output(result);
+            }
+        }
+    }
+
+    /**
+     * cvs转换row
+     */
     public static class StringAndRow extends DoFn<String,Row>{
         private static final long serialVersionUID = 368096250333904623L;
         private final Schema type;
@@ -178,7 +301,38 @@ public class TypeConversion implements Serializable {
             }
         }
     }
+    /**
+     * json 转换object
+     */
+    public static class JsonAndMap extends DoFn<String,Map<String, ObjectCoder>>{
 
+        private  HashMap result;
+        private  Logger logger = LoggerFactory.getLogger(this.getClass());
+        private  Map<String, ObjectCoder> map=null;
+
+        @Setup
+        public void setup(){
+            logger.info("json to row start");
+        }
+        @ProcessElement
+        public void processElement(ProcessContext ctx) throws Exception {
+            String element = ctx.element();
+            //保证嵌套顺序
+            result =  JSON.parseObject(element, LinkedHashMap.class, Feature.OrderedField);
+            if(!BaseUtil.isBlankMap(result)){
+                Set set = result.keySet();
+                Iterator iterator = set.iterator();
+                map = new LinkedHashMap<>();
+                while (iterator.hasNext()){
+                    Object name = iterator.next();
+                    if(name != null){
+                        map.put(name.toString(),new ObjectCoder(result.get(name)));
+                    }
+                }
+                ctx.output(map);
+            }
+        }
+    }
     /**
      * json 转换row
      */
@@ -220,6 +374,70 @@ public class TypeConversion implements Serializable {
             }else{
                 logger.error("schema is null");
             }
+        }
+    }
+    public static  class  mapAndJson extends DoFn<Map<String, ObjectCoder>,String>{
+        private final Schema type;
+        private Logger logger = LoggerFactory.getLogger(this.getClass());
+        private Pattern pattern = Pattern.compile("\\[.*\\]");
+        private Map<String, ObjectCoder> element = null;
+        @Setup
+        public void setup(){
+            logger.info("row to json start");
+        }
+        public mapAndJson(Schema type) {
+            this.type = type;
+        }
+        @ProcessElement
+        public void processElement(ProcessContext ctx) throws Exception {
+            element = ctx.element();
+            if(!BaseUtil.isBlankMap(element)){
+                List<Schema.Field> fields = type.getFields();
+                String sql1="{%s}";
+                boolean first=false;
+                Schema.TypeName typeName = null;
+                String name =null;
+                StringBuffer sb=new StringBuffer();
+                Object value = null;
+                boolean numericType = false;
+                //boolean dateType =false;
+                for(Schema.Field field : fields){
+                    if(first){
+                        sb.append(",");
+                    }
+                    first = true;
+                    name = field.getName();
+                    typeName = field.getType().getTypeName();
+                    numericType =typeName.isNumericType();
+                    //dateType = typeName.isDateType();
+
+                    value = element.get(name).getValue();
+                    sb.append("\"").append(name).append("\":");
+                    if(value == null ){
+                        sb.append(value);
+                    }else if(isMacth(value.toString())){
+                        sb.append(value);
+                    }else if(numericType){
+                        sb.append(value);
+                    }else {
+                        sb.append("\"").append(value).append("\"");
+                    }
+                }
+
+                String sql2=sb.toString();
+                if(BaseUtil.isNotBlank(sql2)){
+                    String format = String.format(sql1, sql2);
+                    ctx.output(format);
+                }
+            }
+        }
+        private boolean isMacth(String value){
+            boolean result=false;
+            if(BaseUtil.isNotBlank(value)){
+                Matcher matcher = pattern.matcher(value);
+                result= matcher.matches();
+            }
+            return result;
         }
     }
 
@@ -294,7 +512,37 @@ public class TypeConversion implements Serializable {
         }
     }
 
+    /**
+     * HCatRecord to Map
+     */
+    public  static class HCatRecordAndMapObject  extends DoFn<HCatRecord,Map<String, ObjectCoder>>{
+        private Logger logger = LoggerFactory.getLogger(this.getClass());
+        private final Schema type;
 
+
+        public HCatRecordAndMapObject(Schema type) {
+            this.type = type;
+        }
+        @ProcessElement
+        public void processElement(ProcessContext ctx) throws Exception {
+            HCatRecord element = ctx.element();
+            List<Object> all = element.getAll();
+            int allsize = all.size();
+            int fieldCount = type.getFieldCount();
+            int size = Math.min(allsize, fieldCount);
+
+            if(size > 0){
+                Map<String, ObjectCoder> result = new LinkedHashMap<>();
+                List<Schema.Field> fields = type.getFields();
+                for (int i = 0; i < size; i++) {
+                    Schema.Field field = fields.get(i);
+                    result.put(field.getName(),new ObjectCoder(all.get(i),field.getType()));
+                }
+                ctx.output(result);
+            }
+        }
+
+    }
     public  static class HCatRecordAndRow  extends DoFn<HCatRecord,Row>{
         private Logger logger = LoggerFactory.getLogger(this.getClass());
         private static final long serialVersionUID = -3190891235388132247L;
@@ -356,7 +604,37 @@ public class TypeConversion implements Serializable {
             }
         }
     }
+    /**
+     * map object 设置类型
+     */
+    public  static class MapObjectAndType  extends DoFn<Map<String, ObjectCoder>,Map<String, ObjectCoder>>{
+        private Logger logger = LoggerFactory.getLogger(this.getClass());
+        private final Schema type;
+        private  Map<String, ObjectCoder> result = null;
+        private  Map<String, ObjectCoder> element = null;
+        public MapObjectAndType(Schema type) {
+            logger.info("map set type start");
+            this.type = type;
+        }
+        @ProcessElement
+        public void processElement(ProcessContext ctx) throws Exception {
+            element = ctx.element();
+            result = new LinkedHashMap<>();
+            if(!BaseUtil.isBlankMap(element)){
+                List<Schema.Field> fields = type.getFields();
+                if(!BaseUtil.isBlankSet(fields)){
+                    for(Schema.Field f:fields){
+                        String name = f.getName();
+                        if(BaseUtil.isNotBlank(name)){
+                            result.put(name,new ObjectCoder(element.get(name).getValue(),f.getType()));
+                        }
+                    }
+                }
+                ctx.output(result);
+            }
+        }
 
+    }
 
     /**
      * map转换row
@@ -395,6 +673,141 @@ public class TypeConversion implements Serializable {
         }
     }
 
+    /**
+     * Set neo4j to map
+     */
+    public  static class ObjectCodersAndMap  extends DoFn<Set<Map<String, ObjectCoder>>,Map<String, ObjectCoder>>{
+        private Logger logger = LoggerFactory.getLogger(this.getClass());
+        @Setup
+        public void setup(){
+            logger.info("neo4jObject to map start");
+        }
+
+        @ProcessElement
+        public void processElement(ProcessContext ctx) throws Exception {
+            Set<Map<String, ObjectCoder>> element = ctx.element();
+            if(!BaseUtil.isBlankSet(element)){
+                for(Map<String, ObjectCoder> map:element){
+                    if(!BaseUtil.isBlankMap(map)){
+                        ctx.output(map);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * map to Neo4jObject
+     */
+    public  static class MapAndNeo4jObject  extends DoFn<Map<String, ObjectCoder>, Neo4jObject>{
+        private Logger logger = LoggerFactory.getLogger(this.getClass());
+        private Integer optionsType;
+        private final String startId=":START_ID";
+        private final String endId=":END_ID";
+        private final String id="id:ID";
+        private final String type;
+
+
+        private final List<String> keys;
+        private Map<String,Object> parMap;
+        private List<Object> values;
+        private Neo4jObject neo4jObject;
+
+
+        @Setup
+        public void setup(){
+            logger.info("map to neo4jObject start");
+        }
+
+        /**
+         *
+         * @param type  创建连接的标签名称
+         * @param optionsType 操作类型
+         * @param keys 列名称
+         */
+        public MapAndNeo4jObject(String type,Integer optionsType, List<String> keys) {
+            this.type = type;
+            this.optionsType = optionsType;
+            this.keys = keys;
+        }
+
+        public MapAndNeo4jObject(String type,List<String> keys) {
+            this.keys = keys;
+            this.type = type;
+        }
+
+        @ProcessElement
+        public void processElement(ProcessContext ctx) throws Exception {
+            Map<String, ObjectCoder> element = ctx.element();
+
+            if(!BaseUtil.isBlankMap(element)){
+                int fieldCount = element.size();
+                int keysSize = keys.size();
+                if(fieldCount >= keysSize){
+                    values = new ArrayList<>(Arrays.asList(element.values().toArray()));
+                    parMap = new HashMap<>();
+
+                    getMapValue();
+
+                    if(!BaseUtil.isBlankMap(parMap)){
+                        neo4jObject = new Neo4jObject();
+                        neo4jObject.setParMap(parMap);
+                        ctx.output(neo4jObject);
+                    }
+                }
+
+            }
+        }
+
+
+        private void getMapValue() {
+            if(optionsType == null){
+                if(values.size() == keys.size()){
+                    for(int i=0;i < keys.size();i++) {
+                        String key = keys.get(i);
+                        String value = values.get(i).toString();
+                        parMap.put(key,value);
+                    }
+                }
+            }else{
+                if(optionsType == Neo4jEnum.RELATE.getValue()){
+
+                    for(int i=0;i < keys.size();i++){
+                        String key= keys.get(i);
+                        String value = values.get(i).toString();
+
+                        if(BaseUtil.isNotBlank(type) && key.equalsIgnoreCase(type)){
+                            parMap.put(type,value);
+                        }else if(key.contains(startId)){
+                            parMap.put("startid",value);
+                        }else if(key.contains(endId)){
+                            parMap.put("endid",value);
+                        }else{
+                            parMap.put(key,value);
+                        }
+                    }
+
+
+                }else if(optionsType == Neo4jEnum.SAVE.getValue()){
+
+                    for(int i=0;i < keys.size();i++){
+                        String key= keys.get(i);
+                        String value = values.get(i).toString();
+                        if(key.contains(id)){
+                            parMap.put("id", value);
+                        }else{
+                            parMap.put(key,value);
+                        }
+                    }
+
+                }
+            }
+        }
+
+    }
+    /**
+     * row to neo4jobject
+     */
     public  static class RowAndNeo4jObject  extends DoFn<Row, Neo4jObject>{
         private Logger logger = LoggerFactory.getLogger(this.getClass());
         private Integer optionsType;
@@ -434,15 +847,19 @@ public class TypeConversion implements Serializable {
         @ProcessElement
         public void processElement(ProcessContext ctx) throws Exception {
             Row element = ctx.element();
-            values = element.getValues();
-            parMap = new HashMap<>();
+            int fieldCount = element.getSchema().getFieldCount();
+            int keysSize = keys.size();
+            if(fieldCount >= keysSize){
+                values = element.getValues();
+                parMap = new HashMap<>();
 
-            getMapValue();
+                getMapValue();
 
-            if(!BaseUtil.isBlankMap(parMap)){
-                neo4jObject = new Neo4jObject();
-                neo4jObject.setParMap(parMap);
-                ctx.output(neo4jObject);
+                if(!BaseUtil.isBlankMap(parMap)){
+                    neo4jObject = new Neo4jObject();
+                    neo4jObject.setParMap(parMap);
+                    ctx.output(neo4jObject);
+                }
             }
         }
 
@@ -458,7 +875,7 @@ public class TypeConversion implements Serializable {
                 }
             }else{
                 if(optionsType == Neo4jEnum.RELATE.getValue()){
-                    if(values.size() == keys.size()){
+
                         for(int i=0;i < keys.size();i++){
                             String key= keys.get(i);
                             String value = values.get(i).toString();
@@ -473,10 +890,10 @@ public class TypeConversion implements Serializable {
                                 parMap.put(key,value);
                             }
                         }
-                    }
+
 
                 }else if(optionsType == Neo4jEnum.SAVE.getValue()){
-                    if(values.size() == keys.size()){
+
                         for(int i=0;i < keys.size();i++){
                             String key= keys.get(i);
                             String value = values.get(i).toString();
@@ -486,7 +903,7 @@ public class TypeConversion implements Serializable {
                                 parMap.put(key,value);
                             }
                         }
-                    }
+
                 }
             }
         }
