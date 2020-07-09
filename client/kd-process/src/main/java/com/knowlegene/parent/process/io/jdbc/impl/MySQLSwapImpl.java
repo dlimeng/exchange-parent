@@ -46,19 +46,6 @@ public abstract class MySQLSwapImpl extends AbstractSwapBase implements MySQLSwa
         return this.batchSaveCommon(sql);
     }
 
-    @Override
-    public JdbcIO.Write<Map<String, ObjectCoder>> saveByIO(String sql, Schema schema) {
-        if(BaseUtil.isBlank(sql)){
-            logger.error("sql is null");
-            return null;
-        }
-        if(schema == null){
-            logger.error("schema is null");
-            return null;
-        }
-
-        return this.batchSaveCommon(sql,schema);
-    }
 
     /**
      *  查询 row

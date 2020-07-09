@@ -15,8 +15,6 @@ import org.apache.beam.sdk.schemas.Schema;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 /**

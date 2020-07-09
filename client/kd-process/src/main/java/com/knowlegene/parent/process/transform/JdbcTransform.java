@@ -59,7 +59,7 @@ public class JdbcTransform {
                 for (int i = 0; i < columnCount; i++) {
                     String columnLabel = metaData.getColumnLabel(i+1);
                     if(BaseUtil.isNotBlank(columnLabel)){
-                        ObjectCoder objectCoder = new ObjectCoder(resultSet.getObject(columnLabel));
+                        ObjectCoder objectCoder = new ObjectCoder(resultSet.getObject(columnLabel),i+1);
                         if(columnLabel.contains(".")){
                             columnLabel = columnLabel.split("\\.")[1];
                         }
@@ -151,14 +151,15 @@ public class JdbcTransform {
                 int i=1;
                 for(Map.Entry<String, ObjectCoder> map:element.entrySet()){
                     ObjectCoder value = map.getValue();
+                    Integer index = value.getIndex();
                     Object o =  value.getValue();
                     String instantName = Instant.class.getSimpleName();
                     String objecteName = o.getClass().getSimpleName();
-                    if(instantName.equals(objecteName)){
+                    if(index!= null && instantName.equals(objecteName)){
                         Timestamp sqlDate =BaseUtil.instantToTimestamp(o);
-                        preparedStatement.setObject(i++,sqlDate);
-                    }else{
-                        preparedStatement.setObject(i++,o);
+                        preparedStatement.setObject(index,sqlDate);
+                    }else if(index!= null){
+                        preparedStatement.setObject(index,o);
                     }
                 }
 
