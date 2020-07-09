@@ -5,13 +5,13 @@
     <parent>
         <artifactId>exchange-parent</artifactId>
         <groupId>com.knowlegene.parent</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <version>0.1.0</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.knowlegene.parent.config</groupId>
     <artifactId>kd-config</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>${kd.project.version}</version>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -164,6 +164,20 @@
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-runners-flink_2.11</artifactId>
             <version>${beam.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-java</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-clients_2.11</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-java</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
 
