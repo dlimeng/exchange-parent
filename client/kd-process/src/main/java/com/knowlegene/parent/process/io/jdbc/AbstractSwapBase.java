@@ -243,50 +243,7 @@ public abstract class AbstractSwapBase implements Serializable {
         return null;
     }
 
-    /**
-     * 批量保存 关系型数据
-     * @param sql
-     * @return
-     */
-    public JdbcIO.Write<Map<String, ObjectCoder>> batchSaveCommon(String sql,Schema schema){
-        DataSource dataSource = this.getDataSource();
-        if(dataSource!= null){
-            return JdbcIO.<Map<String, ObjectCoder>>write()
-                    .withDataSourceConfiguration(
-                            JdbcIO.DataSourceConfiguration.create(
-                                    dataSource))
-                    .withStatement(sql)
-                    .withPreparedStatementSetter(new JdbcIO.PreparedStatementSetter<Map<String, ObjectCoder>>(){
-                        @Override
-                        public void setParameters(Map<String, ObjectCoder> element, PreparedStatement preparedStatement) throws Exception {
 
-                            if(!BaseUtil.isBlankMap(element)){
-                                logger.info("values start=>fieldCount:{}",element.size());
-
-                                List<String> fieldNames = schema.getFieldNames();
-                                for (int j = 0; j < fieldNames.size(); j++) {
-                                    String name = fieldNames.get(j);
-                                    if(BaseUtil.isNotBlank(name)){
-                                        Object o =  element.get(name).getValue();
-                                        String instantName = Instant.class.getSimpleName();
-                                        String objecteName = o.getClass().getSimpleName();
-                                        if(instantName.equals(objecteName)){
-                                            Timestamp sqlDate =BaseUtil.instantToTimestamp(o);
-                                            preparedStatement.setObject(j+1,sqlDate);
-                                        }else{
-                                            preparedStatement.setObject(j+1,o);
-                                        }
-                                    }
-
-                                }
-                            }else{
-                                logger.info("sql values is null");
-                            }
-                        }
-                    });
-        }
-        return null;
-    }
 
     /**
      * 创建表

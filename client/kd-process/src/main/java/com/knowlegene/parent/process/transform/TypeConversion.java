@@ -309,7 +309,7 @@ public class TypeConversion implements Serializable {
         private  HashMap result;
         private  Logger logger = LoggerFactory.getLogger(this.getClass());
         private  Map<String, ObjectCoder> map=null;
-
+        private  Integer index = null;
         @Setup
         public void setup(){
             logger.info("json to row start");
@@ -323,10 +323,12 @@ public class TypeConversion implements Serializable {
                 Set set = result.keySet();
                 Iterator iterator = set.iterator();
                 map = new LinkedHashMap<>();
+                index = 1;
                 while (iterator.hasNext()){
                     Object name = iterator.next();
                     if(name != null){
-                        map.put(name.toString(),new ObjectCoder(result.get(name)));
+                        map.put(name.toString(),new ObjectCoder(result.get(name),index));
+                        index += 1;
                     }
                 }
                 ctx.output(map);
@@ -604,6 +606,45 @@ public class TypeConversion implements Serializable {
             }
         }
     }
+
+    /**
+     * oracle map object 设置类型 顺序
+     */
+    public  static class OracleAndMapType  extends DoFn<Map<String, ObjectCoder>,Map<String, ObjectCoder>>{
+        private Logger logger = LoggerFactory.getLogger(this.getClass());
+        private final Schema type;
+        private  Map<String, ObjectCoder> result = null;
+        private  Map<String, ObjectCoder> element = null;
+        public OracleAndMapType(Schema type) {
+            logger.info("map set type start");
+            this.type = type;
+        }
+
+        @ProcessElement
+        public void processElement(ProcessContext ctx) throws Exception {
+            Map<String, ObjectCoder> element = ctx.element();
+            result = new LinkedHashMap<>();
+            if(!BaseUtil.isBlankMap(element)){
+                List<Schema.Field> fields = type.getFields();
+
+                if(!BaseUtil.isBlankSet(fields)){
+                    Schema.Field field = null;
+                    String name =null;
+                    ObjectCoder objectCoder =null;
+                    for (int i = 0; i < fields.size(); i++) {
+                         field = fields.get(i);
+                         name = field.getName();
+                        if(BaseUtil.isNotBlank(name)){
+                            objectCoder = element.get(name);
+                            result.put(name,new ObjectCoder(objectCoder.getValue(),field.getType(),i+1));
+                        }
+                    }
+                }
+                ctx.output(result);
+            }
+        }
+    }
+
     /**
      * map object 设置类型
      */
@@ -623,10 +664,14 @@ public class TypeConversion implements Serializable {
             if(!BaseUtil.isBlankMap(element)){
                 List<Schema.Field> fields = type.getFields();
                 if(!BaseUtil.isBlankSet(fields)){
+                    ObjectCoder objectCoder = null;
+                    String name =null;
                     for(Schema.Field f:fields){
-                        String name = f.getName();
+                        name = f.getName();
+
                         if(BaseUtil.isNotBlank(name)){
-                            result.put(name,new ObjectCoder(element.get(name).getValue(),f.getType()));
+                            objectCoder = element.get(name);
+                            result.put(name,new ObjectCoder(objectCoder.getValue(),f.getType(),objectCoder.getIndex()));
                         }
                     }
                 }
@@ -712,7 +757,7 @@ public class TypeConversion implements Serializable {
         private Map<String,Object> parMap;
         private List<Object> values;
         private Neo4jObject neo4jObject;
-
+        private  Map<String, ObjectCoder> element = null;
 
         @Setup
         public void setup(){
@@ -738,7 +783,7 @@ public class TypeConversion implements Serializable {
 
         @ProcessElement
         public void processElement(ProcessContext ctx) throws Exception {
-            Map<String, ObjectCoder> element = ctx.element();
+            element = ctx.element();
 
             if(!BaseUtil.isBlankMap(element)){
                 int fieldCount = element.size();
@@ -760,13 +805,14 @@ public class TypeConversion implements Serializable {
         }
 
 
+
         private void getMapValue() {
             if(optionsType == null){
                 if(values.size() == keys.size()){
                     for(int i=0;i < keys.size();i++) {
                         String key = keys.get(i);
-                        String value = values.get(i).toString();
-                        parMap.put(key,value);
+                        ObjectCoder objectCoder = (ObjectCoder) values.get(i);
+                        parMap.put(key,objectCoder.getValue());
                     }
                 }
             }else{
@@ -774,16 +820,16 @@ public class TypeConversion implements Serializable {
 
                     for(int i=0;i < keys.size();i++){
                         String key= keys.get(i);
-                        String value = values.get(i).toString();
+                        ObjectCoder objectCoder = (ObjectCoder) values.get(i);
 
                         if(BaseUtil.isNotBlank(type) && key.equalsIgnoreCase(type)){
-                            parMap.put(type,value);
+                            parMap.put(type,objectCoder.getValue());
                         }else if(key.contains(startId)){
-                            parMap.put("startid",value);
+                            parMap.put("startid",objectCoder.getValue());
                         }else if(key.contains(endId)){
-                            parMap.put("endid",value);
+                            parMap.put("endid",objectCoder.getValue());
                         }else{
-                            parMap.put(key,value);
+                            parMap.put(key,objectCoder.getValue());
                         }
                     }
 

@@ -8,9 +8,11 @@ import com.knowlegene.parent.process.pojo.ObjectCoder;
 import com.knowlegene.parent.process.pojo.db.DBOptions;
 import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.swap.event.OracleImportTaskEvent;
+import com.knowlegene.parent.process.transform.TypeConversion;
 import com.knowlegene.parent.scheduler.event.EventHandler;
 import com.knowlegene.parent.scheduler.utils.CacheManager;
 import org.apache.beam.sdk.schemas.Schema;
+import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
 
 import java.util.List;
@@ -56,7 +58,8 @@ public class OracleImportJob extends ImportJobBase{
             String insertSQL = getInsertSQL(schema, tableName);
             getLogger().info("insertSQL:{}",insertSQL);
             if(BaseUtil.isNotBlank(insertSQL)){
-                rows.apply(getOracleSwapImport().saveByIO(insertSQL));
+                rows.apply(ParDo.of(new TypeConversion.OracleAndMapType(schema)))
+                        .apply(getOracleSwapImport().saveByIO(insertSQL));
             }
         }
     }
@@ -75,15 +78,22 @@ public class OracleImportJob extends ImportJobBase{
         return result;
     }
 
+    private static Schema getSchema(){
+        String[] dbColumn = getDbOptions().getDbColumn();
+        String tableName = getDbOptions().getTableName();
+        //表所有列
+        Schema allSchema = getOracleSwapImport().desc(tableName);
+
+        getLogger().info("mysql=>tableName:{}",tableName);
+        return JdbcUtil.columnConversion(dbColumn, allSchema);
+    }
 
 
 
     public static void save(PCollection<Map<String, ObjectCoder>> rows) {
         if(rows != null){
             String tableName = getDbOptions().getTableName();
-            Schema srcSchema = rows.getSchema();
-            String[] dbColumn = getDbOptions().getDbColumn();
-            Schema schema = JdbcUtil.columnConversion(dbColumn, srcSchema);
+            Schema schema = getSchema();
 
             if(schema == null){
                 getLogger().info("schema is null");

@@ -17,7 +17,6 @@ public interface MySQLSwap {
 
     JdbcIO.Write<Map<String, ObjectCoder>> saveByIO(String sql);
 
-    JdbcIO.Write<Map<String, ObjectCoder>> saveByIO(String sql,Schema schema);
 
     Schema desc(String tableName);
     JdbcIO.Read<Map<String, ObjectCoder>> query(String sql);

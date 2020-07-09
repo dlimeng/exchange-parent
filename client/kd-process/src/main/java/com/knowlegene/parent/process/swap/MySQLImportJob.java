@@ -86,7 +86,7 @@ public class MySQLImportJob extends ImportJobBase{
             String insertSQL = getInsertSQL(schema, tableName);
             getLogger().info("insertSQL:{}",insertSQL);
             if(BaseUtil.isNotBlank(insertSQL)){
-                rows.apply(getMySQLSwapImport().saveByIO(insertSQL,schema));
+                rows.apply(getMySQLSwapImport().saveByIO(insertSQL));
             }
         }
     }

@@ -32,185 +32,6 @@ public class HiveSwapTest extends SwapRunners {
         application.start();
     }
 
-    /**
-     * 表对表 import mysql->hive hiveserver2
-     */
-    @Test
-    public void testImportMySQL(){
-        swapOptions.setUrl("jdbc:mysql://192.168.200.115:3306/kd_test?useSSL=false");
-        swapOptions.setTableName("test");
-        swapOptions.setDriverClass("com.mysql.jdbc.Driver");
-        swapOptions.setUsername("root");
-        swapOptions.setPassword("root");
-
-        //swapOptions.setHiveImport(true);
-        swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
-        swapOptions.setHiveUrl("jdbc:hive2://192.168.200.117:10000/linkis_db");
-        swapOptions.setHiveUsername("hdfs");
-        swapOptions.setHivePassword("hdfs");
-        swapOptions.setHiveTableName("test2");
-
-
-    }
-
-    /**
-     * mysql sql对hive hiveserver2 字段类型对应好了
-     */
-    @Test
-    public void testImportMySQL2(){
-        swapOptions.setUrl("jdbc:mysql://192.168.20.115:3306/test?useSSL=false");
-        swapOptions.setTableName("t");
-        swapOptions.setDriverClass("com.mysql.jdbc.Driver");
-        swapOptions.setUsername("root");
-        swapOptions.setPassword("root");
-        swapOptions.setDbSQL("select * from t");
-
-
-        //swapOptions.setHiveImport(true);
-        swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
-        swapOptions.setHiveUrl("jdbc:hive2://192.168.20.117:10000/default");
-        swapOptions.setHiveUsername("hive");
-        swapOptions.setHivePassword("hive");
-        swapOptions.setHiveTableName("test2019");
-
-
-    }
-
-    /**
-     * mysql 对应 hive metastore直接导入，推荐方法
-     */
-    @Test
-    public void testImportMySQL3(){
-       // String[] columns=new String[]{"name","id"};
-        swapOptions.setUrl("jdbc:mysql://192.168.200.115:3306/kd_test?useSSL=false");
-        swapOptions.setTableName("test");
-        swapOptions.setDriverClass("com.mysql.jdbc.Driver");
-        swapOptions.setUsername("root");
-        swapOptions.setPassword("root");
-        swapOptions.setDbSQL("select * from test");
-       // swapOptions.setDbColumn(columns);
-
-        //swapOptions.setHiveImport(true);
-        swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
-        swapOptions.setHiveUrl("jdbc:hive2://192.168.200.117:10000/linkis_db");
-        swapOptions.setHiveUsername("hdfs");
-        swapOptions.setHivePassword("hdfs");
-        swapOptions.setHiveDatabase("linkis_db");
-        swapOptions.setHMetastoreHost("192.168.200.117");
-        swapOptions.setHMetastorePort("9083");
-        swapOptions.setHiveTableName("test2");
-       // swapOptions.setHiveColumn(columns);
-
-    }
-
-    /**
-     * mysql 对应 hive metastore直接导入，推荐方法
-     */
-    @Test
-    public void testImportMySQL4(){
-        String[] columns=new String[]{"entid","entname","personid"};
-        swapOptions.setUrl("jdbc:mysql://40.73.59.12:3306/yuansu_increment?useSSL=false");
-        swapOptions.setTableName("company");
-        swapOptions.setDriverClass("com.mysql.jdbc.Driver");
-        swapOptions.setUsername("yuansu_increment");
-        swapOptions.setPassword("Kboxbr201920192019");
-        swapOptions.setDbSQL("select entid,entname,personid from company limit 100");
-        swapOptions.setDbColumn(columns);
-
-        //swapOptions.setHiveImport(true);
-        swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
-        swapOptions.setHiveUrl("jdbc:hive2://192.168.20.117:10000/default");
-        swapOptions.setHiveUsername("hive");
-        swapOptions.setHivePassword("hive");
-        swapOptions.setHiveDatabase("default");
-        swapOptions.setHMetastoreHost("192.168.20.117");
-        swapOptions.setHMetastorePort("9083");
-        swapOptions.setHiveTableName("company_test2");
-        swapOptions.setHiveColumn(columns);
-
-    }
-
-    /**
-     * hive导出cvs 通过metastore导出
-     */
-    @Test
-    public void testExportFile(){
-        String[] columns=new String[]{"name","id"};
-
-        //swapOptions.setHiveExport(true);
-        swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
-        swapOptions.setHiveUrl("jdbc:hive2://192.168.20.117:10000/default");
-        swapOptions.setHiveUsername("hive");
-        swapOptions.setHivePassword("hive");
-        swapOptions.setHiveTableName("test2019");
-        swapOptions.setHiveDatabase("default");
-        swapOptions.setHMetastoreHost("192.168.20.117");
-        swapOptions.setHMetastorePort("9083");
-        swapOptions.setHiveColumn(columns);
-
-
-        swapOptions.setFilePath("test.cvs");
-
-
-    }
-
-    /**
-     * hive导出cvs hive通过hiveserver2导出
-     */
-    @Test
-    public void testExportFile2(){
-
-       // String[] columns=new String[]{"name","id"};
-
-        //swapOptions.setHiveExport(true);
-        swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
-        swapOptions.setHiveUrl("jdbc:hive2://192.168.20.117:10000/default");
-        swapOptions.setHiveUsername("hive");
-        swapOptions.setHivePassword("hive");
-        swapOptions.setHiveTableName("test4");
-      //  swapOptions.setHiveColumn(columns);
-
-        swapOptions.setFilePath("test.cvs");
-
-
-    }
-
-    /**
-     * hive 导出 hive
-     */
-    @Test
-    public void testImportHive(){
-        swapOptions.setFromName("hive");
-        swapOptions.setToName("hive");
-
-        swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
-        swapOptions.setHiveUrls(new String[]{"jdbc:hive2://192.168.200.117:10000/linkis_db","jdbc:hive2://192.168.200.117:10000/linkis_db"});
-        swapOptions.setHiveUsernames(new String[]{"hdfs","hdfs"});
-        swapOptions.setHivePasswords(new String[]{"hdfs","hdfs"});
-        swapOptions.setHiveTableNames(new String[]{"test1","test1_tmp"});
-        swapOptions.setHiveTableEmpty(true);
-//        swapOptions.setHivePartition("{\"time\":\"30\"}");
-    }
-
-
-    /**
-     * hive 导出 hive
-     */
-    @Test
-    public void testImportHive2(){
-        swapOptions.setFromName("hive");
-        swapOptions.setToName("hive");
-
-        swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
-        swapOptions.setHiveUrls(new String[]{"jdbc:hive2://192.168.200.117:10000/linkis_db","jdbc:hive2://192.168.200.117:10000/linkis_db"});
-        swapOptions.setHiveUsernames(new String[]{"hdfs","hdfs"});
-        swapOptions.setHivePasswords(new String[]{"hdfs","hdfs"});
-        swapOptions.setHiveTableNames(new String[]{"test4","test3"});
-
-        swapOptions.setHiveDatabases(new String[]{"linkis_db","linkis_db"});
-        swapOptions.setHMetastoreHosts(new String[]{"192.168.200.117","192.168.200.117"});
-        swapOptions.setHMetastorePorts(new String[]{"9083","9083"});
-    }
 
 
     @Test
@@ -250,7 +71,7 @@ public class HiveSwapTest extends SwapRunners {
         swapOptions.setPassword("kg");
 
     }
-
+    @Test
     public void testHive(){
         swapOptions.setFromName("hive");
         swapOptions.setToName("hive");
@@ -262,18 +83,15 @@ public class HiveSwapTest extends SwapRunners {
         swapOptions.setHiveTableNames(new String[]{"test4","test3"});
 
         swapOptions.setHiveDatabases(new String[]{"linkis_db","linkis_db"});
-        swapOptions.setHMetastoreHosts(new String[]{"192.168.200.117","192.168.200.117"});
-        swapOptions.setHMetastorePorts(new String[]{"9083","9083"});
+        //清空目标表数据
+        swapOptions.setHiveTableEmpty(true);
+        //如果目标表有分区字段，添加上
+        swapOptions.setHivePartition("{\"time\":\"11\"}");
+
+        //如果源表有分区，根据表详情中特殊字符晒选出
     }
 
-    public void testES(){
-
-    }
-
-    public void testNeo4j(){
-
-    }
-
+    @Test
     public void testGbase(){
         swapOptions.setFromName("hive");
         swapOptions.setToName("gbase");
@@ -286,7 +104,7 @@ public class HiveSwapTest extends SwapRunners {
         //  swapOptions.setHiveSQL("select * from pretest");
 
         swapOptions.setUrl("jdbc:gbase://192.168.100.1:5258/test");
-        swapOptions.setTableName("batch_test");
+        swapOptions.setTableName("test3");
         swapOptions.setDriverClass("com.gbase.jdbc.Driver");
         swapOptions.setUsername("root");
         swapOptions.setPassword("gbase");
@@ -306,6 +124,111 @@ public class HiveSwapTest extends SwapRunners {
 
         swapOptions.setFilePath("test.cvs");
         swapOptions.setFieldDelim("#");
+    }
+
+    @Test
+    public void testES(){
+        swapOptions.setFromName("hive");
+        swapOptions.setToName("es");
+
+        swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
+        swapOptions.setHiveUrl("jdbc:hive2://192.168.200.117:10000/linkis_db");
+        swapOptions.setUsername("hdfs");
+        swapOptions.setPassword("hdfs");
+        swapOptions.setHiveTableName("pretest");
+
+        String[] addrs=new String[]{"http://192.168.100.102:9210","http://192.168.100.103:9210","http://192.168.100.104:9210"};
+        String index="kd-test";
+        String type="_doc";
+        swapOptions.setEsAddrs(addrs);
+        swapOptions.setEsIndex(index);
+        swapOptions.setEsType(type);
+        swapOptions.setEsIdFn("");
+    }
+
+    @Test
+    public void testNeo4jNode(){
+        swapOptions.setFromName("hive");
+        swapOptions.setToName("neo4j");
+
+        swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
+        swapOptions.setHiveUrl("jdbc:hive2://192.168.200.117:10000/linkis_db");
+        swapOptions.setUsername("hdfs");
+        swapOptions.setPassword("hdfs");
+        swapOptions.setHiveTableName("pretest");
+
+        swapOptions.setNeoUrl("bolt://localhost:7687");
+        swapOptions.setNeoUsername("neo4j");
+        swapOptions.setNeoPassword("limeng");
+
+        //id:ID(Node) name iscp regCap regCapTyp invGrtTyp
+        /**
+         * 按照模板
+         * 模板字段等于插入顺序
+         */
+        swapOptions.setNeoFormat("id:ID(Node) name age ctime");
+    }
+
+    public void testNeo4jNode2(){
+        swapOptions.setFromName("hive");
+        swapOptions.setToName("neo4j");
+
+        swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
+        swapOptions.setHiveUrl("jdbc:hive2://192.168.200.117:10000/linkis_db");
+        swapOptions.setUsername("hdfs");
+        swapOptions.setPassword("hdfs");
+        swapOptions.setHiveTableName("pretest");
+
+        swapOptions.setNeoUrl("bolt://localhost:7687");
+        swapOptions.setNeoUsername("neo4j");
+        swapOptions.setNeoPassword("limeng");
+
+        swapOptions.setCypher("CREATE (a:Node {name: {name},age:{age},id:{id},ctime:{ctime}})");
+    }
+
+    public void testNeo4jRelate(){
+        swapOptions.setFromName("hive");
+        swapOptions.setToName("neo4j");
+
+        swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
+        swapOptions.setHiveUrl("jdbc:hive2://192.168.200.117:10000/linkis_db");
+        swapOptions.setUsername("hdfs");
+        swapOptions.setPassword("hdfs");
+        swapOptions.setHiveTableName("pretest");
+
+        swapOptions.setNeoUrl("bolt://localhost:7687");
+        swapOptions.setNeoUsername("neo4j");
+        swapOptions.setNeoPassword("limeng");
+
+        //id:ID(Node) name iscp regCap regCapTyp invGrtTyp
+        /**
+         * type 为固定列，标识关系的标签名称
+         * isPerson createDate updateDate type title
+         */
+        swapOptions.setNeoFormat(":START_ID(Node) :END_ID(Node) weight type");
+    }
+
+    public void testNeo4jRelate2(){
+        swapOptions.setFromName("hive");
+        swapOptions.setToName("neo4j");
+
+        swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
+        swapOptions.setHiveUrl("jdbc:hive2://192.168.200.117:10000/linkis_db");
+        swapOptions.setUsername("hdfs");
+        swapOptions.setPassword("hdfs");
+        swapOptions.setHiveTableName("pretest");
+
+        swapOptions.setNeoUrl("bolt://localhost:7687");
+        swapOptions.setNeoUsername("neo4j");
+        swapOptions.setNeoPassword("limeng");
+
+        //id:ID(Node) name iscp regCap regCapTyp invGrtTyp
+        /**
+         * type 为固定列，标识关系的标签名称
+         * isPerson createDate updateDate type title
+         */
+        swapOptions.setCypher("MATCH (a:Node),(b:Node) WHERE a.id={startid} AND b.id={endid} \" +\n" +
+                "                \" CREATE (a)-[r:Test {weight:{weight}  , type:{type}   }] ->(b) ");
     }
 
 

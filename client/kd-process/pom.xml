@@ -5,7 +5,7 @@
     <parent>
         <artifactId>exchange-parent</artifactId>
         <groupId>com.knowlegene.parent</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <version>0.1.0</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -13,7 +13,7 @@
 
     <groupId>com.knowlegene.parent.process</groupId>
     <artifactId>kd-process</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>${kd.project.version}</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -27,13 +27,13 @@
         <dependency>
             <groupId>com.knowlegene.parent.config</groupId>
             <artifactId>kd-config</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${kd.project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.knowlegene.parent.scheduler</groupId>
             <artifactId>scheduler</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${kd.project.version}</version>
         </dependency>
 
 

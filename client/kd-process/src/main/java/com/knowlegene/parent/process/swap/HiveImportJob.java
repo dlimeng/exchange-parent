@@ -126,11 +126,10 @@ public class HiveImportJob extends ImportJobBase{
                     return false;
                 }
             }
-            PCollection<HCatRecord> hCatRecordPCollection = rows.apply(ParDo.of(new TypeConversion.MapObjectAndHCatRecord(schema)))
-                    .setCoder(TypeConversion.getOutputCoder());
-
-
-            hCatRecordPCollection.apply(Window.remerge()).apply(getHiveSwapImport().saveByHCatalogIO(configProperties,partitionMap));
+            rows.apply(ParDo.of(new TypeConversion.MapObjectAndHCatRecord(schema)))
+                    .setCoder(TypeConversion.getOutputCoder())
+                    .apply(Window.remerge())
+                    .apply(getHiveSwapImport().saveByHCatalogIO(configProperties,partitionMap));
 
             return true;
         }
@@ -176,7 +175,7 @@ public class HiveImportJob extends ImportJobBase{
 
         String tableName = getHiveOptions().getHiveTableName();
         boolean tableEmpty =getHiveOptions().getHiveTableEmpty()!=null?getHiveOptions().getHiveTableEmpty():false;
-        Schema hiveSchema = getHiveSchemas(true);
+        Schema hiveSchema = getHiveSchemas(false);
         if(hiveSchema == null) return;
         getLogger().info("tableName:{}",tableName);
 
@@ -199,7 +198,6 @@ public class HiveImportJob extends ImportJobBase{
                getLogger().info("HiveImportDispatcher is start");
 
                if(CacheManager.isExist(DBOperationEnum.PCOLLECTION_QUERYS.getName())){
-                   PCollection<Map<String, ObjectCoder>>  rows = (PCollection<Map<String, ObjectCoder>>)CacheManager.getCache(DBOperationEnum.PCOLLECTION_QUERYS.getName());
                    save((PCollection<Map<String, ObjectCoder>>)CacheManager.getCache(DBOperationEnum.PCOLLECTION_QUERYS.getName()));
                }
 
