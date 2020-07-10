@@ -19,7 +19,7 @@ public class Neo4jCode {
     private Integer type;
     private String startId=":START_ID";
     private String endId=":END_ID";
-    private String id="id:ID";
+    private String id="ID";
 
     /**
      * 节点属性
@@ -71,7 +71,7 @@ public class Neo4jCode {
                     }
                 }
                 if(BaseUtil.isNotBlank(label)){
-                    String result="MATCH (a:"+label+"),(b:"+label+") WHERE a.id={startid} AND b.id={endid} " +
+                    String result="MATCH (a:"+label+"),(b:"+label+") WHERE a.id={start_id} AND b.id={end_id} " +
                             " CREATE (a)-[r:%s {"+sb.toString()+"}] ->(b)";
                     dsl = result;
                 }

@@ -168,13 +168,13 @@ public class SwapOptions {
     private String[] neoPasswords;
 
 
+    @StoredAsProperty("db.嵌套集合名称")
+    private String nestingKeysName;
     /**
      * 嵌套 存储es
      */
     @StoredAsProperty("db.嵌套keys")
     private String[] nestingKeys;
-    @StoredAsProperty("db.普通列")
-    private String[] nestingColumns;
     @StoredAsProperty("db.嵌套列")
     private String[] nestingValues;
 
@@ -358,14 +358,14 @@ public class SwapOptions {
      * @return 返回值
      */
     private void setNestingFields(){
-        if(this.nestingFields == null && nestingKeys != null  && nestingValues!=null){
+        if(this.nestingFields == null && nestingKeys != null && nestingKeys.length >0  && nestingValues!=null && nestingValues.length > 0 && BaseUtil.isNotBlank(nestingKeysName)){
             NestingFields nestingFields = new NestingFields();
-            nestingFields.setColumns(nestingColumns);
             Map<String,String[]> nestings=new HashMap<>();
             //nestings key为结果表嵌套字段名称
-            nestings.put("nestingsjson",nestingValues);
+            nestings.put(nestingKeys[0],nestingValues);
             nestingFields.setNestings(nestings);
             nestingFields.setKeys(nestingKeys);
+            nestingFields.setNestingKeysName(nestingKeysName);
             this.nestingFields = nestingFields;
         }
     }

@@ -1,6 +1,7 @@
 package com.knowlegene.parent.process.util;
 
 import com.knowlegene.parent.config.util.BaseUtil;
+import com.knowlegene.parent.process.pojo.ObjectCoder;
 import org.apache.beam.sdk.schemas.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -119,4 +120,26 @@ public class CommonUtil {
         }
         return null;
     }
+
+    public static boolean isNumericType(ObjectCoder objectCoder){
+        boolean result = false;
+        if(objectCoder != null){
+            Object value = objectCoder.getValue();
+            if (value instanceof Integer) {
+                result = true;
+            } else if (value instanceof Double) {
+                result = true;
+            } else if (value instanceof Float) {
+                result = true;
+            } else if (value instanceof Long) {
+                result = true;
+            } else if (value instanceof Byte) {
+                result = true;
+            }  else if (value instanceof Short){
+                result = true;
+            }
+        }
+        return result;
+    }
+
 }

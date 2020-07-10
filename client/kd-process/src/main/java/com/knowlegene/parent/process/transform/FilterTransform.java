@@ -163,48 +163,51 @@ public class FilterTransform {
      */
     public static  class FilterKeysAndMapJson extends DoFn<KV<String, Set<Map<String, ObjectCoder>>>, Map<String, ObjectCoder>>{
         private Logger logger = LoggerFactory.getLogger(this.getClass());
-        private final Schema type;
         //嵌套字段名称
         private final KV<String,List<String>> mergeds;
         private Map<String, ObjectCoder> result;
+        private Set<Map<String, ObjectCoder>> value;
+        private final String keysName;
 
         @Setup
         public void setup(){
             logger.info("filter to json start");
         }
 
-        public FilterKeysAndMapJson(Schema type,KV<String,List<String>> mergeds) {
-            this.type = type;
+        public FilterKeysAndMapJson(KV<String,List<String>> mergeds,String keysName) {
             this.mergeds = mergeds;
+            this.keysName = keysName;
         }
 
         @ProcessElement
         public void processElement(ProcessContext pc) {
-            Set<Map<String, ObjectCoder>> value = pc.element().getValue();
+            value = pc.element().getValue();
             if (!BaseUtil.isBlankSet(value)) {
                 String key = mergeds.getKey();
+                List<String> mergedsValue = mergeds.getValue();
                 result = new LinkedHashMap<>();
                 Iterator<Map<String, ObjectCoder>> iterator = value.iterator();
-
+                boolean first =true;
                 while (iterator.hasNext()) {
                     Map<String, ObjectCoder> next = iterator.next();
                     if (!BaseUtil.isBlankMap(next)) {
-                        List<Schema.Field> fields = type.getFields();
-                        for (Schema.Field fieldName : fields) {
-                            String name = fieldName.getName();
-                            if (BaseUtil.isNotBlank(name) && name.equalsIgnoreCase(key)) {
+                        for(Map.Entry<String, ObjectCoder> map:next.entrySet()){
+                            String name = map.getKey();
+                            ObjectCoder objectCoder = map.getValue();
+                            Object fieldValue = objectCoder.getValue();
+                            if(first && BaseUtil.isNotBlank(key)){
                                 String json = getJson(value, mergeds.getValue());
-                                result.put(name,new ObjectCoder(json,Schema.FieldType.STRING));
-
-                            } else {
-                                Object fieldValue = next.get(fieldName).getValue();
+                                result.put(keysName,new ObjectCoder(json,Schema.FieldType.STRING));
+                            }
+                            first = false;
+                            if(!mergedsValue.contains(name)){
                                 if (fieldValue == null) {
                                     fieldValue = "";
                                 }
-                                result.put(name,new ObjectCoder(fieldValue,fieldName.getType()));
+                                result.put(name,new ObjectCoder(fieldValue,objectCoder.getFieldType()));
                             }
                         }
-                        break;
+
                     }
                 }
 

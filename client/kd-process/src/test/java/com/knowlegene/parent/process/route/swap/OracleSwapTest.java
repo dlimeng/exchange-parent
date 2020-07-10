@@ -1,6 +1,6 @@
 package com.knowlegene.parent.process.route.swap;
 
-import com.knowlegene.parent.process.SwapApplication;
+import com.knowlegene.parent.process.SwapDirectApplication;
 import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.runners.SwapRunners;
 import org.junit.AfterClass;
@@ -15,7 +15,7 @@ import org.junit.runners.JUnit4;
  */
 @RunWith(JUnit4.class)
 public class OracleSwapTest extends SwapRunners {
-    private static SwapApplication application;
+    private static SwapDirectApplication application;
     private static SwapOptions swapOptions;
     @Override
     public void setJobStream() {
@@ -23,7 +23,7 @@ public class OracleSwapTest extends SwapRunners {
     }
     @BeforeClass
     public static void beforeClass(){
-        application=new SwapApplication();
+        application=new SwapDirectApplication();
         swapOptions = new SwapOptions();
     }
     @AfterClass

@@ -51,13 +51,12 @@ public class Neo4jImportJob extends ImportJobBase{
      * @param rows
      */
     private static void cypherSave(PCollection<Map<String, ObjectCoder>> rows){
-        List<String> fieldNames = rows.getSchema().getFieldNames();
-        if(BaseUtil.isBlankSet(fieldNames)){
-            getLogger().error("fieldNames is null");
-            return ;
-        }
+
         String cypher = getDbOptions().getCypher();
-        PCollection<Neo4jObject> apply = rows.apply(ParDo.of(new TypeConversion.MapAndNeo4jObject(label,fieldNames)));
+        if(BaseUtil.isBlank(cypher)){
+            getLogger().info("cypher is null");
+        }
+        PCollection<Neo4jObject> apply = rows.apply(ParDo.of(new TypeConversion.MapAndNeo4jObject(label)));
         saveNeo4jObject(apply,cypher, Neo4jEnum.SAVE.getValue());
     }
 
@@ -84,7 +83,7 @@ public class Neo4jImportJob extends ImportJobBase{
             return ;
         }
 
-        PCollection<Neo4jObject> apply = rows.apply(ParDo.of(new TypeConversion.MapAndNeo4jObject(label,type, keys)));
+        PCollection<Neo4jObject> apply = rows.apply(ParDo.of(new TypeConversion.MapAndNeo4jObject(label,type)));
         saveNeo4jObject(apply,cypher,type);
     }
 
