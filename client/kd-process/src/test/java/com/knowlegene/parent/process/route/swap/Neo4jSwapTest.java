@@ -1,6 +1,6 @@
 package com.knowlegene.parent.process.route.swap;
 
-import com.knowlegene.parent.process.SwapApplication;
+import com.knowlegene.parent.process.SwapDirectApplication;
 import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.runners.SwapRunners;
 import org.junit.AfterClass;
@@ -16,7 +16,7 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class Neo4jSwapTest   extends SwapRunners {
 
-    private static SwapApplication application;
+    private static SwapDirectApplication application;
     private static SwapOptions swapOptions;
     @Override
     public void setJobStream() {
@@ -25,7 +25,7 @@ public class Neo4jSwapTest   extends SwapRunners {
     }
     @BeforeClass
     public static void beforeClass(){
-        application=new SwapApplication();
+        application=new SwapDirectApplication();
         swapOptions = new SwapOptions();
     }
     @AfterClass
@@ -97,7 +97,7 @@ public class Neo4jSwapTest   extends SwapRunners {
         swapOptions.setHiveUrl("jdbc:hive2://192.168.200.117:10000/linkis_db");
         swapOptions.setHiveUsername("hdfs");
         swapOptions.setHivePassword("hdfs");
-        swapOptions.setHiveTableName("relate1");
+        swapOptions.setHiveTableName("pretest_rel");
 
         swapOptions.setToName("neo4j");
         swapOptions.setNeoUrl("bolt://localhost:7687");
@@ -105,7 +105,9 @@ public class Neo4jSwapTest   extends SwapRunners {
         swapOptions.setNeoPassword("limeng");
         /**
          * type 为固定列，标识关系的标签名称
-         * isPerson createDate updateDate type title
+         * 开始 start_id 固定列
+         * 结束 end_id 固定列
+         *
          */
         swapOptions.setNeoFormat(":START_ID(Node) :END_ID(Node) weight type");
 

@@ -7,6 +7,7 @@ import com.knowlegene.parent.process.common.constantenum.Neo4jEnum;
 import com.knowlegene.parent.process.pojo.DefaultHCatRecord;
 import com.knowlegene.parent.process.pojo.ObjectCoder;
 import com.knowlegene.parent.process.pojo.neo4j.Neo4jObject;
+import com.knowlegene.parent.process.util.CommonUtil;
 import com.knowlegene.parent.process.util.SqlUtil;
 import org.apache.beam.sdk.coders.Coder;
 import org.apache.beam.sdk.io.hadoop.WritableCoder;
@@ -25,6 +26,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * 类型转换自定义
@@ -379,7 +381,7 @@ public class TypeConversion implements Serializable {
         }
     }
     public static  class  mapAndJson extends DoFn<Map<String, ObjectCoder>,String>{
-        private final Schema type;
+
         private Logger logger = LoggerFactory.getLogger(this.getClass());
         private Pattern pattern = Pattern.compile("\\[.*\\]");
         private Map<String, ObjectCoder> element = null;
@@ -387,39 +389,36 @@ public class TypeConversion implements Serializable {
         public void setup(){
             logger.info("row to json start");
         }
-        public mapAndJson(Schema type) {
-            this.type = type;
+        public mapAndJson() {
+
         }
         @ProcessElement
         public void processElement(ProcessContext ctx) throws Exception {
             element = ctx.element();
             if(!BaseUtil.isBlankMap(element)){
-                List<Schema.Field> fields = type.getFields();
+
                 String sql1="{%s}";
                 boolean first=false;
-                Schema.TypeName typeName = null;
+
                 String name =null;
                 StringBuffer sb=new StringBuffer();
                 Object value = null;
-                boolean numericType = false;
+                ObjectCoder codeValue = null;
                 //boolean dateType =false;
-                for(Schema.Field field : fields){
+                for(Map.Entry<String, ObjectCoder> field : element.entrySet()){
                     if(first){
                         sb.append(",");
                     }
                     first = true;
-                    name = field.getName();
-                    typeName = field.getType().getTypeName();
-                    numericType =typeName.isNumericType();
-                    //dateType = typeName.isDateType();
-
-                    value = element.get(name).getValue();
+                    name = field.getKey();
+                    codeValue = field.getValue();
+                    value = codeValue.getValue();
                     sb.append("\"").append(name).append("\":");
                     if(value == null ){
                         sb.append(value);
                     }else if(isMacth(value.toString())){
                         sb.append(value);
-                    }else if(numericType){
+                    }else if(isNumericType(codeValue)){
                         sb.append(value);
                     }else {
                         sb.append("\"").append(value).append("\"");
@@ -433,6 +432,18 @@ public class TypeConversion implements Serializable {
                 }
             }
         }
+
+        private boolean isNumericType(ObjectCoder objectCoder){
+            boolean result = false;
+            Schema.FieldType fieldType = objectCoder.getFieldType();
+            if(fieldType != null){
+                result = fieldType.getTypeName().isNumericType();
+            }else {
+                result = CommonUtil.isNumericType(objectCoder);
+            }
+            return result;
+        }
+
         private boolean isMacth(String value){
             boolean result=false;
             if(BaseUtil.isNotBlank(value)){
@@ -753,9 +764,8 @@ public class TypeConversion implements Serializable {
         private final String type;
 
 
-        private final List<String> keys;
         private Map<String,Object> parMap;
-        private List<Object> values;
+
         private Neo4jObject neo4jObject;
         private  Map<String, ObjectCoder> element = null;
 
@@ -768,16 +778,14 @@ public class TypeConversion implements Serializable {
          *
          * @param type  创建连接的标签名称
          * @param optionsType 操作类型
-         * @param keys 列名称
+         * @param
          */
-        public MapAndNeo4jObject(String type,Integer optionsType, List<String> keys) {
+        public MapAndNeo4jObject(String type,Integer optionsType) {
             this.type = type;
             this.optionsType = optionsType;
-            this.keys = keys;
-        }
 
-        public MapAndNeo4jObject(String type,List<String> keys) {
-            this.keys = keys;
+        }
+        public MapAndNeo4jObject(String type) {
             this.type = type;
         }
 
@@ -786,21 +794,15 @@ public class TypeConversion implements Serializable {
             element = ctx.element();
 
             if(!BaseUtil.isBlankMap(element)){
-                int fieldCount = element.size();
-                int keysSize = keys.size();
-                if(fieldCount >= keysSize){
-                    values = new ArrayList<>(Arrays.asList(element.values().toArray()));
-                    parMap = new HashMap<>();
+                parMap = new HashMap<>();
 
-                    getMapValue();
+                getMapValue();
 
-                    if(!BaseUtil.isBlankMap(parMap)){
-                        neo4jObject = new Neo4jObject();
-                        neo4jObject.setParMap(parMap);
-                        ctx.output(neo4jObject);
-                    }
+                if(!BaseUtil.isBlankMap(parMap)){
+                    neo4jObject = new Neo4jObject();
+                    neo4jObject.setParMap(parMap);
+                    ctx.output(neo4jObject);
                 }
-
             }
         }
 
@@ -808,41 +810,62 @@ public class TypeConversion implements Serializable {
 
         private void getMapValue() {
             if(optionsType == null){
-                if(values.size() == keys.size()){
-                    for(int i=0;i < keys.size();i++) {
-                        String key = keys.get(i);
-                        ObjectCoder objectCoder = (ObjectCoder) values.get(i);
-                        parMap.put(key,objectCoder.getValue());
+
+                for(Map.Entry<String,ObjectCoder> map :element.entrySet()){
+                    String key = map.getKey();
+                    ObjectCoder objectCoder = map.getValue();
+                    Object value = objectCoder.getValue();
+                    if(value!= null && CommonUtil.isNumericType(objectCoder)){
+                        parMap.put(key,value);
+                    }else if(value!= null){
+                        parMap.put(key,value.toString());
+                    }else{
+                        parMap.put(key,"");
                     }
                 }
+
             }else{
                 if(optionsType == Neo4jEnum.RELATE.getValue()){
 
-                    for(int i=0;i < keys.size();i++){
-                        String key= keys.get(i);
-                        ObjectCoder objectCoder = (ObjectCoder) values.get(i);
+                    for(Map.Entry<String,ObjectCoder> map :element.entrySet()){
+                        String key= map.getKey();
+                        ObjectCoder objectCoder = map.getValue();
+                        Object value = objectCoder.getValue();
+                        boolean isValue = value != null;
 
-                        if(BaseUtil.isNotBlank(type) && key.equalsIgnoreCase(type)){
-                            parMap.put(type,objectCoder.getValue());
-                        }else if(key.contains(startId)){
-                            parMap.put("startid",objectCoder.getValue());
-                        }else if(key.contains(endId)){
-                            parMap.put("endid",objectCoder.getValue());
+                        if(isValue && BaseUtil.isNotBlank(type) && key.equalsIgnoreCase(type)){
+                            parMap.put(type,value.toString());
+                        }else if(isValue && key.contains(startId)){
+                            parMap.put("startid",value.toString());
+                        }else if(isValue && key.contains(endId)){
+                            parMap.put("endid",value.toString());
+                        }else if(isValue &&  CommonUtil.isNumericType(objectCoder)){
+                            parMap.put(key,value);
+                        }else if(isValue){
+                            parMap.put(key,value.toString());
                         }else{
-                            parMap.put(key,objectCoder.getValue());
+                            parMap.put(key,"");
                         }
                     }
 
 
                 }else if(optionsType == Neo4jEnum.SAVE.getValue()){
 
-                    for(int i=0;i < keys.size();i++){
-                        String key= keys.get(i);
-                        String value = values.get(i).toString();
-                        if(key.contains(id)){
-                            parMap.put("id", value);
-                        }else{
+                    for(Map.Entry<String,ObjectCoder> map :element.entrySet()){
+                        String key= map.getKey();
+                        ObjectCoder objectCoder = map.getValue();
+
+                        Object value = objectCoder.getValue();
+                        boolean isValue = value != null;
+
+                        if(isValue && key.contains(id)){
+                            parMap.put("id", value.toString());
+                        }else if(isValue &&  CommonUtil.isNumericType(objectCoder)){
                             parMap.put(key,value);
+                        }else if(isValue){
+                            parMap.put(key,value.toString());
+                        }else{
+                            parMap.put(key,"");
                         }
                     }
 

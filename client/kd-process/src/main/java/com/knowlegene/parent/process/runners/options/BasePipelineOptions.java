@@ -2,13 +2,15 @@ package com.knowlegene.parent.process.runners.options;
 
 import org.apache.beam.sdk.options.Description;
 
+import java.io.Serializable;
+
 /**
  * @Classname BasePipelineOptions
  * @Description TODO
  * @Date 2020/7/3 15:50
  * @Created by limeng
  */
-public interface BasePipelineOptions {
+public interface BasePipelineOptions extends Serializable {
     @Description("导出名称")
     public String getFromName();
     public void setFromName(String fromName);

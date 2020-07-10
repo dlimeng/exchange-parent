@@ -1,6 +1,7 @@
 package com.knowlegene.parent.process.route.swap;
 
-import com.knowlegene.parent.process.SwapApplication;
+
+import com.knowlegene.parent.process.SwapDirectApplication;
 import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.runners.SwapRunners;
 import org.junit.AfterClass;
@@ -15,7 +16,7 @@ import org.junit.runners.JUnit4;
  */
 @RunWith(JUnit4.class)
 public class HiveSwapTest extends SwapRunners {
-    private static SwapApplication application;
+    private static SwapDirectApplication application;
     private static SwapOptions swapOptions;
     @Override
     public void setJobStream() {
@@ -23,7 +24,7 @@ public class HiveSwapTest extends SwapRunners {
     }
     @BeforeClass
     public static void beforeClass(){
-        application=new SwapApplication();
+        application=new SwapDirectApplication();
         swapOptions = new SwapOptions();
     }
     @AfterClass
@@ -137,13 +138,41 @@ public class HiveSwapTest extends SwapRunners {
         swapOptions.setPassword("hdfs");
         swapOptions.setHiveTableName("pretest");
 
-        String[] addrs=new String[]{"http://192.168.100.102:9210","http://192.168.100.103:9210","http://192.168.100.104:9210"};
-        String index="kd-test";
+        String[] addrs=new String[]{"http://192.168.200.101:9200"};
+        String index="lmtest";
         String type="_doc";
         swapOptions.setEsAddrs(addrs);
         swapOptions.setEsIndex(index);
         swapOptions.setEsType(type);
-        swapOptions.setEsIdFn("");
+        swapOptions.setEsIdFn("id");
+    }
+
+    /**
+     * 嵌套
+     */
+    @Test
+    public void testESNe(){
+        swapOptions.setFromName("hive");
+        swapOptions.setToName("es");
+
+        swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
+        swapOptions.setHiveUrl("jdbc:hive2://192.168.200.117:10000/linkis_db");
+        swapOptions.setUsername("hdfs");
+        swapOptions.setPassword("hdfs");
+        swapOptions.setHiveTableName("pretest2");
+
+        String[] addrs=new String[]{"http://192.168.200.101:9200"};
+        String index="lmtest";
+        String type="_doc";
+        swapOptions.setEsAddrs(addrs);
+        swapOptions.setEsIndex(index);
+        swapOptions.setEsType(type);
+
+        String[] key=new String[]{"name"};
+        String[] values = new String[]{"tag_name","tag_desc"};
+        swapOptions.setNestingKeysName("label_list");
+        swapOptions.setNestingKeys(key);
+        swapOptions.setNestingValues(values);
     }
 
     @Test
@@ -165,10 +194,11 @@ public class HiveSwapTest extends SwapRunners {
         /**
          * 按照模板
          * 模板字段等于插入顺序
+         * 第一个ID固定
          */
         swapOptions.setNeoFormat("id:ID(Node) name age ctime");
     }
-
+    @Test
     public void testNeo4jNode2(){
         swapOptions.setFromName("hive");
         swapOptions.setToName("neo4j");
@@ -186,6 +216,7 @@ public class HiveSwapTest extends SwapRunners {
         swapOptions.setCypher("CREATE (a:Node {name: {name},age:{age},id:{id},ctime:{ctime}})");
     }
 
+    @Test
     public void testNeo4jRelate(){
         swapOptions.setFromName("hive");
         swapOptions.setToName("neo4j");
@@ -194,20 +225,22 @@ public class HiveSwapTest extends SwapRunners {
         swapOptions.setHiveUrl("jdbc:hive2://192.168.200.117:10000/linkis_db");
         swapOptions.setUsername("hdfs");
         swapOptions.setPassword("hdfs");
-        swapOptions.setHiveTableName("pretest");
+        swapOptions.setHiveTableName("pretest_rel");
 
         swapOptions.setNeoUrl("bolt://localhost:7687");
         swapOptions.setNeoUsername("neo4j");
         swapOptions.setNeoPassword("limeng");
 
-        //id:ID(Node) name iscp regCap regCapTyp invGrtTyp
+
         /**
          * type 为固定列，标识关系的标签名称
-         * isPerson createDate updateDate type title
+         * 开始 start_id 固定列
+         * 结束 end_id 固定列
          */
         swapOptions.setNeoFormat(":START_ID(Node) :END_ID(Node) weight type");
     }
 
+    @Test
     public void testNeo4jRelate2(){
         swapOptions.setFromName("hive");
         swapOptions.setToName("neo4j");
@@ -216,7 +249,7 @@ public class HiveSwapTest extends SwapRunners {
         swapOptions.setHiveUrl("jdbc:hive2://192.168.200.117:10000/linkis_db");
         swapOptions.setUsername("hdfs");
         swapOptions.setPassword("hdfs");
-        swapOptions.setHiveTableName("pretest");
+        swapOptions.setHiveTableName("pretest_rel2");
 
         swapOptions.setNeoUrl("bolt://localhost:7687");
         swapOptions.setNeoUsername("neo4j");
@@ -227,8 +260,7 @@ public class HiveSwapTest extends SwapRunners {
          * type 为固定列，标识关系的标签名称
          * isPerson createDate updateDate type title
          */
-        swapOptions.setCypher("MATCH (a:Node),(b:Node) WHERE a.id={startid} AND b.id={endid} \" +\n" +
-                "                \" CREATE (a)-[r:Test {weight:{weight}  , type:{type}   }] ->(b) ");
+        swapOptions.setCypher("MATCH (a:Node),(b:Node) WHERE a.id={startid} AND b.id={endid} CREATE (a)-[r:Test {weight:{weight} }] ->(b) ");
     }
 
 

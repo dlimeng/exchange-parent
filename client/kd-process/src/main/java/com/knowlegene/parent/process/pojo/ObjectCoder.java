@@ -4,6 +4,7 @@ import lombok.Data;
 import org.apache.beam.sdk.schemas.Schema;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * @Author: limeng
@@ -36,5 +37,20 @@ public class ObjectCoder implements Serializable {
     }
 
     public ObjectCoder() {
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ObjectCoder that = (ObjectCoder) o;
+        return Objects.equals(value, that.value) &&
+                Objects.equals(fieldType, that.fieldType) &&
+                Objects.equals(index, that.index);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value, fieldType, index);
     }
 }

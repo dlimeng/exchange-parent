@@ -1,6 +1,6 @@
 package com.knowlegene.parent.process.route.swap;
 
-import com.knowlegene.parent.process.SwapApplication;
+import com.knowlegene.parent.process.SwapDirectApplication;
 import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.runners.SwapRunners;
 import org.junit.AfterClass;
@@ -15,7 +15,7 @@ import org.junit.runners.JUnit4;
  */
 @RunWith(JUnit4.class)
 public class GbaseSwapTest  extends SwapRunners {
-    private static SwapApplication application;
+    private static SwapDirectApplication application;
     private static SwapOptions swapOptions;
     @Override
     public void setJobStream() {
@@ -23,7 +23,7 @@ public class GbaseSwapTest  extends SwapRunners {
     }
     @BeforeClass
     public static void beforeClass(){
-        application=new SwapApplication();
+        application=new SwapDirectApplication();
         swapOptions = new SwapOptions();
     }
     @AfterClass
@@ -99,12 +99,12 @@ public class GbaseSwapTest  extends SwapRunners {
         swapOptions.setDbSQL("select * from batch_test");
 
 
-        String[] keys={"id"};
-        String[] columns={"name","createtime","updatetime","desc","age"};
-        String[] nestingValues={"money1","money2","word"};
-        swapOptions.setNestingKeys(keys);
-        swapOptions.setNestingColumns(columns);
-        swapOptions.setNestingValues(nestingValues);
+//        String[] keys={"id"};
+//        String[] columns={"name","createtime","updatetime","desc","age"};
+//        String[] nestingValues={"money1","money2","word"};
+//        swapOptions.setNestingKeys(keys);
+//        swapOptions.setNestingColumns(columns);
+//        swapOptions.setNestingValues(nestingValues);
 
         swapOptions.setEsAddrs(addrs);
         swapOptions.setEsIndex(index);

@@ -74,8 +74,8 @@ public class ESImportJob extends ImportJobBase {
         }
         getLogger().info("update start=>index:{},type:{}",esIndex,esType);
 
-        Schema schema = rows.getSchema();
-        rows.apply(ParDo.of(new TypeConversion.mapAndJson(schema))).setCoder(StringUtf8Coder.of())
+
+        rows.apply(ParDo.of(new TypeConversion.mapAndJson())).setCoder(StringUtf8Coder.of())
                 .apply(write);
     }
 
@@ -90,34 +90,27 @@ public class ESImportJob extends ImportJobBase {
             return null;
         }
 
-        String[] columns = nestingFields.getColumns();
         //查询
         String[] keys = nestingFields.getKeys();
+        String nestingKeysName = nestingFields.getNestingKeysName();
         KV<String, List<String>> nestings = nestingFields.mapToKV2();
-
-        Schema schema = querys.getSchema();
-        if(schema == null){
-            getLogger().error("schema is null");
-            return null;
-        }
-        if(columns == null){
-            List<String> strings = schema.getFieldNames();
-            strings.removeAll(nestings.getValue());
-            strings.removeAll(Arrays.asList(keys));
-            int size = strings.size();
-            if(!BaseUtil.isBlankSet(strings)){
-                nestingFields.setColumns(strings.toArray(new String[size]));
-            }
-        }
-
-        nestingFields.creatByNesting(nestings.getKey(),schema);
-        Schema resultSchema = nestingFields.getResultSchema();
-        if(resultSchema == null){
-            getLogger().error("resultSchema is null");
+        if(BaseUtil.isBlank(nestingKeysName)){
+            getLogger().info("nestingKeysName is null");
             return null;
         }
 
-        return  querys.apply(new ESTransform.NestingFieldTransformMap(Arrays.asList(keys),resultSchema,nestings));
+        if(nestings == null){
+            getLogger().info("nestings is null");
+            return null;
+        }
+
+        if(keys == null || keys.length == 0){
+            getLogger().info("nestingFields key is null");
+            return null;
+        }
+
+
+        return  querys.apply(new ESTransform.NestingFieldTransformMap(Arrays.asList(keys),nestings,nestingKeysName));
     }
 
     public static void save(PCollection<Map<String, ObjectCoder>> rows) {
