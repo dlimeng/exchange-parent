@@ -58,7 +58,7 @@ public class OracleImportJob extends ImportJobBase{
             String insertSQL = getInsertSQL(schema, tableName);
             getLogger().info("insertSQL:{}",insertSQL);
             if(BaseUtil.isNotBlank(insertSQL)){
-                rows.apply(ParDo.of(new TypeConversion.OracleAndMapType(schema)))
+                rows.apply(ParDo.of(new TypeConversion.SortAndMapType(schema)))
                         .apply(getOracleSwapImport().saveByIO(insertSQL));
             }
         }

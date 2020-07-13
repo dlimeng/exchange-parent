@@ -62,7 +62,8 @@ public class HiveImportJob extends ImportJobBase{
             String insertSQL = getInsertSQL(schema, tableName);
             getLogger().info("insertSQL:{}",insertSQL);
             if(BaseUtil.isNotBlank(insertSQL)){
-                rows.apply(getHiveSwapImport().saveByIO(insertSQL));
+                rows.apply(ParDo.of(new TypeConversion.SortAndMapType(schema)))
+                        .apply(getHiveSwapImport().saveByIO(insertSQL));
             }
         }
     }
@@ -89,7 +90,7 @@ public class HiveImportJob extends ImportJobBase{
      * HCatalogIO保存
      * @param rows
      */
-    private static boolean saveByHCatalog(PCollection<Map<String, ObjectCoder>> rows){
+    private static boolean saveByHCatalog(PCollection<Map<String, ObjectCoder>> rows, Schema schema){
         if(rows != null){
             String uris = HiveTypeEnum.HCATALOGMETASTOREURIS.getName();
             String db=HiveTypeEnum.HIVEDATABASE.getName();
@@ -111,11 +112,6 @@ public class HiveImportJob extends ImportJobBase{
             getLogger().info("HCatIO start=>hiveDB:{}.hiveTable:{}",hiveDatabase,hiveTableName);
 
 
-            Schema schema = getHiveSchemas(false);
-            if(schema == null){
-                getLogger().error("schema is null");
-                return false;
-            }
             String hivePartition = getHiveOptions().getHivePartition();
             HashMap<String,String> partitionMap=null;
             if(BaseUtil.isNotBlank(hivePartition)){
@@ -126,7 +122,8 @@ public class HiveImportJob extends ImportJobBase{
                     return false;
                 }
             }
-            rows.apply(ParDo.of(new TypeConversion.MapObjectAndHCatRecord(schema)))
+            rows.apply(ParDo.of(new TypeConversion.SortAndMapType(schema)))
+                    .apply(ParDo.of(new TypeConversion.MapObjectAndHCatRecord(schema)))
                     .setCoder(TypeConversion.getOutputCoder())
                     .apply(Window.remerge())
                     .apply(getHiveSwapImport().saveByHCatalogIO(configProperties,partitionMap));
@@ -169,14 +166,19 @@ public class HiveImportJob extends ImportJobBase{
            getLogger().info("rows is null");
            return;
         }
+       Schema hiveSchema = getHiveSchemas(false);
+       if(hiveSchema == null) {
+           getLogger().info("hiveSchema is null");
+           return;
+       }
 
-        boolean isHCatalog = saveByHCatalog(rows);
+
+        boolean isHCatalog = saveByHCatalog(rows,hiveSchema);
         if(isHCatalog) return;
 
         String tableName = getHiveOptions().getHiveTableName();
         boolean tableEmpty =getHiveOptions().getHiveTableEmpty()!=null?getHiveOptions().getHiveTableEmpty():false;
-        Schema hiveSchema = getHiveSchemas(false);
-        if(hiveSchema == null) return;
+
         getLogger().info("tableName:{}",tableName);
 
         if(tableEmpty){

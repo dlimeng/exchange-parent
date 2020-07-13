@@ -657,7 +657,7 @@ public class ElasticsearchIO {
       if (query == null) {
         query = "{\"query\": { \"match_all\": {} }}";
       }
-      if ((source.backendVersion == 5 || source.backendVersion == 6)
+      if ((source.backendVersion == 5 || source.backendVersion == 6 || source.backendVersion == 7)
           && source.numSlices != null
           && source.numSlices > 1) {
         //if there is more than one slice, add the slice to the user query

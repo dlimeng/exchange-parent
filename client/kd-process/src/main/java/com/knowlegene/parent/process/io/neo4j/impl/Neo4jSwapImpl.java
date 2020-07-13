@@ -12,6 +12,7 @@ import org.apache.beam.sdk.coders.MapCoder;
 import org.apache.beam.sdk.coders.SerializableCoder;
 import org.apache.beam.sdk.coders.SetCoder;
 import org.apache.beam.sdk.coders.StringUtf8Coder;
+import org.neo4j.driver.internal.InternalNode;
 import org.neo4j.driver.internal.InternalPath;
 import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.StatementResult;
@@ -104,26 +105,48 @@ public abstract class Neo4jSwapImpl implements Neo4jSwap, Serializable {
                             Map<String, Object> date = record.asMap();
                             Set<Map<String, ObjectCoder>> result = new HashSet<>();
                             Map<String, ObjectCoder> datamap = null;
+                            Object object = null;
+                            InternalNode dataNode = null;
+                            InternalPath dataPath = null;
+                            Iterator<Node> nodes = null;
                             for(String key : date.keySet()){
-                                Object object = date.get(key);
-                                InternalPath data = (InternalPath) object;
+                                object = date.get(key);
+                                if(object == null) continue;
 
-                                if(Neo4jEnum.RELATE.getName().equalsIgnoreCase(type)){
-                                    Iterator<Node> nodes = data.nodes().iterator();
-                                    while (nodes.hasNext()){
-                                        Node node = nodes.next();
-                                        long nodeId = node.id();
-                                        datamap = new HashMap<>();
-                                        // 添加节点的属性
-                                        Map<String, Object> data1 = node.asMap();
-                                        for (String key1 : data1.keySet()) {
-                                            datamap.put(key1, new ObjectCoder(data1.get(key1)));
-                                        }
-                                        datamap.put(Neo4jEnum.NODE_ID.getName(), new ObjectCoder(String.valueOf(nodeId)));
-                                        result.add(datamap);
-                                    }
-                                }else if(Neo4jEnum.NODE.getName().equalsIgnoreCase(type)){
-                                    Iterator<Relationship> relationships = data.relationships().iterator();
+                                if(Neo4jEnum.NODE.getName().equalsIgnoreCase(type)){
+                                      if(object instanceof InternalNode){
+                                          dataNode = (InternalNode) object;
+                                          Map<String, Object> nodeMap = dataNode.asMap();
+                                          if(!BaseUtil.isBlankMap(nodeMap)){
+                                              long nodeId = dataNode.id();
+                                              datamap = new HashMap<>();
+                                              for(Map.Entry<String, Object> map : nodeMap.entrySet()){
+                                                  datamap.put(map.getKey(), new ObjectCoder(map.getValue()));
+                                              }
+                                              datamap.put(Neo4jEnum.NODE_ID.getName(), new ObjectCoder(String.valueOf(nodeId)));
+                                              result.add(datamap);
+                                          }
+                                      }else if(object instanceof InternalPath){
+                                          dataPath = (InternalPath) object;
+                                          nodes = dataPath.nodes().iterator();
+                                          while (nodes.hasNext()){
+                                                Node node = nodes.next();
+                                                long nodeId = node.id();
+                                                datamap = new HashMap<>();
+                                                // 添加节点的属性
+                                                Map<String, Object> data1 = node.asMap();
+                                                for (String key1 : data1.keySet()) {
+                                                    datamap.put(key1, new ObjectCoder(data1.get(key1)));
+                                                }
+                                                datamap.put(Neo4jEnum.NODE_ID.getName(), new ObjectCoder(String.valueOf(nodeId)));
+                                                result.add(datamap);
+                                          }
+                                      }
+
+
+                                }else if(Neo4jEnum.RELATE.getName().equalsIgnoreCase(type)){
+                                    dataPath = (InternalPath) object;
+                                    Iterator<Relationship> relationships = dataPath.relationships().iterator();
                                     while (relationships.hasNext()){
                                         datamap = new HashMap<>();
                                         Relationship relationship = relationships.next();

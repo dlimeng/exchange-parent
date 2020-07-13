@@ -110,10 +110,10 @@ public class Neo4jImportJob extends ImportJobBase{
         if(rows != null){
             String cypher = getDbOptions().getCypher();
             String neoFormat = getDbOptions().getNeoFormat();
-            if (BaseUtil.isNotBlank(cypher)) {
-                cypherSave(rows);
-            }else if(BaseUtil.isNotBlank(neoFormat)){
+            if (BaseUtil.isNotBlank(neoFormat)) {
                 formatSave(rows);
+            }else if(BaseUtil.isNotBlank(cypher)){
+                cypherSave(rows);
             }else{
                 getLogger().error("cypher is null");
             }

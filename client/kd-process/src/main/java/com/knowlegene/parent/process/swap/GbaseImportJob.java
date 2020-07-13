@@ -10,9 +10,11 @@ import com.knowlegene.parent.process.pojo.ObjectCoder;
 import com.knowlegene.parent.process.pojo.db.DBOptions;
 import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.swap.event.GbaseImportTaskEvent;
+import com.knowlegene.parent.process.transform.TypeConversion;
 import com.knowlegene.parent.scheduler.event.EventHandler;
 import com.knowlegene.parent.scheduler.utils.CacheManager;
 import org.apache.beam.sdk.schemas.Schema;
+import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
 
 import java.util.Map;
@@ -86,7 +88,8 @@ public class GbaseImportJob extends ImportJobBase{
             String insertSQL = getInsertSQL(schema, tableName);
             getLogger().info("insertSQL:{}",insertSQL);
             if(BaseUtil.isNotBlank(insertSQL)){
-                rows.apply(getGbaseSwapImport().saveByIO(insertSQL));
+                rows.apply(ParDo.of(new TypeConversion.SortAndMapType(schema)))
+                        .apply(getGbaseSwapImport().saveByIO(insertSQL));
             }
         }
     }
