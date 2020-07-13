@@ -9,9 +9,11 @@ import com.knowlegene.parent.process.pojo.SwapOptions;
 import com.knowlegene.parent.process.pojo.file.FileOptions;
 import com.knowlegene.parent.process.swap.event.FileImportTaskEvent;
 import com.knowlegene.parent.process.transform.TypeConversion;
+import com.knowlegene.parent.process.util.SqlUtil;
 import com.knowlegene.parent.scheduler.event.EventHandler;
 import com.knowlegene.parent.scheduler.utils.CacheManager;
 import org.apache.beam.sdk.io.TextIO;
+import org.apache.beam.sdk.schemas.Schema;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
@@ -64,9 +66,18 @@ public class FileImportJob  extends ImportJobBase{
             }
             KV<String, String> splitKv = HdfsFileUtil.splitMark(filePath, "\\.");
 
-            //切分路径
-            PCollection<String> apply = rows.apply(ParDo.of(new TypeConversion.MapAndString(fieldDelim)));
-            apply.apply(TextIO.write().to(splitKv.getKey()).withSuffix(splitKv.getValue()));
+            String[] fieldTitle = getDbOptions().getFieldTitle();
+            Schema schema = SqlUtil.getSchemaByTitle(fieldTitle);
+            if(schema!=null){
+                rows.apply(ParDo.of(new TypeConversion.SortAndMapType(schema)))
+                        .apply(ParDo.of(new TypeConversion.MapAndString(fieldDelim)))
+                        .apply(TextIO.write().to(splitKv.getKey()).withSuffix(splitKv.getValue()));
+            }else{
+                rows.apply(ParDo.of(new TypeConversion.MapAndString(fieldDelim)))
+                        .apply(TextIO.write().to(splitKv.getKey()).withSuffix(splitKv.getValue()));
+            }
+
+
         }
     }
 
@@ -74,6 +85,7 @@ public class FileImportJob  extends ImportJobBase{
 
     public static void save(PCollection<Map<String, ObjectCoder>> rows) {
         if(rows!=null){
+
            saveByFile(rows);
         }
     }

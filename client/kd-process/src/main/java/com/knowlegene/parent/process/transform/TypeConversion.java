@@ -265,7 +265,7 @@ public class TypeConversion implements Serializable {
                 Schema.Field field = null;
                 for (int i = 0; i < size; i++) {
                     field = fields.get(i);
-                    result.put(field.getName(),new ObjectCoder(split[i],field.getType()));
+                    result.put(field.getName(),new ObjectCoder(split[i],field.getType(),i+1));
                 }
 
                 ctx.output(result);
@@ -621,12 +621,51 @@ public class TypeConversion implements Serializable {
     /**
      * oracle map object 设置类型 顺序
      */
-    public  static class OracleAndMapType  extends DoFn<Map<String, ObjectCoder>,Map<String, ObjectCoder>>{
+    public  static class HiveAndMapType  extends DoFn<Map<String, ObjectCoder>,Map<String, ObjectCoder>>{
+        private Logger logger = LoggerFactory.getLogger(this.getClass());
+
+        private Map<String, ObjectCoder> element = null;
+        private  Map<String, ObjectCoder> result = null;
+        public HiveAndMapType() {
+            logger.info("map set type start");
+        }
+
+        @ProcessElement
+        public void processElement(ProcessContext ctx) throws Exception {
+            element = ctx.element();
+
+            if(!BaseUtil.isBlankMap(element)){
+                  ObjectCoder objectCoder = null;
+                  result = new LinkedHashMap<>();
+                  String time = "";
+
+                  for(Map.Entry<String,ObjectCoder> map:element.entrySet()){
+                      objectCoder = map.getValue();
+                      if(CommonUtil.isDateType(objectCoder)){
+                          if(objectCoder.getValue() != null){
+                              time = objectCoder.getValue().toString();
+                          }else{
+                              time = "";
+                          }
+                          result.put(map.getKey(),new ObjectCoder(time,objectCoder.getFieldType(),objectCoder.getIndex()));
+                      }else{
+                          result.put(map.getKey(),new ObjectCoder(objectCoder.getValue(),objectCoder.getFieldType(),objectCoder.getIndex()));
+                      }
+
+
+                  }
+              }
+        }
+    }
+
+    /**
+     * oracle map object 设置类型 顺序
+     */
+    public  static class SortAndMapType  extends DoFn<Map<String, ObjectCoder>,Map<String, ObjectCoder>>{
         private Logger logger = LoggerFactory.getLogger(this.getClass());
         private final Schema type;
         private  Map<String, ObjectCoder> result = null;
-        private  Map<String, ObjectCoder> element = null;
-        public OracleAndMapType(Schema type) {
+        public SortAndMapType(Schema type) {
             logger.info("map set type start");
             this.type = type;
         }
@@ -634,8 +673,9 @@ public class TypeConversion implements Serializable {
         @ProcessElement
         public void processElement(ProcessContext ctx) throws Exception {
             Map<String, ObjectCoder> element = ctx.element();
-            result = new LinkedHashMap<>();
+
             if(!BaseUtil.isBlankMap(element)){
+                result = new LinkedHashMap<>();
                 List<Schema.Field> fields = type.getFields();
 
                 if(!BaseUtil.isBlankSet(fields)){
@@ -645,12 +685,15 @@ public class TypeConversion implements Serializable {
                     for (int i = 0; i < fields.size(); i++) {
                          field = fields.get(i);
                          name = field.getName();
-                        if(BaseUtil.isNotBlank(name)){
+                        if(BaseUtil.isNotBlank(name) && element.containsKey(name)){
                             objectCoder = element.get(name);
                             result.put(name,new ObjectCoder(objectCoder.getValue(),field.getType(),i+1));
                         }
                     }
                 }
+            }
+
+            if(!BaseUtil.isBlankMap(result)){
                 ctx.output(result);
             }
         }
@@ -680,13 +723,15 @@ public class TypeConversion implements Serializable {
                     for(Schema.Field f:fields){
                         name = f.getName();
 
-                        if(BaseUtil.isNotBlank(name)){
+                        if(BaseUtil.isNotBlank(name) && element.containsKey(name)){
                             objectCoder = element.get(name);
                             result.put(name,new ObjectCoder(objectCoder.getValue(),f.getType(),objectCoder.getIndex()));
                         }
                     }
+
+                    ctx.output(result);
                 }
-                ctx.output(result);
+
             }
         }
 
@@ -734,6 +779,7 @@ public class TypeConversion implements Serializable {
      */
     public  static class ObjectCodersAndMap  extends DoFn<Set<Map<String, ObjectCoder>>,Map<String, ObjectCoder>>{
         private Logger logger = LoggerFactory.getLogger(this.getClass());
+        public Map<String, ObjectCoder> result = null;
         @Setup
         public void setup(){
             logger.info("neo4jObject to map start");
@@ -743,10 +789,16 @@ public class TypeConversion implements Serializable {
         public void processElement(ProcessContext ctx) throws Exception {
             Set<Map<String, ObjectCoder>> element = ctx.element();
             if(!BaseUtil.isBlankSet(element)){
-                for(Map<String, ObjectCoder> map:element){
-                    if(!BaseUtil.isBlankMap(map)){
-                        ctx.output(map);
+                Iterator<Map<String, ObjectCoder>> iterator = element.iterator();
+                ObjectCoder value = null;
+                while (iterator.hasNext()){
+                    Map<String, ObjectCoder> next = iterator.next();
+                    result = new LinkedHashMap<>();
+                    for(Map.Entry<String, ObjectCoder> map: next.entrySet()){
+                        value = map.getValue();
+                        result.put(map.getKey(),new ObjectCoder(value.getValue(), value.getFieldType(),value.getIndex()));
                     }
+                    ctx.output(result);
                 }
             }
         }

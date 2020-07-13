@@ -42,8 +42,8 @@ public class HiveSwapTest extends SwapRunners {
 
         swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
         swapOptions.setHiveUrl("jdbc:hive2://192.168.200.117:10000/linkis_db");
-        swapOptions.setUsername("hdfs");
-        swapOptions.setPassword("hdfs");
+        swapOptions.setHiveUsername("hdfs");
+        swapOptions.setHivePassword("hdfs");
         swapOptions.setHiveTableName("pretest");
       //  swapOptions.setHiveSQL("select * from pretest");
 
@@ -60,8 +60,8 @@ public class HiveSwapTest extends SwapRunners {
 
         swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
         swapOptions.setHiveUrl("jdbc:hive2://192.168.200.117:10000/linkis_db");
-        swapOptions.setUsername("hdfs");
-        swapOptions.setPassword("hdfs");
+        swapOptions.setHiveUsername("hdfs");
+        swapOptions.setHivePassword("hdfs");
         swapOptions.setHiveTableName("pretest");
         //  swapOptions.setHiveSQL("select * from pretest");
 
@@ -99,8 +99,8 @@ public class HiveSwapTest extends SwapRunners {
 
         swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
         swapOptions.setHiveUrl("jdbc:hive2://192.168.200.117:10000/linkis_db");
-        swapOptions.setUsername("hdfs");
-        swapOptions.setPassword("hdfs");
+        swapOptions.setHiveUsername("hdfs");
+        swapOptions.setHivePassword("hdfs");
         swapOptions.setHiveTableName("pretest");
         //  swapOptions.setHiveSQL("select * from pretest");
 
@@ -118,8 +118,8 @@ public class HiveSwapTest extends SwapRunners {
 
         swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
         swapOptions.setHiveUrl("jdbc:hive2://192.168.200.117:10000/linkis_db");
-        swapOptions.setUsername("hdfs");
-        swapOptions.setPassword("hdfs");
+        swapOptions.setHiveUsername("hdfs");
+        swapOptions.setHivePassword("hdfs");
         swapOptions.setHiveTableName("pretest");
         //  swapOptions.setHiveSQL("select * from pretest");
 
@@ -134,8 +134,8 @@ public class HiveSwapTest extends SwapRunners {
 
         swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
         swapOptions.setHiveUrl("jdbc:hive2://192.168.200.117:10000/linkis_db");
-        swapOptions.setUsername("hdfs");
-        swapOptions.setPassword("hdfs");
+        swapOptions.setHiveUsername("hdfs");
+        swapOptions.setHivePassword("hdfs");
         swapOptions.setHiveTableName("pretest");
 
         String[] addrs=new String[]{"http://192.168.200.101:9200"};
@@ -157,8 +157,8 @@ public class HiveSwapTest extends SwapRunners {
 
         swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
         swapOptions.setHiveUrl("jdbc:hive2://192.168.200.117:10000/linkis_db");
-        swapOptions.setUsername("hdfs");
-        swapOptions.setPassword("hdfs");
+        swapOptions.setHiveUsername("hdfs");
+        swapOptions.setHivePassword("hdfs");
         swapOptions.setHiveTableName("pretest2");
 
         String[] addrs=new String[]{"http://192.168.200.101:9200"};
@@ -182,8 +182,8 @@ public class HiveSwapTest extends SwapRunners {
 
         swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
         swapOptions.setHiveUrl("jdbc:hive2://192.168.200.117:10000/linkis_db");
-        swapOptions.setUsername("hdfs");
-        swapOptions.setPassword("hdfs");
+        swapOptions.setHiveUsername("hdfs");
+        swapOptions.setHivePassword("hdfs");
         swapOptions.setHiveTableName("pretest");
 
         swapOptions.setNeoUrl("bolt://localhost:7687");
@@ -205,8 +205,8 @@ public class HiveSwapTest extends SwapRunners {
 
         swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
         swapOptions.setHiveUrl("jdbc:hive2://192.168.200.117:10000/linkis_db");
-        swapOptions.setUsername("hdfs");
-        swapOptions.setPassword("hdfs");
+        swapOptions.setHiveUsername("hdfs");
+        swapOptions.setHivePassword("hdfs");
         swapOptions.setHiveTableName("pretest");
 
         swapOptions.setNeoUrl("bolt://localhost:7687");
@@ -223,8 +223,8 @@ public class HiveSwapTest extends SwapRunners {
 
         swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
         swapOptions.setHiveUrl("jdbc:hive2://192.168.200.117:10000/linkis_db");
-        swapOptions.setUsername("hdfs");
-        swapOptions.setPassword("hdfs");
+        swapOptions.setHiveUsername("hdfs");
+        swapOptions.setHivePassword("hdfs");
         swapOptions.setHiveTableName("pretest_rel");
 
         swapOptions.setNeoUrl("bolt://localhost:7687");
@@ -247,8 +247,8 @@ public class HiveSwapTest extends SwapRunners {
 
         swapOptions.setHiveClass("org.apache.hive.jdbc.HiveDriver");
         swapOptions.setHiveUrl("jdbc:hive2://192.168.200.117:10000/linkis_db");
-        swapOptions.setUsername("hdfs");
-        swapOptions.setPassword("hdfs");
+        swapOptions.setHiveUsername("hdfs");
+        swapOptions.setHivePassword("hdfs");
         swapOptions.setHiveTableName("pretest_rel2");
 
         swapOptions.setNeoUrl("bolt://localhost:7687");

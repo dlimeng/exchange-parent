@@ -142,4 +142,18 @@ public class CommonUtil {
         return result;
     }
 
+    public static boolean isDateType(ObjectCoder objectCoder){
+        boolean result = false;
+        if(objectCoder != null){
+            Object value = objectCoder.getValue();
+            Schema.FieldType fieldType = objectCoder.getFieldType();
+            if(fieldType!= null && fieldType.getTypeName().isDateType()){
+                result = true;
+            }else if(value instanceof java.util.Date){
+                result = true;
+            }
+        }
+        return result;
+    }
+
 }

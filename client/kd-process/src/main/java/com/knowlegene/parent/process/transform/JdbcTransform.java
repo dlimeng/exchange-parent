@@ -63,7 +63,7 @@ public class JdbcTransform {
                         if(columnLabel.contains(".")){
                             columnLabel = columnLabel.split("\\.")[1];
                         }
-                        map.put(columnLabel,objectCoder);
+                        map.put(columnLabel.toLowerCase(),objectCoder);
                     }
                 }
             }
@@ -83,17 +83,18 @@ public class JdbcTransform {
 
             if(!BaseUtil.isBlankMap(element)){
                 logger.info("values start=>fieldCount:{}",element.size());
-                int i=1;
+
                 for(Map.Entry<String, ObjectCoder> map:element.entrySet()){
                     ObjectCoder value = map.getValue();
                     Object o = value.getValue();
+                    Integer index = value.getIndex();
                     String instantName = Instant.class.getSimpleName();
                     String objecteName = o.getClass().getSimpleName();
-                    if(instantName.equals(objecteName)){
+                    if(index!=null && instantName.equals(objecteName)){
                         Timestamp sqlDate =BaseUtil.instantToTimestamp(o);
-                        preparedStatement.setObject(i++,sqlDate);
-                    }else{
-                        preparedStatement.setObject(i++,o);
+                        preparedStatement.setObject(index,sqlDate);
+                    }else if(index!=null ){
+                        preparedStatement.setObject(index,o);
                     }
                 }
 

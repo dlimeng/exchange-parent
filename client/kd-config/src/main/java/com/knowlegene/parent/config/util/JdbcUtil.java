@@ -179,7 +179,7 @@ public class JdbcUtil {
                 Schema.Field field = JdbcUtil.getSchemaField(name,type,isTimeStr);
 
                 if(field == null) continue;
-                else if(isPatition) patitionNames.put(name,type);
+                else if(isPatition && BaseUtil.isNotBlank(name)) patitionNames.put(name.toLowerCase(),type);
 
                 fields.add(field);
             }

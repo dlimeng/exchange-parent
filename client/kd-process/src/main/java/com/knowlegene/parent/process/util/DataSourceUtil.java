@@ -277,14 +277,14 @@ public class DataSourceUtil {
             if(esFromLength > exIndex) esoptions.setEsAddrs(esAddrsFrom);
 
             if(esIndexLength > exIndex) esoptions.setEsIndex(esIndexs[exIndex]);
-            if(esTypeLength > exIndex) esoptions.setEsType(esIndexs[exIndex]);
+            if(esTypeLength > exIndex) esoptions.setEsType(esTypes[exIndex]);
 
 
         }else if(keys.contains(DBOperationEnum.IMPORT.getName())){
             if(esToLength > exIndex) esoptions.setEsAddrs(esAddrsTo);
 
             if(esIndexLength > imIndex) esoptions.setEsIndex(esIndexs[imIndex]);
-            if(esTypeLength > imIndex) esoptions.setEsType(esIndexs[imIndex]);
+            if(esTypeLength > imIndex) esoptions.setEsType(esTypes[imIndex]);
         }
 
 
