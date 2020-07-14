@@ -4,9 +4,6 @@ exchange是要打造一个轻量级，高扩展性的数据交换平台，支持
 
 exchange的传输能力依赖于Apache Beam链路计算的能力，再由事件模型扩展并发能力，最后处理成DAG应用，可以分发到不同的引擎上。
 
->URL
-
-[https://github.com/77954309/exchange-parent](https://github.com/77954309/exchange-parent)
 
 >客户端
 
