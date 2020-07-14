@@ -14,6 +14,7 @@ public class SwapSparkApplication extends SwapRunners {
     public static void main(String[] args) {
         SwapSparkApplication application=new SwapSparkApplication();
         application.start(SwapSparkPipelineOptions.class,args);
+
     }
 
     @Override

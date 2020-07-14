@@ -1,7 +1,7 @@
 package com.knowlegene.parent.process;
 
 import com.knowlegene.parent.process.runners.SwapRunners;
-import com.knowlegene.parent.process.runners.options.SwapDirectPipelineOptions;
+import com.knowlegene.parent.process.runners.options.SwapSparkPipelineOptions;
 
 /**
  * java 运行
@@ -13,7 +13,7 @@ import com.knowlegene.parent.process.runners.options.SwapDirectPipelineOptions;
 public class SwapDirectApplication extends SwapRunners {
     public static void main(String[] args) {
         SwapDirectApplication application=new SwapDirectApplication();
-        application.start(SwapDirectPipelineOptions.class,args);
+        application.start(SwapSparkPipelineOptions.class,args);
     }
 
     @Override

@@ -178,6 +178,7 @@ public class OracleSwapTest extends SwapRunners {
          * 按照模板
          * 模板字段等于插入顺序
          * 第一个ID固定
+         * node
          */
         swapOptions.setNeoFormat("id:ID(Node) name age ctime");
     }

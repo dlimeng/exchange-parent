@@ -37,6 +37,9 @@
 
         <logger name="org.apache.hive" level="OFF" />
         <logger name="com.mchange" level="OFF" />
+        <logger name="com.mchange.v2">
+            <level value="info"/>
+        </logger>
         <Logger name="mylog" level="INFO" additivity="false">
             <AppenderRef ref="MyFile"/>
             <AppenderRef ref="Console"/>
