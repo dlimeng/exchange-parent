@@ -112,11 +112,11 @@ mvn exec:java -Dexec.mainClass=org.apache.beam.examples.WordCount \
 
 >客户端
 
-![图片](https://uploader.shimo.im/f/00mi7krPS24ozABY.png!thumbnail)
+![图片](docs/img/clentsource.png)
 
 >支持数据源
 
-![图片](https://uploader.shimo.im/f/RazNvnSIrZMDAIy2.png!thumbnail)
+![图片](docs/img/source.png)
 
 ## 六.开发规范
 
@@ -136,6 +136,7 @@ FlinkPipelineOptions
 SparkPipelineOptions
 
 >Hive
+
 | 参数   | 含义   | 
 |:----|:----|
 | hiveClass   | org.apache.hive.jdbc.HiveDriver   | 
@@ -160,6 +161,7 @@ SparkPipelineOptions
 | hMetastorePorts   | 起始源和目标源都是Hive，Hcatalog port数组   | 
 
 >Mysql
+
 | 参数   | 含义   | 
 |:----|:----|
 | url   | jdbc url   | 
@@ -176,6 +178,7 @@ SparkPipelineOptions
 | passwords   | 起始源和目标源都是db   | 
 
 >Elasticsearch
+
 | 参数   | 含义   | 
 |:----|:----|
 | esAddrs   | es 地址   | 
@@ -192,6 +195,7 @@ SparkPipelineOptions
 | nestingValues   | 嵌套数组中value   | 
 
 >Neo4j
+
 | 参数   | 含义   | 
 |:----|:----|
 | cypher   | cypher   | 
@@ -206,6 +210,7 @@ SparkPipelineOptions
 | neoPasswords   | 起始源和目标源都是neo4j   | 
 
 >Oracle
+
 | 参数   | 含义   | 
 |:----|:----|
 | url   | jdbc url   | 
@@ -222,6 +227,7 @@ SparkPipelineOptions
 | passwords   | 起始源和目标源都是db   | 
 
 >Gbase
+
 | 参数   | 含义   | 
 |:----|:----|
 | url   | jdbc url   | 
@@ -238,6 +244,7 @@ SparkPipelineOptions
 | passwords   | 起始源和目标源都是db   | 
 
 >File
+
 | 参数   | 含义   | 
 |:----|:----|
 | filePath   | 文件路径   | 
