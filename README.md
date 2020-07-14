@@ -123,6 +123,7 @@ mvn exec:java -Dexec.mainClass=org.apache.beam.examples.WordCount \
 ### 6.1 客户端传参规范
 
 >入口
+
 | 参数   | 含义   | 
 |:----|:----|
 | fromName   | 起始数据源（hive,oracle,mysql,es,file,gbase,neo4j）   | 
