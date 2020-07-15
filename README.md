@@ -277,6 +277,8 @@ com.knowlegene.parent.process 里面包括所有源测试用例
 
 9.关于Beam教程[https://gitbook.cn/gitchat/activity/5dad728e7c3fea79dbc619a4](https://gitbook.cn/gitchat/activity/5dad728e7c3fea79dbc619a4)
 
+10.Oracle number类型时，不支持转换为浮点类型。
+
 ## 八.总结
 
 后续继续开源，欢迎交流，欢迎Star/Fork。
