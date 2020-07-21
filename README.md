@@ -4,9 +4,6 @@ exchange是要打造一个轻量级，高扩展性的数据交换平台，支持
 
 exchange的传输能力依赖于Apache Beam链路计算的能力，再由事件模型扩展并发能力，最后处理成DAG应用，可以分发到不同的引擎上。
 
->URL
-
-[https://github.com/77954309/exchange-parent](https://github.com/77954309/exchange-parent)
 
 >客户端
 
@@ -279,6 +276,8 @@ com.knowlegene.parent.process 里面包括所有源测试用例
 8.Hive jdbc 性能不好，不建议用java引擎，用Spark/Flink。
 
 9.关于Beam教程[https://gitbook.cn/gitchat/activity/5dad728e7c3fea79dbc619a4](https://gitbook.cn/gitchat/activity/5dad728e7c3fea79dbc619a4)
+
+10.Oracle number类型时，不支持转换为浮点类型。
 
 ## 八.总结
 
