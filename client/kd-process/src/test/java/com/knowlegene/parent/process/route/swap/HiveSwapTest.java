@@ -213,7 +213,7 @@ public class HiveSwapTest extends SwapRunners {
         swapOptions.setNeoUsername("neo4j");
         swapOptions.setNeoPassword("limeng");
 
-        swapOptions.setCypher("CREATE (a:Node {name: {name},age:{age},id:{id},ctime:{ctime}})");
+        swapOptions.setCypher("CREATE (a:CNode {targetid: {targetid},entname:{entname},regcap:{regcap},iscp:{iscp}})");
     }
 
     @Test
@@ -255,12 +255,17 @@ public class HiveSwapTest extends SwapRunners {
         swapOptions.setNeoUsername("neo4j");
         swapOptions.setNeoPassword("limeng");
 
+
         //id:ID(Node) name iscp regCap regCapTyp invGrtTyp
         /**
          * type 为固定列，标识关系的标签名称
          * isPerson createDate updateDate type title
          */
         swapOptions.setCypher("MATCH (a:Node),(b:Node) WHERE a.id={startid} AND b.id={endid} CREATE (a)-[r:Test {weight:{weight} }] ->(b) ");
+
+        /**
+         * MATCH (a:CNode),(b:CNode) WHERE a.targetid={from_id} AND b.targetid={to_id} CREATE (a)-[r:CRelation {from_id:{from_id},fentname:{fentname},ftag:{ftag},fiscp:{fiscp},to_id:{to_id},tentname:{tentname},ttag:{ttag},tiscp:{tiscp},type:{type},groupid:{groupid},topcompanyregcapital:{topcompanyregcapital},topcompanynum:{topcompanynum},regcapitalsum:{regcapitalsum},groupname:{groupname} }] ->(b)
+         */
     }
 
 
