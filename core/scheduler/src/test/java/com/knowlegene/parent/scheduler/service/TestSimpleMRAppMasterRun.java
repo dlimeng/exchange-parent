@@ -15,7 +15,7 @@ public class TestSimpleMRAppMasterRun {
 
         appMaster.serviceInit();
         appMaster.serviceStart();
-        appMaster.serviceStop();
+
         /**
          * Receive JOB_INIT event, scheduling tasks
          * Receive JOB_KILL event, killing all the tasks
@@ -34,6 +34,6 @@ public class TestSimpleMRAppMasterRun {
         appMaster.getDispatcher().getEventHandler().handle((AbstractEvent)new TestTaskEvent(jobID, TestTaskEventType.T_SCHEDULE));
         //appMaster.getDispatcher().getEventHandler().handle(new TestTaskEvent(jobID, TestTaskEventType.JOB_KILL));
 
-
+        appMaster.serviceStop();
     }
 }

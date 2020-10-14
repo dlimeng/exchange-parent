@@ -196,7 +196,7 @@ public class FileSwapTest  extends SwapRunners {
         swapOptions.setToName("neo4j");
 
         swapOptions.setFieldTitle(new String[]{"start_id","end_id","weight","type"});
-        swapOptions.setFieldDelim("#");
+        swapOptions.setFieldDelim("\t");
         swapOptions.setFilePath("D:\\workspace\\open_source\\exchange-parent\\client\\kd-process\\test-00000-of-00003.cvs");
 
         swapOptions.setNeoUrl("bolt://localhost:7687");
@@ -234,6 +234,25 @@ public class FileSwapTest  extends SwapRunners {
     }
 
 
+    @Test
+    public void testNeo4jRelate3(){
+        swapOptions.setFromName("file");
+        swapOptions.setToName("neo4j");
 
+        swapOptions.setFieldTitle(new String[]{"from_id","fentname","ftag","fiscp","to_id","tentname","ttag","tiscp","type","groupid","topcompanyregcapital","topcompanynum","regcapitalsum","groupname"});
+        swapOptions.setFieldDelim("\t");
+        swapOptions.setFilePath("D:\\result.txt");
+
+        swapOptions.setNeoUrl("bolt://localhost:7687");
+        swapOptions.setNeoUsername("neo4j");
+        swapOptions.setNeoPassword("limeng");
+
+        //id:ID(Node) name iscp regCap regCapTyp invGrtTyp
+        /**
+         * type 为固定列，标识关系的标签名称
+         * isPerson createDate updateDate type title
+         */
+        swapOptions.setCypher("MATCH (a:CNode),(b:CNode) WHERE a.targetid={from_id} AND b.targetid={to_id} CREATE (a)-[r:CRelation {from_id:{from_id},fentname:{fentname},ftag:{ftag},fiscp:{fiscp},to_id:{to_id},tentname:{tentname},ttag:{ttag},tiscp:{tiscp},type:{type},groupid:{groupid},topcompanyregcapital:{topcompanyregcapital},topcompanynum:{topcompanynum},regcapitalsum:{regcapitalsum},groupname:{groupname} }] ->(b)");
+    }
 
 }
