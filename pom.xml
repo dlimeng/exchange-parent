@@ -19,7 +19,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
-		<mysql.version>5.1.44</mysql.version>
+		<mysql.version>8.0.27</mysql.version>
 		<oracle.version>11.2.0.1.0</oracle.version>
 		<jdk.compile.version>1.8</jdk.compile.version>
 		<plugin.scala.version>2.15.2</plugin.scala.version>
